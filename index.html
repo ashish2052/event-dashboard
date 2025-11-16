@@ -1,305 +1,464 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Event Analytics Dashboard v4.2</title>
+<meta charset="UTF-8">
+<title>Event Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-    body {
-        margin: 0;
-        font-family: 'Inter', sans-serif;
-        background: #070b14;
-        color: white;
-        overflow-x: hidden;
-    }
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #050A1F;
+  color: #E6EBFF;
+}
 
-    h1 {
-        text-align: center;
-        margin-top: 30px;
-        font-size: 42px;
-        font-weight: 800;
-        color: #5dbbff;
-        text-shadow: 0 0 18px #00aaff;
-    }
+/* Top Nav */
+.navbar {
+  background: rgba(0,0,0,0.4);
+  padding: 15px;
+  text-align: center;
+  font-size: 22px;
+  letter-spacing: 1px;
+  color: #7AB8FF;
+  text-shadow: 0 0 10px #00c3ff;
+  border-bottom: 1px solid #0f2657;
+}
 
-    .subtitle {
-        text-align: center;
-        margin-top: -10px;
-        margin-bottom: 20px;
-        font-size: 15px;
-        color: #9bbbd4;
-    }
+/* Tabs */
+.tab-container {
+  display: flex;
+  padding: 10px;
+  background: #0A112F;
+  border-bottom: 1px solid #112255;
+}
+.tab-btn {
+  padding: 10px 18px;
+  margin-right: 10px;
+  background: #0E1A47;
+  border: 1px solid #1C3B7A;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #9EC5FF;
+  text-shadow: 0 0 10px #008cff;
+}
+.tab-btn.active {
+  background: #112B6E;
+  color: #fff;
+  border: 1px solid #3A7DFF;
+  box-shadow: 0 0 10px #3a7dff, 0 0 20px #0044ff;
+}
 
-    .badge-live {
-        display: inline-block;
-        padding: 8px 18px;
-        background: rgba(0, 255, 150, 0.15);
-        border-radius: 20px;
-        color: #00ff9d;
-        border: 1px solid #00ff9d55;
-        font-size: 13px;
-        text-align: center;
-        margin: auto;
-    }
+/* Card Grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
 
-    .tab-container {
-        display: flex;
-        justify-content: center;
-        margin-top: 25px;
-        gap: 10px;
-    }
+/* Cards */
+.card {
+  padding: 18px;
+  background: #0C153C;
+  border: 1px solid #1D2F70;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow: 0 0 12px #001a33 inset;
+}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 10px #008cff;
+}
+.card-title {
+  font-size: 16px;
+  color: #8EBEFF;
+  margin-bottom: 6px;
+}
+.card-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 10px #00aaff;
+}
+.card-sub {
+  font-size: 13px;
+  margin-top: 6px;
+  color: #9fc5ff;
+  text-shadow: 0 0 8px #0099ff;
+}
 
-    .tab-btn {
-        padding: 10px 25px;
-        border-radius: 25px;
-        background: #0f1625;
-        border: 1px solid #1f2a40;
-        color: #9bbbd4;
-        cursor: pointer;
-        font-size: 14px;
-        transition: 0.2s;
-    }
+/* Charts */
+.chart-box {
+  padding: 20px;
+  margin: 20px;
+  background: #0C153C;
+  border: 1px solid #1D2F70;
+  border-radius: 12px;
+  box-shadow: 0 0 12px #001a33 inset;
+}
 
-    .tab-btn.active {
-        background: #1b253a;
-        border-color: #5dbbff;
-        color: white;
-        box-shadow: 0 0 10px #009dff;
-    }
-
-    .cards-row {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 18px;
-        margin: 35px auto;
-        width: 95%;
-    }
-
-    .card {
-        width: 260px;
-        background: rgba(255, 255, 255, 0.04);
-        border-radius: 18px;
-        padding: 20px;
-        text-align: center;
-        border: 1px solid rgba(255,255,255,0.08);
-        cursor: pointer;
-        transition: 0.25s;
-        box-shadow: 0 0 12px rgba(0, 200, 255, 0.08);
-    }
-
-    .card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 0 20px rgba(0, 200, 255, 0.25);
-    }
-
-    .card-title {
-        font-size: 15px;
-        color: #9bbbd4;
-        margin-bottom: 8px;
-    }
-
-    .card-number {
-        font-size: 36px;
-        font-weight: 700;
-        text-shadow: 0 0 10px #009dff;
-    }
-
-    .section {
-        display: none;
-        width: 95%;
-        margin: auto;
-        margin-top: 25px;
-    }
-
-    .section.active {
-        display: block;
-    }
-
-    /* Table Styling For Attendees Details */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 25px;
-        background: rgba(255,255,255,0.03);
-        border-radius: 10px;
-        overflow: hidden;
-        font-size: 14px;
-    }
-
-    th, td {
-        padding: 10px;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-
-    th {
-        background: rgba(255,255,255,0.08);
-        color: #5dbbff;
-    }
-
-    tr:hover {
-        background: rgba(255,255,255,0.04);
-    }
-
+/* People Table */
+.table-box {
+  padding: 20px;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  background: #0C153C;
+  border: 1px solid #1C3B7A;
+  color: #fff;
+  font-size: 14px;
+}
+th, td {
+  padding: 10px;
+  border: 1px solid #1C3B7A;
+}
+th {
+  background: #102258;
+  color: #A8CEFF;
+}
 </style>
-</head>
 
+</head>
 <body>
 
-<h1>Event Analytics Dashboard v4.2</h1>
-<div class="subtitle">Premium Neon Glass Edition • Live Google Sheet Sync</div>
-
-<div style="text-align:center; margin-top:10px;">
-    <span class="badge-live">● LIVE DATA FEED — GSHEETS SYNC</span>
+<div class="navbar">
+  EVENT DASHBOARD • Real-Time Google Sheet Sync
 </div>
 
-<!-- Tabs -->
 <div class="tab-container">
-    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
-    <button class="tab-btn" onclick="switchTab('details')">Attendees Details</button>
-    <button class="tab-btn" onclick="switchTab('performance')">Performance</button>
+  <div class="tab-btn active" onclick="openTab('overview')">Overview</div>
+  <div class="tab-btn" onclick="openTab('people')">Attendees Detail</div>
 </div>
 
-<!-- OVERVIEW SECTION -->
-<div id="overview" class="section active">
+<div id="overview" class="tab-page" style="display:block;">
+  <h2 style="padding-left:20px;color:#7AB8FF;">Overview Analytics</h2>
+  <div id="cards" class="card-grid"></div>
 
-    <div class="cards-row">
-        <div class="card" onclick="openFilter('all')">
-            <div class="card-title">Total Attendees</div>
-            <div id="v_total" class="card-number">0</div>
-        </div>
+  <!-- Charts -->
+  <div class="chart-box">
+    <h3>Attendees by Country</h3>
+    <canvas id="countryChart"></canvas>
+  </div>
 
-        <div class="card" onclick="openFilter('unassigned')">
-            <div class="card-title">Unassigned</div>
-            <div id="v_unassigned" class="card-number">0</div>
-        </div>
+  <div class="chart-box">
+    <h3>Attendees by Assignees</h3>
+    <canvas id="assigneeChart"></canvas>
+  </div>
 
-        <div class="card" onclick="openFilter('missing')">
-            <div class="card-title">Missing Status</div>
-            <div id="v_missing" class="card-number">0</div>
-        </div>
-
-        <div class="card" onclick="openFilter('converted')">
-            <div class="card-title">Converted</div>
-            <div id="v_converted" class="card-number">0</div>
-        </div>
-
-        <div class="card" onclick="openFilter('lost')">
-            <div class="card-title">Lost</div>
-            <div id="v_lost" class="card-number">0</div>
-        </div>
-
-        <div class="card" onclick="openFilter('warmcold')">
-            <div class="card-title">Warm + Cold</div>
-            <div id="v_warmcold" class="card-number">0</div>
-        </div>
-
-        <div class="card" style="cursor:default;">
-            <div class="card-title">Total Expense</div>
-            <div id="v_expense" class="card-number">0</div>
-        </div>
-    </div>
-
+  <div class="chart-box">
+    <h3>Attendees by Sales Rep</h3>
+    <canvas id="salesChart"></canvas>
+  </div>
 </div>
 
-<!-- ATTENDEES DETAIL -->
-<div id="details" class="section">
-    <h2 style="text-align:center;">Attendees Details</h2>
-    <table id="table_data"></table>
+<div id="people" class="tab-page" style="display:none;">
+  <h2 style="padding-left:20px;color:#7AB8FF;">Attendees Detail</h2>
+  <div class="table-box">
+    <table id="peopleTable"></table>
+  </div>
 </div>
+    <script>
+let attendeesData = [];
+let allMetrics = {};
 
-<!-- PERFORMANCE -->
-<div id="performance" class="section">
-    <h2 style="text-align:center;">Performance (Coming Soon)</h2>
-</div>
+function openTab(tab) {
+  document.querySelectorAll('.tab-page').forEach(x => x.style.display = 'none');
+  document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
 
+  document.getElementById(tab).style.display = 'block';
+  [...document.querySelectorAll('.tab-btn')]
+    .find(btn => btn.textContent.toLowerCase().includes(tab))
+    .classList.add('active');
 
+  if (tab === 'people') renderPeopleTable(attendeesData);
+}
 
-<script>
-let fullData = [];
-let currentFilter = "all";
-
+/* ============================
+   FETCH DATA FROM CLOUDFLARE
+============================= */
 async function loadData() {
-    const url = "https://novevent-report-worker.ashishoct34.workers.dev/";
+  const url = "https://novevent-report-worker.ashishoct34.workers.dev/";
 
-    const res = await fetch(url);
-    const json = await res.json();
+  const res = await fetch(url);
+  const json = await res.json();
 
-    fullData = json.attendees;
+  attendeesData = json.attendees;
+  allMetrics = json.metrics;
 
-    document.getElementById("v_total").innerText = json.metrics.totalAttendees;
-    document.getElementById("v_unassigned").innerText = json.metrics.unassigned;
-    document.getElementById("v_missing").innerText = json.metrics.missingStatus;
-    document.getElementById("v_converted").innerText = json.attendees.filter(a => a.Status?.toLowerCase() === "converted").length;
-    document.getElementById("v_lost").innerText = json.metrics.lost;
-    document.getElementById("v_warmcold").innerText = json.metrics.warmCold;
-    document.getElementById("v_expense").innerText = json.metrics.totalExpense;
-
-    renderTable(fullData);
-}
-
-function switchTab(tab) {
-    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-    document.getElementById(tab).classList.add("active");
-
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    event.target.classList.add("active");
-}
-
-function openFilter(type) {
-    currentFilter = type;
-    switchTab('details');
-    applyFilter();
-}
-
-function applyFilter() {
-    let rows = fullData;
-
-    if (currentFilter === "unassigned") {
-        rows = rows.filter(r => !r.Assignees);
-    }
-    if (currentFilter === "missing") {
-        rows = rows.filter(r => !r.Status);
-    }
-    if (currentFilter === "converted") {
-        rows = rows.filter(r => r.Status?.toLowerCase() === "converted");
-    }
-    if (currentFilter === "lost") {
-        rows = rows.filter(r => r.Status?.toLowerCase() === "lost");
-    }
-    if (currentFilter === "warmcold") {
-        rows = rows.filter(r => ["warm","cold"].includes(r.Status?.toLowerCase()));
-    }
-
-    renderTable(rows);
-}
-
-function renderTable(data) {
-    if (!data.length) return;
-
-    let headers = Object.keys(data[0]);
-    let html = "<tr>";
-
-    headers.forEach(h => {
-        html += `<th>${h}</th>`;
-    });
-
-    html += "</tr>";
-
-    data.forEach(row => {
-        html += "<tr>";
-        headers.forEach(h => {
-            html += `<td>${row[h] || ""}</td>`;
-        });
-        html += "</tr>";
-    });
-
-    document.getElementById("table_data").innerHTML = html;
+  renderCards();
+  renderCharts();
 }
 
 loadData();
+
+/* ============================
+         RENDER CARDS
+============================= */
+function renderCards() {
+  const total = allMetrics.totalAttendees;
+  const lost = allMetrics.lost;
+  const warm = allMetrics.warm;
+  const cold = allMetrics.cold;
+  const converted = attendeesData.filter(x =>
+    (x["Status"] || "").toLowerCase() === "converted"
+  ).length;
+
+  const cards = [
+    { title: "Total Attendees", value: total, filter: () => attendeesData },
+    { title: "Lost", value: lost, sub: pct(lost,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "lost") },
+    { title: "Warm", value: warm, sub: pct(warm,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "warm") },
+    { title: "Cold", value: cold, sub: pct(cold,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "cold") },
+    { title: "Converted", value: converted, sub: pct(converted,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "converted") },
+    { title: "Unassigned", value: allMetrics.unassigned, filter: () => attendeesData.filter(x => !x.Assignees) },
+    { title: "Missing Status", value: allMetrics.missingStatus, filter: () => attendeesData.filter(x => !x.Status) }
+  ];
+
+  document.getElementById("cards").innerHTML = cards.map((c,i)=>`
+    <div class="card" onclick="applyFilter(${i})">
+      <div class="card-title">${c.title}</div>
+      <div class="card-value">${c.value}</div>
+      ${c.sub ? `<div class="card-sub">${c.sub}</div>` : ""}
+    </div>
+  `).join("");
+
+  window.cardFilters = cards;
+}
+
+function pct(v,total){
+  if(total===0) return "";
+  return ((v/total)*100).toFixed(1)+"%";
+}
+
+function applyFilter(i){
+  const data = window.cardFilters[i].filter();
+  openTab('people');
+  renderPeopleTable(data);
+}
+
+/* ============================
+        PEOPLE TABLE
+============================= */
+function renderPeopleTable(data){
+  if(data.length===0){
+    document.getElementById('peopleTable').innerHTML = "<tr><td>No Data</td></tr>";
+    return;
+  }
+
+  const headers = Object.keys(data[0]);
+  let html = "<tr>" + headers.map(h=>`<th>${h}</th>`).join("") + "</tr>";
+
+  data.forEach(row=>{
+    html += "<tr>" + headers.map(h=>`<td>${row[h]||""}</td>`).join("") + "</tr>";
+  });
+
+  document.getElementById('peopleTable').innerHTML = html;
+}
+
+/* ============================
+            CHARTS
+============================= */
+function renderCharts(){
+  makeBarChart(
+    "countryChart",
+    groupCount(attendeesData, "Country"),
+    (country)=> attendeesData.filter(x=> (x.Country||"").toLowerCase().includes(country.toLowerCase()))
+  );
+
+  makeBarChart(
+    "assigneeChart",
+    groupCount(attendeesData, "Assignees"),
+    (asg)=> attendeesData.filter(x=> (x.Assignees||"").toLowerCase() === asg.toLowerCase())
+  );
+
+  makeBarChart(
+    "salesChart",
+    groupCount(attendeesData, "Sales Rep"),
+    (rep)=> attendeesData.filter(x=> (x["Sales Rep"]||"").toLowerCase() === rep.toLowerCase())
+  );
+}
+
+function groupCount(arr, field){
+  const map = {};
+  arr.forEach(x=>{
+    const key = (x[field]||"").trim();
+    if(!key) return;
+    map[key] = (map[key]||0)+1;
+  });
+  return map;
+}
+
+/* ============================
+     MAKE CLICKABLE BAR CHART
+============================= */
+function makeBarChart(canvasId, dataObj, clickFilter){
+  const labels = Object.keys(dataObj);
+  const values = Object.values(dataObj);
+
+  const ctx = document.getElementById(canvasId).getContext("2d");
+
+  const chart = new Chart(ctx,{
+    type:"bar",
+    data:{
+      labels: labels,
+      datasets:[{
+        label:"Count",
+        data: values,
+        backgroundColor: "#00aaff88",
+        borderColor: "#33c3ff",
+        borderWidth: 2,
+        hoverBackgroundColor:"#00c3ff",
+        hoverBorderColor:"#00e1ff"
+      }]
+    },
+    options:{
+      onClick: (e)=>{
+        const points = chart.getElementsAtEventForMode(e,'nearest',{intersect:true},true);
+        if(points.length){
+          const idx = points[0].index;
+          const key = labels[idx];
+
+          const filtered = clickFilter(key);
+
+          openTab("people");
+          renderPeopleTable(filtered);
+        }
+      },
+      plugins:{
+        legend:{labels:{color:"#9EC5FF"}},
+      },
+      scales:{
+        x:{ticks:{color:"#9EC5FF"}},
+        y:{ticks:{color:"#9EC5FF"}}
+      }
+    }
+  });
+}
 </script>
 
 </body>
 </html>
+<style>
+/* ====== GLOBAL ====== */
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: 'Poppins', sans-serif;
+  background: #0d0d16;
+  color: #e6eeff;
+}
+
+h1, h2 { color: #9EC5FF; }
+
+.tab-btn {
+  padding: 10px 18px;
+  background: #141426;
+  margin-right: 6px;
+  border: 1px solid #23233a;
+  cursor: pointer;
+  color: #b8c6ff;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+
+.tab-btn:hover { background: #1d1d33; }
+
+.tab-btn.active {
+  background: #002b55;
+  border-color: #0067ff;
+  color: #fff;
+  box-shadow: 0 0 12px #007bff;
+}
+
+.tab-page { display: none; }
+
+/* ====== CARDS ====== */
+#cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.card {
+  background: #141426;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid #1f1f33;
+  cursor: pointer;
+  transition: 0.25s;
+  box-shadow: 0 0 8px #1a1a2e;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 16px #007bff;
+  border-color: #0066ff;
+}
+
+.card-title {
+  font-size: 15px;
+  color: #9EC5FF;
+  margin-bottom: 6px;
+}
+.card-value {
+  font-size: 30px;
+  font-weight: 700;
+  color: #fff;
+}
+.card-sub {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #66d9ff;
+}
+
+/* ====== CHART BOXES ====== */
+.chart-box {
+  background: #141426;
+  padding: 20px;
+  margin-bottom: 25px;
+  border-radius: 12px;
+  border: 1px solid #1f1f33;
+  box-shadow: 0 0 12px #1d1d33;
+}
+
+/* ====== TABLE ====== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th {
+  background: #1b1b33;
+  color: #9EC5FF;
+  padding: 10px;
+  font-size: 14px;
+  border-bottom: 1px solid #333354;
+}
+
+td {
+  padding: 8px;
+  border-bottom: 1px solid #24244a;
+  color: #dbdbff;
+  font-size: 13px;
+}
+
+tr:hover {
+  background: #1a1a2e;
+}
+
+/* scroll */
+#peopleTableWrapper {
+  max-height: 70vh;
+  overflow-y: auto;
+  border: 1px solid #222242;
+  border-radius: 10px;
+}
+</style>
+
