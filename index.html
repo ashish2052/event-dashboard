@@ -1,17 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>November 2025 Event Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
-/* ---------------------------
-   GLOBAL NEON THEME
----------------------------- */
+/* ===========================================
+   GLOBAL THEME — DARK NEON
+=========================================== */
 body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
@@ -19,9 +8,9 @@ body {
   color: #E6EBFF;
 }
 
-/* ---------------------------
+/* ===========================================
    HEADER
----------------------------- */
+=========================================== */
 .header {
   text-align: center;
   padding: 25px 10px;
@@ -29,132 +18,129 @@ body {
   border-bottom: 1px solid #0d1a40;
   box-shadow: 0 0 25px #002a80 inset;
 }
-
 .header-title {
-  font-size: 38px;
+  font-size: 36px;
   color: #77b2ff;
-  text-shadow: 0 0 15px #0af;
+  text-shadow: 0 0 12px #0af;
   font-weight: 700;
+  letter-spacing: 1px;
 }
-
 .header-sub {
-  margin-top: 6px;
+  margin-top: 5px;
+  color: #89b7ff;
   font-size: 15px;
-  color: #8fb7ff;
+  opacity: 0.9;
 }
-
-.sync-box {
-  margin: 14px auto;
-  padding: 8px 16px;
+.live-box {
+  margin-top: 12px;
   display: inline-flex;
   align-items: center;
-  border-radius: 30px;
+  padding: 8px 18px;
+  border-radius: 40px;
   background: #062044;
   border: 1px solid #0a3f85;
+  box-shadow: 0 0 12px #0050ff inset;
   color: #8fc9ff;
   font-size: 14px;
-  box-shadow: 0 0 12px #0050ff inset;
 }
-
-.sync-dot {
-  width: 10px; height: 10px;
-  background: #00ff88;
+.live-dot {
+  height: 11px;
+  width: 11px;
+  background: #2bff5a;
   border-radius: 50%;
-  margin-right: 8px;
-  box-shadow: 0 0 10px #00ff88;
+  margin-right: 10px;
+  box-shadow: 0 0 10px #39ff72;
 }
 
-/* ---------------------------
-   TOP TABS
----------------------------- */
+/* ===========================================
+   TABS
+=========================================== */
 .tab-container {
   display: flex;
   justify-content: center;
   gap: 12px;
-  padding: 16px;
+  padding: 18px 10px;
   background: #07102d;
   border-bottom: 1px solid #0b1f47;
 }
-
 .tab-btn {
   padding: 10px 22px;
   border-radius: 10px;
-  font-size: 15px;
-  cursor: pointer;
-  background: #0c1b3f;
   border: 1px solid #1e366e;
   color: #9ec5ff;
+  background: #0c1b3f;
+  cursor: pointer;
   transition: 0.25s;
+  font-size: 15px;
 }
-
 .tab-btn:hover {
-  background: #123066;
+  background: #12285a;
   box-shadow: 0 0 10px #0066ff;
 }
-
 .tab-btn.active {
-  background: #0044aa;
+  background: #003a85;
+  color: white;
   border-color: #1c6bff;
-  color: #fff;
-  box-shadow: 0 0 20px #1c6bff;
+  box-shadow: 0 0 15px #1c6bff, 0 0 25px #0044ff;
+}
+.tab-page {
+  display: none;
 }
 
-.tab-page { display: none; }
+/* ===========================================
+   SECTION TITLES
+=========================================== */
+.section-title {
+  padding-left: 20px;
+  color: #7AB8FF;
+  margin-top: 25px;
+  margin-bottom: 15px;
+  font-size: 22px;
+  font-weight: 600;
+}
 
-/* ---------------------------
-   METRIC CARDS (Neon)
----------------------------- */
+/* ===========================================
+   CARDS (NEON GLOW)
+=========================================== */
 .card-grid {
   padding: 20px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 18px;
 }
-
 .card {
   background: #0C153C;
   padding: 20px;
   border-radius: 14px;
   border: 1px solid #1d2f70;
-  box-shadow: 0 0 12px #003366 inset;
+  transition: 0.25s;
   cursor: pointer;
-  transition: 0.30s;
+  box-shadow: 0 0 12px #001a33 inset;
 }
-
 .card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 0 18px #009dff;
+  box-shadow: 0 0 14px #009dff;
 }
-
 .card-title {
   font-size: 15px;
   color: #8EBEFF;
+  margin-bottom: 6px;
 }
-
 .card-value {
-  font-size: 34px;
-  color: #fff;
-  font-weight: 700;
-  text-shadow: 0 0 12px #00c3ff;
+  font-size: 32px;
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 0 12px #00baff;
 }
-
 .card-sub {
   margin-top: 4px;
   font-size: 13px;
   color: #6fd0ff;
 }
 
-/* ---------------------------
-   CHART + INSIGHT GRID
----------------------------- */
-.analytics-grid-2col {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 22px;
-  padding: 20px;
-}
-
-/* Chart Box */
+/* ===========================================
+   CHART & INFO BOXES
+=========================================== */
 .chart-box {
   background: #0C153C;
   padding: 20px;
@@ -162,111 +148,213 @@ body {
   border: 1px solid #1d2f70;
   box-shadow: 0 0 12px #001a33 inset;
 }
-
-/* Insights Box */
 .insight-box {
   background: #0C153C;
   padding: 20px;
   border-radius: 14px;
   border: 1px solid #1d2f70;
   box-shadow: 0 0 12px #001a33 inset;
-  color: #d4e6ff;
+  color: #cfe4ff;
   font-size: 15px;
-  line-height: 1.7;
+  line-height: 1.75;
 }
 
-/* ---------------------------
-   TABLE
----------------------------- */
-#peopleTableWrapper {
-  max-height: 70vh;
-  overflow-y: auto;
-  padding: 20px;
+/* ===========================================
+   ATTENDEES TABLE
+=========================================== */
+.search-box {
+  margin: 20px;
+  padding: 12px 14px;
+  width: 60%;
+  border-radius: 8px;
+  border: 1px solid #2f4fa0;
+  background: #0a1433;
+  color: #9ec5ff;
+  box-shadow: 0 0 10px #002a80 inset;
 }
-
 table {
   width: 100%;
-  background: #0C153C;
   border-collapse: collapse;
+  background: #0c153c;
   border: 1px solid #1c3b7a;
 }
-
 th {
   background: #102258;
+  padding: 12px;
   color: #9ec5ff;
-  padding: 10px;
+  font-size: 14px;
 }
-
 td {
-  padding: 9px;
+  padding: 10px;
   border-bottom: 1px solid #1a2e60;
   color: #dbe4ff;
+  font-size: 13px;
+}
+tr:hover {
+  background: #16244d;
 }
 
-.search-box {
-  margin-left: 20px;
-  padding: 10px;
-  width: 45%;
-  background: #0a1433;
-  border: 1px solid #1C3B7A;
-  border-radius: 8px;
-  color: #9EC5FF;
-}
-
-/* ---------------------------
-   ROI CARDS
----------------------------- */
+/* ===========================================
+   ROI CARDS + PIE CHART BOX
+=========================================== */
 .roi-card-grid {
-  padding: 20px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  padding: 20px;
 }
-
 .roi-card {
   background: #0c153c;
   border: 1px solid #1d2f70;
   border-radius: 14px;
-  padding: 18px;
-  text-align: center;
+  padding: 20px;
+  text-shadow: 0 0 10px #008cff88;
 }
-
 .roi-title {
-  color: #9ec5ff;
   font-size: 15px;
+  color: #9ec5ff;
 }
-
 .roi-value {
+  font-size: 30px;
   margin-top: 5px;
-  font-size: 27px;
-  font-weight: 700;
-  color: #fff;
-  text-shadow: 0 0 10px #00c3ff;
+  color: white;
+  font-weight: bold;
 }
-</style>
-</head>
-<script>
-/* ==========================================
-   GLOBAL VARIABLES
-========================================== */
-let attendeesData = [];
-let metrics = {};
-let expenseData = [
-  { desc: "Baloons Decoration", amount: 6000 },
-  { desc: "Camera Man", amount: 7500 },
-  { desc: "Bulk Messaging for event", amount: 4000 },
-  { desc: "Meals for Events", amount: 12000 },
-  { desc: "Marketing Brochures + Banners", amount: 30000 }
-];
+<body>
 
-/* ==========================================
-   TAB SWITCHING
-========================================== */
+<!-- ===========================
+       HEADER
+=========================== -->
+<div class="header">
+  <div class="header-title">November 2025 Event Dashboard</div>
+  <div class="header-sub">Premium Glass Neon Edition · Live Google Sheet Sync</div>
+
+  <div class="live-box">
+    <div class="live-dot"></div>
+    LIVE DATA FEED — CLOUDFLARE WORKER SYNC
+  </div>
+</div>
+
+<!-- ===========================
+       NAVIGATION TABS
+=========================== -->
+<div class="tab-container">
+  <div class="tab-btn active" onclick="openTab('overview')">Overview</div>
+  <div class="tab-btn" onclick="openTab('people')">Attendees Detail</div>
+  <div class="tab-btn" onclick="openTab('roi')">ROI Analysis</div>
+</div>
+
+<!-- ===========================
+       OVERVIEW PAGE
+=========================== -->
+<div id="overview" class="tab-page" style="display:block;">
+
+  <h2 class="section-title">Overview Analytics</h2>
+
+  <div id="cards" class="card-grid"></div>
+
+  <!-- ===========================
+         ROW 1 (Country + Insights)
+  ============================ -->
+  <div class="analytics-row" style="display:flex;gap:25px;flex-wrap:wrap;padding:0 20px;">
+
+    <!-- CHART: COUNTRY -->
+    <div class="chart-box" style="flex:1;min-width:420px;">
+      <h3>Attendees by Country</h3>
+      <canvas id="countryChart" height="180"></canvas>
+    </div>
+
+    <!-- INSIGHTS -->
+    <div class="insight-box" id="insightBox" style="flex:1;min-width:420px;">
+      Loading insights...
+    </div>
+
+  </div>
+
+  <!-- ===========================
+         ROW 2 (Assignee + Sales)
+  ============================ -->
+  <div class="analytics-row" style="display:flex;gap:25px;flex-wrap:wrap;padding:20px;">
+
+    <!-- CHART: ASSIGNEES -->
+    <div class="chart-box" style="flex:1;min-width:420px;">
+      <h3>By Assignees</h3>
+      <canvas id="assigneeChart" height="180"></canvas>
+    </div>
+
+    <!-- CHART: SALES REP -->
+    <div class="chart-box" style="flex:1;min-width:420px;">
+      <h3>By Sales Rep</h3>
+      <canvas id="salesChart" height="180"></canvas>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ===========================
+       ATTENDEES DETAIL PAGE
+=========================== -->
+<div id="people" class="tab-page">
+
+  <h2 class="section-title">Attendees Detail</h2>
+
+  <input
+    type="text"
+    id="searchInput"
+    class="search-box"
+    onkeyup="searchPeople()"
+    placeholder="Search attendees..."
+  />
+
+  <div style="padding:20px;">
+    <table id="peopleTable"></table>
+  </div>
+
+</div>
+
+<!-- ===========================
+       ROI PAGE
+=========================== -->
+<div id="roi" class="tab-page">
+
+  <h2 class="section-title">ROI & Spend Analysis</h2>
+
+  <!-- ROI CARDS -->
+  <div class="roi-card-grid" id="roiCards"></div>
+
+  <!-- PIE CHART -->
+  <div class="chart-box" style="margin:20px;">
+    <h3>Expense Distribution</h3>
+    <canvas id="expensePieChart"></canvas>
+  </div>
+
+  <!-- EXPENSE TABLE -->
+  <div class="chart-box" style="margin:20px;">
+    <h3>Expense Breakdown</h3>
+    <table id="expenseTable"></table>
+  </div>
+
+</div>
+
+</body>
+<script>
+// ======================================================
+//  GLOBAL VARIABLES
+// ======================================================
+let attendeesData = [];
+let expenseData = [];
+let metrics = {};
+
+// ======================================================
+//  TAB SWITCHING
+// ======================================================
 function openTab(tabName) {
-  document.querySelectorAll(".tab-page").forEach(t => (t.style.display = "none"));
+  document.querySelectorAll(".tab-page").forEach(t => t.style.display = "none");
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
 
   document.getElementById(tabName).style.display = "block";
+
   [...document.querySelectorAll(".tab-btn")].find(btn =>
     btn.textContent.toLowerCase().includes(tabName)
   ).classList.add("active");
@@ -275,9 +363,9 @@ function openTab(tabName) {
   if (tabName === "roi") renderROI();
 }
 
-/* ==========================================
-   FETCH DATA FROM CLOUDFLARE WORKER
-========================================== */
+// ======================================================
+//  FETCH DATA FROM WORKER
+// ======================================================
 async function loadData() {
   const url = "https://novevent-report-worker.ashishoct34.workers.dev/";
 
@@ -286,68 +374,61 @@ async function loadData() {
     const json = await res.json();
 
     attendeesData = json.attendees;
+    expenseData = json.expenses || [];   // LIVE Google Sheet expenses
     metrics = json.metrics;
 
     renderCards();
     renderCharts();
     generateInsights();
-    renderPeopleTable(attendeesData); // Fix: always load table
 
   } catch (err) {
-    console.error("Error loading data:", err);
+    console.error("LOAD ERROR:", err);
   }
 }
+
 loadData();
 
-/* ==========================================
-   HELPERS
-========================================== */
+// ======================================================
+//  % FUNCTION
+// ======================================================
 function pct(v, total) {
   if (!total) return "0%";
   return ((v / total) * 100).toFixed(1) + "%";
 }
 
-function groupCount(data, field) {
-  const out = {};
-  data.forEach(x => {
-    const k = (x[field] || "").trim();
-    if (k) out[k] = (out[k] || 0) + 1;
-  });
-  return out;
-}
-
-/* ==========================================
-   METRIC CARDS
-========================================== */
+// ======================================================
+//  CARDS
+// ======================================================
 function renderCards() {
+
   const total = attendeesData.length;
 
   const lost = attendeesData.filter(x => x.Status?.toLowerCase() === "lost").length;
   const warm = attendeesData.filter(x => x.Status?.toLowerCase() === "warm").length;
   const cold = attendeesData.filter(x => x.Status?.toLowerCase() === "cold").length;
-  const converted = attendeesData.filter(x => x.Status?.toLowerCase() === "converted").length;
+  const conv = attendeesData.filter(x => x.Status?.toLowerCase() === "converted").length;
   const unassigned = attendeesData.filter(x => !x.Assignees).length;
+  const missing = attendeesData.filter(x => !x.Status).length;
 
   const cards = [
     { title: "Total Attendees", value: total, sub: "", filter: () => attendeesData },
-    { title: "Lost", value: lost, sub: pct(lost, total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "lost") },
-    { title: "Warm", value: warm, sub: pct(warm, total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "warm") },
-    { title: "Cold", value: cold, sub: pct(cold, total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "cold") },
-    { title: "Converted", value: converted, sub: pct(converted, total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "converted") },
-    { title: "Unassigned", value: unassigned, sub: "", filter: () => attendeesData.filter(x => !x.Assignees) }
+    { title: "Lost", value: lost, sub: pct(lost,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "lost") },
+    { title: "Warm", value: warm, sub: pct(warm,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "warm") },
+    { title: "Cold", value: cold, sub: pct(cold,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "cold") },
+    { title: "Converted", value: conv, sub: pct(conv,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "converted") },
+    { title: "Unassigned", value: unassigned, sub: "", filter: () => attendeesData.filter(x => !x.Assignees) },
+    { title: "Missing Status", value: missing, sub: "", filter: () => attendeesData.filter(x => !x.Status) }
   ];
 
   window.cardFilters = cards;
 
-  document.getElementById("cards").innerHTML = cards
-    .map((c, i) => `
-      <div class="card" onclick="applyCardFilter(${i})">
-        <div class="card-title">${c.title}</div>
-        <div class="card-value">${c.value}</div>
-        ${c.sub ? `<div class="card-sub">${c.sub}</div>` : ""}
-      </div>
-    `)
-    .join("");
+  document.getElementById("cards").innerHTML = cards.map((c,i)=>`
+    <div class="card" onclick="applyCardFilter(${i})">
+      <div class="card-title">${c.title}</div>
+      <div class="card-value">${c.value}</div>
+      ${c.sub ? `<div class="card-sub">${c.sub}</div>` : ""}
+    </div>
+  `).join("");
 }
 
 function applyCardFilter(i) {
@@ -356,12 +437,13 @@ function applyCardFilter(i) {
   renderPeopleTable(filtered);
 }
 
-/* ==========================================
-   PEOPLE TABLE
-========================================== */
+// ======================================================
+//  ATTENDEES TABLE + SEARCH
+// ======================================================
 function renderPeopleTable(data) {
   if (!data || data.length === 0) {
-    document.getElementById("peopleTable").innerHTML = "<tr><td>No Data Available</td></tr>";
+    document.getElementById("peopleTable").innerHTML =
+      "<tr><td>No Data Available</td></tr>";
     return;
   }
 
@@ -375,39 +457,54 @@ function renderPeopleTable(data) {
   document.getElementById("peopleTable").innerHTML = html;
 }
 
-/* SEARCH */
 function searchPeople() {
-  const t = document.getElementById("searchInput").value.toLowerCase();
-  const filtered = attendeesData.filter(r =>
-    JSON.stringify(r).toLowerCase().includes(t)
+  const text = document.getElementById("searchInput").value.toLowerCase();
+  const filtered = attendeesData.filter(row =>
+    JSON.stringify(row).toLowerCase().includes(text)
   );
   renderPeopleTable(filtered);
 }
 
-/* ==========================================
-   CHARTS
-========================================== */
+// ======================================================
+//  GROUP COUNT
+// ======================================================
+function groupCount(data, field) {
+  const map = {};
+  data.forEach(x => {
+    const key = (x[field] || "").trim();
+    if (!key) return;
+    map[key] = (map[key] || 0) + 1;
+  });
+  return map;
+}
+
+// ======================================================
+//  CHARTS
+// ======================================================
 let charts = {};
 
 function renderCharts() {
-  const c1 = groupCount(attendeesData, "Country");
-  const c2 = groupCount(attendeesData, "Assignees");
-  const c3 = groupCount(attendeesData, "Sales Rep");
+  const country = groupCount(attendeesData, "Country");
+  const assignees = groupCount(attendeesData, "Assignees");
+  const sales = groupCount(attendeesData, "Sales Rep");
 
-  charts.country = makeChart("countryChart", c1, k =>
-    attendeesData.filter(x => (x.Country || "").toLowerCase() === k.toLowerCase())
+  charts.country = makeBarChart("countryChart", country, key =>
+    attendeesData.filter(x => (x.Country || "").toLowerCase() === key.toLowerCase())
   );
 
-  charts.assignees = makeChart("assigneeChart", c2, k =>
-    attendeesData.filter(x => (x.Assignees || "").toLowerCase() === k.toLowerCase())
+  charts.assignee = makeBarChart("assigneeChart", assignees, key =>
+    attendeesData.filter(x => (x.Assignees || "").toLowerCase() === key.toLowerCase())
   );
 
-  charts.sales = makeChart("salesChart", c3, k =>
-    attendeesData.filter(x => (x["Sales Rep"] || "").toLowerCase() === k.toLowerCase())
+  charts.sales = makeBarChart("salesChart", sales, key =>
+    attendeesData.filter(x => (x["Sales Rep"] || "").toLowerCase() === key.toLowerCase())
   );
 }
 
-function makeChart(id, obj, filterFn) {
+// ======================================================
+//  CLICKABLE BAR CHARTS
+// ======================================================
+function makeBarChart(id, obj, filterFn) {
   const ctx = document.getElementById(id);
   if (!ctx) return;
 
@@ -423,17 +520,20 @@ function makeChart(id, obj, filterFn) {
         data: values,
         backgroundColor: "#00aaff88",
         borderColor: "#33c3ff",
-        borderWidth: 2
+        borderWidth: 1.8
       }]
     },
     options: {
+      responsive: true,
       onClick: (e, items) => {
-        if (items.length === 0) return;
-        const index = items[0].index;
-        const key = labels[index];
-        const filtered = filterFn(key);
-        openTab("people");
-        renderPeopleTable(filtered);
+        if (items.length > 0) {
+          const index = items[0].index;
+          const key = labels[index];
+          const filtered = filterFn(key);
+
+          openTab("people");
+          renderPeopleTable(filtered);
+        }
       },
       plugins: {
         legend: { labels: { color: "#9ec5ff" } }
@@ -446,32 +546,33 @@ function makeChart(id, obj, filterFn) {
   });
 }
 
-/* ==========================================
-   INSIGHTS — RESTORED DETAILED VERSION
-========================================== */
+// ======================================================
+//  INSIGHTS (NEON ANALYTICS SENTENCE)
+// ======================================================
 function generateInsights() {
   const total = attendeesData.length;
+
   const warm = attendeesData.filter(x => x.Status?.toLowerCase() === "warm").length;
   const cold = attendeesData.filter(x => x.Status?.toLowerCase() === "cold").length;
   const lost = attendeesData.filter(x => x.Status?.toLowerCase() === "lost").length;
   const converted = attendeesData.filter(x => x.Status?.toLowerCase() === "converted").length;
 
   document.getElementById("insightBox").innerHTML = `
-    A total of <b>${total}</b> attendees have been recorded for this event.<br><br>
+    A total of <b>${total}</b> attendees have been recorded so far.<br><br>
 
-    <b>${pct(warm,total)}</b> are Warm leads, showing good interest and ready for active follow-ups.<br><br>
+    <b>${pct(warm,total)}</b> of the leads are Warm and <b>${pct(cold,total)}</b> are Cold,<br>
+    indicating the overall follow-up potential for this event.<br><br>
 
-    <b>${pct(cold,total)}</b> are Cold leads — possible future conversions but require long-term nurturing.<br><br>
+    Lost leads represent <b>${pct(lost,total)}</b> — a useful metric for measuring<br>
+    improvement areas in next-event follow-up strategy.<br><br>
 
-    <b>${pct(lost,total)}</b> are Lost leads. This indicates improvement needed in messaging, timing, or targeting.<br><br>
-
-    Converted attendees account for <b>${pct(converted,total)}</b>, a solid conversion ratio that we can improve with stronger follow-ups from the sales team.
+    Converted Leads: <b>${converted}</b> (${pct(converted,total)}) — strong signal of event ROI.
   `;
 }
 
-/* ==========================================
-   ROI ENGINE
-========================================== */
+// ======================================================
+//  ROI + PIE CHART
+// ======================================================
 function renderROI() {
 
   if (!expenseData || expenseData.length === 0) {
@@ -480,11 +581,11 @@ function renderROI() {
     return;
   }
 
-  const totalExpense = expenseData.reduce((sum, row) => {
-    return sum + (parseFloat(row.Amount) || 0);
-  }, 0);
+  const totalExpense = expenseData.reduce((sum, row) =>
+    sum + (parseFloat(row.Amount) || 0), 0
+  );
 
-  const totalAttendees = attendeesData.length;
+  const totalAtt = attendeesData.length;
   const converted = attendeesData.filter(
     x => (x.Status || "").toLowerCase() === "converted"
   ).length;
@@ -498,31 +599,23 @@ function renderROI() {
 
     <div class="roi-card">
       <div class="roi-title">Cost Per Attendee</div>
-      <div class="roi-value">
-        Rs. ${(totalExpense / totalAttendees).toFixed(2)}
-      </div>
+      <div class="roi-value">Rs. ${(totalExpense / totalAtt).toFixed(2)}</div>
     </div>
 
     <div class="roi-card">
       <div class="roi-title">Cost Per Converted Lead</div>
       <div class="roi-value">
-        ${
-          converted === 0
-            ? "No converted leads"
-            : "Rs. " + (totalExpense / converted).toFixed(2)
-        }
+        ${converted === 0 ? "No converted leads" : "Rs. " + (totalExpense / converted).toFixed(2)}
       </div>
     </div>
 
     <div class="roi-card">
       <div class="roi-title">ROI Score</div>
-      <div class="roi-value">
-        ${(totalAttendees / totalExpense).toFixed(2)} attendees per Rs.1
-      </div>
+      <div class="roi-value">${((totalAtt / totalExpense) * 100).toFixed(1)} per 100 Rs</div>
     </div>
   `;
 
-  // EXPENSE TABLE
+  // Expense Table
   let html = `
     <tr>
       <th>Description</th>
@@ -532,123 +625,36 @@ function renderROI() {
   `;
 
   expenseData.forEach(row => {
+    const amt = parseFloat(row.Amount) || 0;
+
     html += `
       <tr>
         <td>${row.Description}</td>
-        <td>Rs. ${(row.Amount || 0).toLocaleString()}</td>
-        <td>${((row.Amount / totalExpense) * 100).toFixed(1)}%</td>
+        <td>Rs. ${amt.toLocaleString()}</td>
+        <td>${pct(amt,totalExpense)}</td>
       </tr>
     `;
   });
 
   document.getElementById("expenseTable").innerHTML = html;
+
+  // PIE CHART
+  const labels = expenseData.map(r => r.Description);
+  const values = expenseData.map(r => parseFloat(r.Amount));
+
+  new Chart(document.getElementById("expensePieChart"), {
+    type: "pie",
+    data: {
+      labels,
+      datasets: [{
+        data: values,
+        backgroundColor: ["#00aaff","#0055ff","#00ffaa","#ff0066","#ffaa00","#ff5500"]
+      }]
+    },
+    options: {
+      plugins: { legend: { labels: { color: "#9ec5ff" } } }
+    }
+  });
 }
-<body>
 
-<!-- =====================
-       HEADER
-===================== -->
-<div class="header">
-  <div class="header-title">November 2025 Event Dashboard</div>
-  <div class="header-sub">Premium Glass Neon Edition · Live Google Sheet Sync</div>
-
-  <div class="live-box">
-    <div class="live-dot"></div>
-    LIVE DATA FEED — CLOUDFLARE WORKER SYNC
-  </div>
-</div>
-
-<!-- =====================
-       TABS
-===================== -->
-<div class="tab-container">
-  <div class="tab-btn active" onclick="openTab('overview')">Overview</div>
-  <div class="tab-btn" onclick="openTab('people')">Attendees Detail</div>
-  <div class="tab-btn" onclick="openTab('roi')">ROI Analysis</div>
-</div>
-
-<!-- =====================
-       OVERVIEW PAGE
-===================== -->
-<div id="overview" class="tab-page" style="display:block;">
-
-  <h2 class="section-title">Overview Analytics</h2>
-
-  <!-- KPI CARDS -->
-  <div id="cards" class="card-grid"></div>
-
-  <!-- ============ ANALYTICS GRID ============ -->
-  <div class="analytics-row" style="display:flex;gap:25px;flex-wrap:wrap;padding:0 20px;">
-
-    <!-- COUNTRY CHART (LEFT) -->
-    <div class="chart-box" style="flex:1;min-width:420px;">
-      <h3>Attendees by Country</h3>
-      <canvas id="countryChart" height="180"></canvas>
-    </div>
-
-    <!-- INSIGHTS (RIGHT) -->
-    <div class="insight-box" style="flex:1;min-width:420px;" id="insightBox">
-      Loading insights...
-    </div>
-
-  </div>
-
-  <!-- SECOND ROW -->
-  <div class="analytics-row" style="display:flex;gap:25px;flex-wrap:wrap;padding:20px;">
-
-    <!-- ASSIGNEE CHART -->
-    <div class="chart-box" style="flex:1;min-width:420px;">
-      <h3>By Assignees</h3>
-      <canvas id="assigneeChart" height="180"></canvas>
-    </div>
-
-    <!-- SALES REP CHART -->
-    <div class="chart-box" style="flex:1;min-width:420px;">
-      <h3>By Sales Rep</h3>
-      <canvas id="salesChart" height="180"></canvas>
-    </div>
-
-  </div>
-
-</div>
-
-<!-- =====================
-       ATTENDEES PAGE
-===================== -->
-<div id="people" class="tab-page">
-
-  <h2 class="section-title">Attendees Detail</h2>
-
-  <input
-    type="text"
-    id="searchInput"
-    class="search-box"
-    placeholder="Search attendees..."
-    onkeyup="searchPeople()"
-  />
-
-  <div style="padding:20px;">
-    <table id="peopleTable"></table>
-  </div>
-
-</div>
-
-<!-- =====================
-       ROI PAGE
-===================== -->
-<div id="roi" class="tab-page">
-
-  <h2 class="section-title">ROI & Spend Analysis</h2>
-
-  <!-- ROI CARDS -->
-  <div class="roi-card-grid" id="roiCards"></div>
-
-  <!-- EXPENSE TABLE -->
-  <div class="chart-box" style="margin-top:20px;">
-    <h3>Expense Breakdown</h3>
-    <table id="expenseTable"></table>
-  </div>
-
-</div>
-
-</body>
+</script>
