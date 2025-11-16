@@ -1,46 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Analytics Dashboard</title>
 
-    <!-- Stylesheet -->
-    <link rel="stylesheet" href="styles.css" />
-
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-    <div class="navbar">
-        <div class="nav-title">Event Analytics Dashboard</div>
-        <div class="nav-links">
-            <button class="tab-btn active" data-tab="overview">Overview</button>
-            <button class="tab-btn" data-tab="attendees">Attendees</button>
-        </div>
-    </div>
 
-    <div class="content">
+    <!-- Navigation -->
+    <header class="header">
+        <h1>Event Analytics Dashboard</h1>
+        <nav class="nav">
+            <button class="nav-btn active" data-page="overview">Overview</button>
+            <button class="nav-btn" data-page="attendees">Attendees</button>
+        </nav>
+    </header>
 
-        <!-- ERROR BOX -->
-        <div id="errorBox" class="error-box hidden">
-            Error fetching data: Failed to fetch
-        </div>
+    <!-- Main Content Area -->
+    <main id="content">
+        <!-- script.js will insert cards.html here -->
+    </main>
 
-        <!-- OVERVIEW SECTION -->
-        <section id="overview" class="tab-section active">
-            <div id="cardsContainer"></div>
-        </section>
-
-        <!-- ATTENDEES SECTION -->
-        <section id="attendees" class="tab-section">
-            <div id="attendeesTableContainer"></div>
-        </section>
-
-    </div>
-
-    <!-- JS -->
     <script src="script.js"></script>
 </body>
 </html>
