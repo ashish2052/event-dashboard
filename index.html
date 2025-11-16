@@ -1,134 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Event HR Dashboard</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Analytics Dashboard</title>
 
-<style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f5f7fa; }
-    header { background: #2c3e50; padding: 18px; color: white; text-align: center; font-size: 20px; }
-    
-    .tabs { display: flex; background: white; border-bottom: 1px solid #ddd; }
-    .tab { padding: 14px 22px; cursor: pointer; font-weight: bold; }
-    .tab.active { border-bottom: 3px solid #3498db; color: #3498db; }
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css" />
 
-    .container { padding: 25px; }
-
-    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px; margin-top: 20px; }
-    .card { padding: 20px; background: white; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    .card h3 { margin: 0; font-size: 16px; color: #555; }
-    .card p { font-size: 28px; font-weight: bold; margin: 8px 0 0; color: #222; }
-
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
-    th, td { padding: 10px; border-bottom: 1px solid #ddd; font-size: 14px; }
-    th { background: #ecf0f1; text-align: left; }
-
-    #error { display: none; padding: 12px; background: #e74c3c; color: white; margin-top: 20px; border-radius: 8px; }
-</style>
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
+    <div class="navbar">
+        <div class="nav-title">Event Analytics Dashboard</div>
+        <div class="nav-links">
+            <button class="tab-btn active" data-tab="overview">Overview</button>
+            <button class="tab-btn" data-tab="attendees">Attendees</button>
+        </div>
+    </div>
 
-<header>Event HR Analytics Dashboard</header>
+    <div class="content">
 
-<div class="tabs">
-    <div class="tab active" onclick="showTab('overview')">Overview</div>
-    <div class="tab" onclick="showTab('attendees')">Attendees</div>
-</div>
-
-<div class="container">
-
-    <!-- ERROR BOX -->
-    <div id="error"></div>
-
-    <!-- OVERVIEW -->
-    <div id="overview" class="tabPage">
-
-        <div class="cards">
-            <div class="card"><h3>Total Attendees</h3><p id="totalAttendees">0</p></div>
-            <div class="card"><h3>Unassigned</h3><p id="unassigned">0</p></div>
-            <div class="card"><h3>Missing Status</h3><p id="missingStatus">0</p></div>
-            <div class="card"><h3>Converted</h3><p id="converted">0</p></div>
-            <div class="card"><h3>Lost</h3><p id="lost">0</p></div>
-            <div class="card"><h3>Warm/Cold</h3><p id="warmCold">0</p></div>
-            <div class="card"><h3>Average Follow Ups</h3><p id="avgFollow">0</p></div>
-            <div class="card"><h3>Total Expense</h3><p id="totalExpense">0</p></div>
+        <!-- ERROR BOX -->
+        <div id="errorBox" class="error-box hidden">
+            Error fetching data: Failed to fetch
         </div>
 
-    </div>
+        <!-- OVERVIEW SECTION -->
+        <section id="overview" class="tab-section active">
+            <div id="cardsContainer"></div>
+        </section>
 
-    <!-- ATTENDEES -->
-    <div id="attendees" class="tabPage" style="display:none;">
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Assignee</th>
-                    <th>Status</th>
-                    <th>Country</th>
-                    <th>Follow Ups</th>
-                </tr>
-            </thead>
-            <tbody id="attendeesTable"></tbody>
-        </table>
+        <!-- ATTENDEES SECTION -->
+        <section id="attendees" class="tab-section">
+            <div id="attendeesTableContainer"></div>
+        </section>
 
     </div>
 
-</div>
-
-<script>
-// TAB SWITCH
-function showTab(tab) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    event.target.classList.add('active');
-
-    document.querySelectorAll('.tabPage').forEach(p => p.style.display = 'none');
-    document.getElementById(tab).style.display = 'block';
-}
-
-// FETCH DATA FROM WORKER
-async function loadData() {
-    try {
-        let response = await fetch("https://novevent-report-worker.ashishoct34.workers.dev/");
-        let data = await response.json();
-
-        if (!data.success) throw new Error("Invalid data format");
-
-        // METRICS
-        document.getElementById("totalAttendees").innerText = data.metrics.totalAttendees;
-        document.getElementById("unassigned").innerText = data.metrics.unassigned;
-        document.getElementById("missingStatus").innerText = data.metrics.missingStatus;
-        document.getElementById("converted").innerText = data.metrics.converted;
-        document.getElementById("lost").innerText = data.metrics.lost;
-        document.getElementById("warmCold").innerText = data.metrics.warmCold;
-        document.getElementById("avgFollow").innerText = data.metrics.avgFollow;
-        document.getElementById("totalExpense").innerText = data.metrics.totalExpense;
-
-        // TABLE
-        let html = "";
-        data.attendees.forEach(a => {
-            html += `
-                <tr>
-                    <td>${a.Name || "-"}</td>
-                    <td>${a.Assignees || "-"}</td>
-                    <td>${a.Status || "-"}</td>
-                    <td>${a.Country || "-"}</td>
-                    <td>${a["Follow up attempts"] || "-"}</td>
-                </tr>
-            `;
-        });
-        document.getElementById("attendeesTable").innerHTML = html;
-
-    } catch (err) {
-        document.getElementById("error").style.display = "block";
-        document.getElementById("error").innerText = "Error fetching data: " + err.message;
-    }
-}
-
-loadData();
-</script>
-
+    <!-- JS -->
+    <script src="script.js"></script>
 </body>
 </html>
