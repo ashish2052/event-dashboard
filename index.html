@@ -473,55 +473,76 @@ function generateInsights() {
    ROI ENGINE
 ========================================== */
 function renderROI() {
-  let totalExp = expenseData.reduce((a, b) => a + b.amount, 0);
-  let totalAtt = attendeesData.length;
-  let converted = attendeesData.filter(x => x.Status?.toLowerCase() === "converted").length;
 
+  if (!expenseData || expenseData.length === 0) {
+    document.getElementById("roiCards").innerHTML =
+      "<div class='roi-card'>No expense data found.</div>";
+    return;
+  }
+
+  const totalExpense = expenseData.reduce((sum, row) => {
+    return sum + (parseFloat(row.Amount) || 0);
+  }, 0);
+
+  const totalAttendees = attendeesData.length;
+  const converted = attendeesData.filter(
+    x => (x.Status || "").toLowerCase() === "converted"
+  ).length;
+
+  // ROI CARDS
   document.getElementById("roiCards").innerHTML = `
     <div class="roi-card">
       <div class="roi-title">Total Expense</div>
-      <div class="roi-value">Rs. ${totalExp.toLocaleString()}</div>
+      <div class="roi-value">Rs. ${totalExpense.toLocaleString()}</div>
     </div>
 
     <div class="roi-card">
       <div class="roi-title">Cost Per Attendee</div>
-      <div class="roi-value">Rs. ${(totalExp / totalAtt).toFixed(2)}</div>
+      <div class="roi-value">
+        Rs. ${(totalExpense / totalAttendees).toFixed(2)}
+      </div>
     </div>
 
     <div class="roi-card">
       <div class="roi-title">Cost Per Converted Lead</div>
       <div class="roi-value">
-        ${converted === 0 ? "No converted leads" : "Rs. " + (totalExp / converted).toFixed(2)}
+        ${
+          converted === 0
+            ? "No converted leads"
+            : "Rs. " + (totalExpense / converted).toFixed(2)
+        }
       </div>
     </div>
 
     <div class="roi-card">
       <div class="roi-title">ROI Score</div>
-      <div class="roi-value">${((totalAtt / totalExp) * 100).toFixed(1)} (Attendees per 100 Rs)</div>
+      <div class="roi-value">
+        ${(totalAttendees / totalExpense).toFixed(2)} attendees per Rs.1
+      </div>
     </div>
   `;
 
+  // EXPENSE TABLE
   let html = `
     <tr>
       <th>Description</th>
       <th>Amount</th>
-      <th>%</th>
+      <th>% of Total</th>
     </tr>
   `;
 
   expenseData.forEach(row => {
     html += `
       <tr>
-        <td>${row.desc}</td>
-        <td>Rs. ${row.amount.toLocaleString()}</td>
-        <td>${pct(row.amount, totalExp)}</td>
+        <td>${row.Description}</td>
+        <td>Rs. ${(row.Amount || 0).toLocaleString()}</td>
+        <td>${((row.Amount / totalExpense) * 100).toFixed(1)}%</td>
       </tr>
     `;
   });
 
   document.getElementById("expenseTable").innerHTML = html;
 }
-</script>
 <body>
 
 <!-- =====================
