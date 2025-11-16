@@ -2,86 +2,163 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Event Dashboard</title>
+<title>Event Analytics Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
-    body {
-        margin: 0;
-        background: #0e1425;
-        font-family: 'Segoe UI', sans-serif;
-        color: #fff;
-    }
 
-    .navbar {
-        display: flex;
-        gap: 20px;
-        padding: 20px;
-        background: #0c1120;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
+:root {
+    --bg: #0d1117;
+    --card-bg: #161b22;
+    --border: rgba(255,255,255,0.08);
+    --text: #e6edf3;
+    --subtext: #8b98a5;
+    --accent: #2f81f7;
+    --accent-glow: rgba(47,129,247,0.4);
+    --radius: 14px;
+    --transition: 0.2s ease;
+}
 
-    .tab {
-        padding: 10px 18px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 15px;
-        background: rgba(255,255,255,0.05);
-        transition: 0.2s;
-    }
+/* PAGE BASE */
+body {
+    margin: 0;
+    background: var(--bg);
+    font-family: "Segoe UI", sans-serif;
+    color: var(--text);
+}
 
-    .tab.active {
-        background: rgba(255,255,255,0.15);
-    }
+/* HEADER */
+.header {
+    padding: 30px 40px 10px 40px;
+}
 
-    .container {
-        padding: 25px;
-    }
+.header-title {
+    font-size: 34px;
+    font-weight: 700;
+}
 
-    .cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 20px;
-        margin-top: 20px;
-    }
+.header-sub {
+    font-size: 15px;
+    color: var(--subtext);
+    margin-top: 6px;
+}
 
-    .card {
-        background: rgba(255,255,255,0.05);
-        padding: 20px;
-        border-radius: 14px;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.08);
-    }
+.live-badge {
+    margin-top: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(47,129,247,0.15);
+    color: var(--accent);
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(47,129,247,0.4);
+    font-size: 13px;
+    font-weight: 500;
+}
 
-    .card h2 {
-        margin: 0;
-        font-size: 30px;
-        font-weight: 600;
-    }
+.live-dot {
+    width: 8px;
+    height: 8px;
+    background: #2f81f7;
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent-glow);
+}
 
-    .card p {
-        margin-top: 8px;
-        color: #b7c3d3;
-        font-size: 14px;
-    }
+/* TABS — HR analytics style */
+.tabs {
+    display: flex;
+    gap: 14px;
+    margin: 25px 40px 0 40px;
+}
 
-    .hidden { display: none; }
+.tab {
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--subtext);
+    cursor: pointer;
+    font-size: 15px;
+    transition: var(--transition);
+}
+
+.tab:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.tab.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+/* MAIN CONTENT AREA */
+.container {
+    padding: 20px 40px 40px 40px;
+}
+
+/* CARDS GRID */
+.cards {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    margin-top: 20px;
+}
+
+/* INDIVIDUAL CARD */
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 22px;
+    border-radius: var(--radius);
+    transition: var(--transition);
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 0 10px rgba(47,129,247,0.15);
+}
+
+.card h2 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.card p {
+    margin-top: 8px;
+    color: var(--subtext);
+    font-size: 14px;
+}
+
+/* HIDE TABS */
+.hidden { display: none; }
+
 </style>
-
 </head>
 
 <body>
 
-<!-- NAVIGATION TABS -->
-<div class="navbar">
-    <div class="tab active" onclick="showTab('overview')">Overview</div>
-    <div class="tab" onclick="showTab('attendees')">Attendees Details</div>
-    <div class="tab" onclick="showTab('expenses')">Expenses</div>
+<!-- HEADER SECTION -->
+<div class="header">
+    <div class="header-title">Event Analytics Dashboard</div>
+    <div class="header-sub">Premium Edition • Live Cloudflare Data</div>
+    <div class="live-badge"><div class="live-dot"></div> LIVE DATA FEED</div>
 </div>
 
-<!-- OVERVIEW -->
-<div id="overview" class="container">
+<!-- TABS -->
+<div class="tabs">
+    <div class="tab active" onclick="showTab('overview')">Overview</div>
+    <div class="tab" onclick="showTab('attendees')">Attendees</div>
+    <div class="tab" onclick="showTab('expenses')">Expenses</div>
+    <div class="tab" onclick="showTab('unassigned')">Unassigned</div>
+</div>
 
-    <h1>Event Overview</h1>
+<!-- OVERVIEW SECTION -->
+<div id="overview" class="container">
 
     <div class="cards">
 
@@ -102,7 +179,7 @@
 
         <div class="card">
             <h2 id="avgFollowUps">0</h2>
-            <p>Average Follow Ups (Lost)</p>
+            <p>Avg Follow Ups (Lost)</p>
         </div>
 
         <div class="card">
@@ -120,21 +197,35 @@
             <p>Warm + Cold</p>
         </div>
 
+        <div class="card">
+            <h2 id="unassignedAttendees">0</h2>
+            <p>Unassigned Attendees</p>
+        </div>
+
+        <div class="card">
+            <h2 id="unassignedStatus">0</h2>
+            <p>Missing Status</p>
+        </div>
+
     </div>
 </div>
 
-<!-- ATTENDEES TAB -->
+<!-- OTHER TAB SECTIONS -->
 <div id="attendees" class="container hidden">
-    <h1>Attendees Details</h1>
+    <h2>Attendees Data</h2>
 </div>
 
-<!-- EXPENSES TAB -->
 <div id="expenses" class="container hidden">
-    <h1>Expenses</h1>
+    <h2>Expenses Data</h2>
 </div>
 
-<!-- SCRIPT -->
+<div id="unassigned" class="container hidden">
+    <h2>Unassigned Overview</h2>
+</div>
+<!-- JAVASCRIPT SECTION -->
 <script>
+
+// TAB SWITCHING
 function showTab(tabName) {
     document.querySelectorAll(".container").forEach(el => el.classList.add("hidden"));
     document.getElementById(tabName).classList.remove("hidden");
@@ -143,68 +234,94 @@ function showTab(tabName) {
     event.target.classList.add("active");
 }
 
+// CLEAN STRING
+const clean = (x) => (x || "").replace(/['"]+/g, "").trim().toLowerCase();
+
+// NORMALIZE STATUS (Fix messy CSV)
+function normalizeStatus(raw) {
+    const s = clean(raw);
+
+    if (s.includes("convert") || s.includes("coe")) return "converted";
+    if (s.includes("lost")) return "lost";
+    if (s.includes("warm")) return "warm";
+    if (s.includes("cold")) return "cold";
+
+    // Students studying
+    if (s.includes("studying") || s.includes("ielts")) return "warm";
+
+    // Very long random descriptions = treat as lost
+    if (s.length > 15 && !s.includes("interested")) return "lost";
+
+    return s || "";
+}
+
+// FETCH & PROCESS DATA
 async function loadData() {
     const res = await fetch("https://novevent-report-worker.ashishoct34.workers.dev/");
     const data = await res.json();
 
-    console.log("Worker Data:", data);
-
     const attendees = data.attendees || [];
     const expenses = data.expenses || [];
 
-    // Helpers
-    const getStatus = (x) => (x.Status || "").trim().toLowerCase();
-    const getConvStatus = (x) => (x["Converted Status"] || "").trim().toLowerCase();
-    const getFollow = (x) => parseInt(x["Follow up attempts"] || "0") || 0;
+    // Normalize statuses
+    attendees.forEach(a => a._status = normalizeStatus(a.Status));
 
     // TOTAL ATTENDEES
     const total = attendees.length;
 
-    // COUNT LOGIC
-    const converted = attendees.filter(x => getStatus(x) === "converted").length;
-    const lost = attendees.filter(x => getStatus(x) === "lost").length;
-    const warm = attendees.filter(x => getStatus(x) === "warm").length;
-    const cold = attendees.filter(x => getStatus(x) === "cold").length;
+    // COUNTS
+    const converted = attendees.filter(x => x._status === "converted").length;
+    const lost = attendees.filter(x => x._status === "lost").length;
+    const warm = attendees.filter(x => x._status === "warm").length;
+    const cold = attendees.filter(x => x._status === "cold").length;
+    const warmCold = warm + cold;
 
-    // COE OBTAINED
-    const coeObtained = attendees.filter(x =>
-        getConvStatus(x).includes("coe")
+    // FOLLOW UPS
+    const lostRows = attendees.filter(x => x._status === "lost");
+    const avgFollow = lostRows.length
+        ? (lostRows.reduce((s, x) => s + (parseInt(x["Follow up attempts"]) || 0), 0) / lostRows.length).toFixed(1)
+        : 0;
+
+    // COE
+    const coeCount = attendees.filter(x =>
+        clean(x["Converted Status"]).includes("coe")).length;
+
+    // UNASSIGNED ATTENDEES
+    const unassignedAttendees = attendees.filter(x =>
+        clean(x.Name).length > 0 &&
+        clean(x.Assignees).length === 0
     ).length;
 
-    // AVG FOLLOW UPS FOR LOST
-    const lostRows = attendees.filter(x => getStatus(x) === "lost");
-    const lostFollowUps = lostRows.map(getFollow);
+    // STATUS MISSING
+    const unassignedStatus = attendees.filter(x =>
+        clean(x.Status).length === 0
+    ).length;
 
-    const avgFollow = lostFollowUps.length
-        ? (lostFollowUps.reduce((a,b) => a+b, 0) / lostFollowUps.length).toFixed(1)
-        : 0;
-
-    // TOTAL EXPENSE
-    const totalExpense = expenses.length
-        ? expenses.reduce((sum, e) => sum + (parseFloat(e.Amount) || 0), 0)
-        : 0;
+    // EXPENSE TOTAL
+    const totalExpense = expenses.reduce((s, e) =>
+        s + (parseFloat(e.Amount) || 0), 0
+    );
 
     // UPDATE UI
     document.getElementById("totalAttendees").textContent = total;
-
     document.getElementById("totalConverted").textContent =
-        `${converted} (${((converted / total) * 100).toFixed(1)}%)`;
-
+        `${converted} (${((converted / total) * 100 || 0).toFixed(1)}%)`;
     document.getElementById("totalLost").textContent =
-        `${lost} (${((lost / total) * 100).toFixed(1)}%)`;
-
+        `${lost} (${((lost / total) * 100 || 0).toFixed(1)}%)`;
     document.getElementById("avgFollowUps").textContent = avgFollow;
-
     document.getElementById("eventCost").textContent =
         "₹ " + totalExpense.toLocaleString();
+    document.getElementById("coeCount").textContent = coeCount;
+    document.getElementById("warmCold").textContent = warmCold;
+    document.getElementById("unassignedAttendees").textContent = unassignedAttendees;
+    document.getElementById("unassignedStatus").textContent = unassignedStatus;
 
-    document.getElementById("coeCount").textContent = coeObtained;
-
-    document.getElementById("warmCold").textContent = warm + cold;
 }
 
 loadData();
-</script>
 
-</body>
+</script>
+    </body>
 </html>
+
+
