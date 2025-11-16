@@ -354,7 +354,7 @@ function openTab(tabName) {
 }
 
 /* ==========================================================
-   FETCH DATA FROM CLOUDFLARE WORKER
+   FETCH DATA FROM WORKER
 ========================================================== */
 async function loadData() {
   const url = "https://novevent-report-worker.ashishoct34.workers.dev/";
@@ -377,17 +377,15 @@ async function loadData() {
 }
 loadData();
 
+
 /* ==========================================================
-   % Helper
+   Helpers
 ========================================================== */
 function pct(v, total) {
   if (!total) return "0%";
   return ((v / total) * 100).toFixed(1) + "%";
 }
 
-/* ==========================================================
-   GROUP COUNTS (e.g., Country, Status)
-========================================================== */
 function groupCount(data, field) {
   const map = {};
   data.forEach(x => {
@@ -408,8 +406,9 @@ function renderCards() {
   const warm = attendeesData.filter(x => (x.Status || "").toLowerCase() == "warm").length;
   const cold = attendeesData.filter(x => (x.Status || "").toLowerCase() == "cold").length;
   const converted = attendeesData.filter(x => (x.Status || "").toLowerCase() == "converted").length;
-  const unassigned = attendeesData.filter(x => !x.Assignees).length;
-  const missing = attendeesData.filter(x => !x.Status).length;
+
+  const unassigned = attendeesData.filter(x => !x.Assignees || x.Assignees.trim()==="").length;
+  const missing = attendeesData.filter(x => !x.Status || x.Status.trim()==="").length;
 
   const cards = [
     { title:"Total Attendees", value: total, filter: () => attendeesData },
@@ -417,8 +416,8 @@ function renderCards() {
     { title:"Warm", value: warm, sub: pct(warm,total), filter: () => attendeesData.filter(x => (x.Status || "").toLowerCase()=="warm") },
     { title:"Cold", value: cold, sub: pct(cold,total), filter: () => attendeesData.filter(x => (x.Status || "").toLowerCase()=="cold") },
     { title:"Converted", value: converted, sub: pct(converted,total), filter: () => attendeesData.filter(x => (x.Status || "").toLowerCase()=="converted") },
-    { title:"Unassigned", value: unassigned, filter: () => attendeesData.filter(x => !x.Assignees) },
-    { title:"Missing Status", value: missing, filter: () => attendeesData.filter(x => !x.Status) }
+    { title:"Unassigned", value: unassigned, filter: () => attendeesData.filter(x => !x.Assignees || x.Assignees.trim()==="") },
+    { title:"Missing Status", value: missing, filter: () => attendeesData.filter(x => !x.Status || x.Status.trim()==="") }
   ];
 
   window.cardFilters = cards;
@@ -469,6 +468,19 @@ function searchPeople() {
 }
 
 /* ==========================================================
+   UNIVERSAL FILTER (handles commas)
+========================================================== */
+function matchValue(cellValue, key) {
+  if (!cellValue) return false;
+
+  return cellValue
+    .toLowerCase()
+    .split(",")
+    .map(s => s.trim())
+    .includes(key.toLowerCase());
+}
+
+/* ==========================================================
    CHART RENDERER
 ========================================================== */
 function makeBar(id, dataObj, filterFn) {
@@ -511,17 +523,27 @@ function makeBar(id, dataObj, filterFn) {
   });
 }
 
+/* ==========================================================
+   RENDER CHARTS (with improved filtering)
+========================================================== */
 function renderCharts() {
-  makeBar("countryChart", groupCount(attendeesData, "Country"), key =>
-    attendeesData.filter(x => (x.Country || "").toLowerCase() === key.toLowerCase())
+
+  /* COUNTRY */
+  makeBar("countryChart",
+    groupCount(attendeesData, "Country"),
+    key => attendeesData.filter(x => matchValue(x.Country, key))
   );
 
-  makeBar("assigneeChart", groupCount(attendeesData, "Assignees"), key =>
-    attendeesData.filter(x => (x.Assignees || "").toLowerCase() === key.toLowerCase())
+  /* ASSIGNEES */
+  makeBar("assigneeChart",
+    groupCount(attendeesData, "Assignees"),
+    key => attendeesData.filter(x => matchValue(x.Assignees, key))
   );
 
-  makeBar("salesChart", groupCount(attendeesData, "Sales Rep"), key =>
-    attendeesData.filter(x => (x["Sales Rep"] || "").toLowerCase() === key.toLowerCase())
+  /* SALES REP */
+  makeBar("salesChart",
+    groupCount(attendeesData, "Sales Rep"),
+    key => attendeesData.filter(x => matchValue(x["Sales Rep"], key))
   );
 }
 
@@ -543,7 +565,7 @@ function generateInsights() {
 }
 
 /* ==========================================================
-   ROI PAGE
+   ROI
 ========================================================== */
 function renderROI() {
   const totalExp = expensesData.reduce((sum,row)=>sum + (+row.Amount||0), 0);
@@ -597,6 +619,7 @@ function renderROI() {
 }
 
 </script>
-</body>
+     </body>
 </html>
+
 
