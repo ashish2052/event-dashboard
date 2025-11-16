@@ -1,225 +1,242 @@
-/* ===========================================
-   GLOBAL THEME — DARK NEON
-=========================================== */
-body {
-  margin: 0;
-  font-family: 'Poppins', sans-serif;
-  background: #050A1F;
-  color: #E6EBFF;
+<script>
+// ==========================
+// GLOBAL
+// ==========================
+let attendeesData = [];
+let expenseData = [];
+
+// ==========================
+// TABS
+// ==========================
+function openTab(tab) {
+  document.querySelectorAll(".tab-page").forEach(p => p.style.display = "none");
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+
+  document.getElementById(tab).style.display = "block";
+  document.querySelectorAll(".tab-btn").forEach(b => {
+    if (b.textContent.toLowerCase().includes(tab)) b.classList.add("active");
+  });
+
+  if (tab === "people") renderPeopleTable(attendeesData);
+  if (tab === "roi") renderROI();
 }
 
-/* ===========================================
-   HEADER
-=========================================== */
-.header {
-  text-align: center;
-  padding: 25px 10px;
-  background: rgba(0,0,0,0.35);
-  border-bottom: 1px solid #0d1a40;
-  box-shadow: 0 0 25px #002a80 inset;
+// ==========================
+// FETCH DATA
+// ==========================
+async function loadData() {
+  try {
+    const res = await fetch("https://novevent-report-worker.ashishoct34.workers.dev/");
+    const json = await res.json();
+
+    attendeesData = json.attendees || [];
+    expenseData = json.expenses || [];
+
+    renderCards();
+    renderCharts();
+    generateInsights();
+
+  } catch (e) {
+    console.log("ERROR loading data", e);
+  }
 }
-.header-title {
-  font-size: 36px;
-  color: #77b2ff;
-  text-shadow: 0 0 12px #0af;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-.header-sub {
-  margin-top: 5px;
-  color: #89b7ff;
-  font-size: 15px;
-  opacity: 0.9;
-}
-.live-box {
-  margin-top: 12px;
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 18px;
-  border-radius: 40px;
-  background: #062044;
-  border: 1px solid #0a3f85;
-  box-shadow: 0 0 12px #0050ff inset;
-  color: #8fc9ff;
-  font-size: 14px;
-}
-.live-dot {
-  height: 11px;
-  width: 11px;
-  background: #2bff5a;
-  border-radius: 50%;
-  margin-right: 10px;
-  box-shadow: 0 0 10px #39ff72;
+loadData();
+
+// ==========================
+// HELPERS
+// ==========================
+function pct(v, total) {
+  return total ? ((v / total) * 100).toFixed(1) + "%" : "0%";
 }
 
-/* ===========================================
-   TABS
-=========================================== */
-.tab-container {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  padding: 18px 10px;
-  background: #07102d;
-  border-bottom: 1px solid #0b1f47;
-}
-.tab-btn {
-  padding: 10px 22px;
-  border-radius: 10px;
-  border: 1px solid #1e366e;
-  color: #9ec5ff;
-  background: #0c1b3f;
-  cursor: pointer;
-  transition: 0.25s;
-  font-size: 15px;
-}
-.tab-btn:hover {
-  background: #12285a;
-  box-shadow: 0 0 10px #0066ff;
-}
-.tab-btn.active {
-  background: #003a85;
-  color: white;
-  border-color: #1c6bff;
-  box-shadow: 0 0 15px #1c6bff, 0 0 25px #0044ff;
-}
-.tab-page {
-  display: none;
+// ==========================
+// CARDS
+// ==========================
+function renderCards() {
+  const total = attendeesData.length;
+
+  const lost = attendeesData.filter(x => x.Status?.toLowerCase() === "lost").length;
+  const warm = attendeesData.filter(x => x.Status?.toLowerCase() === "warm").length;
+  const cold = attendeesData.filter(x => x.Status?.toLowerCase() === "cold").length;
+  const conv = attendeesData.filter(x => x.Status?.toLowerCase() === "converted").length;
+  const unassigned = attendeesData.filter(x => !x.Assignees).length;
+  const missing = attendeesData.filter(x => !x.Status).length;
+
+  const cards = [
+    { title: "Total Attendees", value: total, sub: "", filter: () => attendeesData },
+    { title: "Lost", value: lost, sub: pct(lost,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "lost") },
+    { title: "Warm", value: warm, sub: pct(warm,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "warm") },
+    { title: "Cold", value: cold, sub: pct(cold,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "cold") },
+    { title: "Converted", value: conv, sub: pct(conv,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "converted") },
+    { title: "Unassigned", value: unassigned, sub: "", filter: () => attendeesData.filter(x => !x.Assignees) },
+    { title: "Missing Status", value: missing, sub: "", filter: () => attendeesData.filter(x => !x.Status) }
+  ];
+
+  window.cardFilters = cards;
+
+  document.getElementById("cards").innerHTML = cards.map((c,i)=>`
+    <div class="card" onclick="applyCardFilter(${i})">
+      <div class="card-title">${c.title}</div>
+      <div class="card-value">${c.value}</div>
+      ${c.sub ? `<div class="card-sub">${c.sub}</div>` : ""}
+    </div>
+  `).join("");
 }
 
-/* ===========================================
-   SECTION TITLES
-=========================================== */
-.section-title {
-  padding-left: 20px;
-  color: #7AB8FF;
-  margin-top: 25px;
-  margin-bottom: 15px;
-  font-size: 22px;
-  font-weight: 600;
+function applyCardFilter(i) {
+  const filtered = window.cardFilters[i].filter();
+  openTab("people");
+  renderPeopleTable(filtered);
 }
 
-/* ===========================================
-   CARDS (NEON GLOW)
-=========================================== */
-.card-grid {
-  padding: 20px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 18px;
-}
-.card {
-  background: #0C153C;
-  padding: 20px;
-  border-radius: 14px;
-  border: 1px solid #1d2f70;
-  transition: 0.25s;
-  cursor: pointer;
-  box-shadow: 0 0 12px #001a33 inset;
-}
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 0 14px #009dff;
-}
-.card-title {
-  font-size: 15px;
-  color: #8EBEFF;
-  margin-bottom: 6px;
-}
-.card-value {
-  font-size: 32px;
-  color: white;
-  font-weight: 600;
-  text-shadow: 0 0 12px #00baff;
-}
-.card-sub {
-  margin-top: 4px;
-  font-size: 13px;
-  color: #6fd0ff;
+// ==========================
+// PEOPLE TABLE
+// ==========================
+function renderPeopleTable(data) {
+  if (!data.length) {
+    document.getElementById("peopleTable").innerHTML = "<tr><td>No Data Available</td></tr>";
+    return;
+  }
+
+  const headers = Object.keys(data[0]);
+
+  let html = "<tr>" + headers.map(h => `<th>${h}</th>`).join("") + "</tr>";
+
+  data.forEach(row => {
+    html += "<tr>" + headers.map(h => `<td>${row[h] || ""}</td>`).join("") + "</tr>";
+  });
+
+  document.getElementById("peopleTable").innerHTML = html;
 }
 
-/* ===========================================
-   CHART & INFO BOXES
-=========================================== */
-.chart-box {
-  background: #0C153C;
-  padding: 20px;
-  border-radius: 14px;
-  border: 1px solid #1d2f70;
-  box-shadow: 0 0 12px #001a33 inset;
-}
-.insight-box {
-  background: #0C153C;
-  padding: 20px;
-  border-radius: 14px;
-  border: 1px solid #1d2f70;
-  box-shadow: 0 0 12px #001a33 inset;
-  color: #cfe4ff;
-  font-size: 15px;
-  line-height: 1.75;
+function searchPeople() {
+  const q = document.getElementById("searchInput").value.toLowerCase();
+  const filtered = attendeesData.filter(r =>
+    JSON.stringify(r).toLowerCase().includes(q)
+  );
+  renderPeopleTable(filtered);
 }
 
-/* ===========================================
-   ATTENDEES TABLE
-=========================================== */
-.search-box {
-  margin: 20px;
-  padding: 12px 14px;
-  width: 60%;
-  border-radius: 8px;
-  border: 1px solid #2f4fa0;
-  background: #0a1433;
-  color: #9ec5ff;
-  box-shadow: 0 0 10px #002a80 inset;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #0c153c;
-  border: 1px solid #1c3b7a;
-}
-th {
-  background: #102258;
-  padding: 12px;
-  color: #9ec5ff;
-  font-size: 14px;
-}
-td {
-  padding: 10px;
-  border-bottom: 1px solid #1a2e60;
-  color: #dbe4ff;
-  font-size: 13px;
-}
-tr:hover {
-  background: #16244d;
+// ==========================
+// GROUP COUNTS
+// ==========================
+function groupCount(data, field) {
+  const m = {};
+  data.forEach(x => {
+    const key = (x[field] || "").trim();
+    if (key) m[key] = (m[key] || 0) + 1;
+  });
+  return m;
 }
 
-/* ===========================================
-   ROI CARDS + PIE CHART BOX
-=========================================== */
-.roi-card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 18px;
-  padding: 20px;
+// ==========================
+// CHARTS
+// ==========================
+function renderCharts() {
+  makeBar("countryChart", "Country");
+  makeBar("assigneeChart", "Assignees");
+  makeBar("salesChart", "Sales Rep");
 }
-.roi-card {
-  background: #0c153c;
-  border: 1px solid #1d2f70;
-  border-radius: 14px;
-  padding: 20px;
-  text-shadow: 0 0 10px #008cff88;
+
+function makeBar(canvasId, field) {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+
+  const obj = groupCount(attendeesData, field);
+  const labels = Object.keys(obj);
+  const values = Object.values(obj);
+
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [{
+        label: "Count",
+        data: values,
+        backgroundColor: "#00aaff88",
+        borderColor: "#33c3ff",
+        borderWidth: 1.5
+      }]
+    },
+    options: {
+      onClick: (e, items) => {
+        if (items.length) {
+          const key = labels[items[0].index];
+          const filtered = attendeesData.filter(x =>
+            (x[field] || "").toLowerCase() === key.toLowerCase()
+          );
+          openTab("people");
+          renderPeopleTable(filtered);
+        }
+      },
+      plugins: { legend: { labels: { color: "#9ec5ff" } } },
+      scales: {
+        x: { ticks: { color: "#9ec5ff" } },
+        y: { ticks: { color: "#9ec5ff" } }
+      }
+    }
+  });
 }
-.roi-title {
-  font-size: 15px;
-  color: #9ec5ff;
+
+// ==========================
+// INSIGHTS
+// ==========================
+function generateInsights() {
+  const total = attendeesData.length;
+  const warm = attendeesData.filter(x => x.Status?.toLowerCase() === "warm").length;
+  const cold = attendeesData.filter(x => x.Status?.toLowerCase() === "cold").length;
+  const lost = attendeesData.filter(x => x.Status?.toLowerCase() === "lost").length;
+  const conv = attendeesData.filter(x => x.Status?.toLowerCase() === "converted").length;
+
+  document.getElementById("insightBox").innerHTML = `
+    Total attendees recorded: <b>${total}</b><br><br>
+    Warm: <b>${warm}</b> (${pct(warm,total)})<br>
+    Cold: <b>${cold}</b> (${pct(cold,total)})<br>
+    Lost: <b>${lost}</b> (${pct(lost,total)})<br><br>
+    Converted leads: <b>${conv}</b> (${pct(conv,total)}).
+  `;
 }
-.roi-value {
-  font-size: 30px;
-  margin-top: 5px;
-  color: white;
-  font-weight: bold;
+
+// ==========================
+// ROI
+// ==========================
+function renderROI() {
+
+  if (!expenseData.length) {
+    document.getElementById("roiCards").innerHTML = "<div class='roi-card'>No expense data found.</div>";
+    return;
+  }
+
+  const totalExp = expenseData.reduce((s,r)=> s + (parseFloat(r.Amount)||0),0);
+  const totalAtt = attendeesData.length;
+  const conv = attendeesData.filter(x => x.Status?.toLowerCase() === "converted").length;
+
+  document.getElementById("roiCards").innerHTML = `
+    <div class="roi-card"><div class="roi-title">Total Expense</div><div class="roi-value">Rs. ${totalExp.toLocaleString()}</div></div>
+    <div class="roi-card"><div class="roi-title">Cost Per Attendee</div><div class="roi-value">Rs. ${(totalExp/totalAtt).toFixed(2)}</div></div>
+    <div class="roi-card"><div class="roi-title">Cost Per Converted</div><div class="roi-value">${conv? "Rs. "+(totalExp/conv).toFixed(2) :"No converted leads"}</div></div>
+    <div class="roi-card"><div class="roi-title">ROI Score</div><div class="roi-value">${((totalAtt/totalExp)*100).toFixed(1)} per 100 Rs</div></div>
+  `;
+
+  let rows = `
+    <tr><th>Description</th><th>Amount</th><th>%</th></tr>
+  `;
+
+  expenseData.forEach(r=>{
+    const amt = parseFloat(r.Amount)||0;
+    rows += `
+      <tr>
+        <td>${r.Description}</td>
+        <td>Rs. ${amt.toLocaleString()}</td>
+        <td>${pct(amt,totalExp)}</td>
+      </tr>
+    `;
+  });
+
+  document.getElementById("expenseTable").innerHTML = rows;
 }
+
+</script>
 <body>
 
 <!-- ===========================
