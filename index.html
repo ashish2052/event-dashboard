@@ -1,399 +1,504 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <title>Event Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+/* ======================================
+   GLOBAL DARK NEON THEME
+====================================== */
 body {
   margin: 0;
+  padding: 0;
   font-family: 'Poppins', sans-serif;
   background: #050A1F;
-  color: #E6EBFF;
+  color: #E6EEFF;
 }
 
-/* Top Nav */
+/* ======================================
+   TOP NAVBAR
+====================================== */
 .navbar {
-  background: rgba(0,0,0,0.4);
-  padding: 15px;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 18px;
+  font-size: 24px;
   text-align: center;
-  font-size: 22px;
-  color: #7AB8FF;
-  text-shadow: 0 0 10px #00c3ff;
-  border-bottom: 1px solid #0f2657;
+  color: #77B6FF;
+  text-shadow: 0 0 12px #00BFFF;
+  border-bottom: 1px solid #0E1A45;
+  letter-spacing: 1px;
 }
 
-/* Tabs */
+/* ======================================
+   TABS
+====================================== */
 .tab-container {
   display: flex;
-  padding: 10px;
-  background: #0A112F;
-  border-bottom: 1px solid #112255;
+  padding: 12px;
+  background: #081233;
+  border-bottom: 1px solid #0F2257;
 }
+
 .tab-btn {
-  padding: 10px 18px;
-  margin-right: 10px;
-  background: #0E1A47;
-  border: 1px solid #1C3B7A;
+  padding: 10px 20px;
+  margin-right: 12px;
+  background: #0D1A44;
+  color: #9EC5FF;
+  border: 1px solid #1D3C76;
   border-radius: 6px;
   cursor: pointer;
-  color: #9EC5FF;
-  text-shadow: 0 0 10px #008cff;
-}
-.tab-btn.active {
-  background: #112B6E;
-  color: #fff;
-  border: 1px solid #3A7DFF;
-  box-shadow: 0 0 10px #3a7dff, 0 0 20px #0044ff;
+  transition: 0.2s;
+  font-size: 14px;
 }
 
-/* Card Grid */
-.card-grid {
+.tab-btn:hover {
+  background: #11245D;
+}
+
+.tab-btn.active {
+  background: #0F2E7A;
+  border-color: #3A8BFF;
+  box-shadow: 0 0 12px #3A8BFF;
+  color: #fff;
+}
+
+.tab-page {
+  display: none;
+}
+
+/* ======================================
+   CARDS GRID
+====================================== */
+#cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 18px;
   padding: 20px;
 }
 
-/* Cards */
 .card {
-  padding: 18px;
   background: #0C153C;
-  border: 1px solid #1D2F70;
+  padding: 18px;
   border-radius: 12px;
+  border: 1px solid #1F2A72;
   cursor: pointer;
+  box-shadow: 0 0 12px #001933 inset;
   transition: 0.2s;
-  box-shadow: 0 0 12px #001a33 inset;
 }
+
 .card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 0 10px #008cff;
+  box-shadow: 0 0 16px #1E90FF;
 }
+
 .card-title {
   font-size: 16px;
-  color: #8EBEFF;
+  color: #8DBBFF;
   margin-bottom: 6px;
 }
+
 .card-value {
-  font-size: 32px;
+  font-size: 34px;
   font-weight: bold;
   color: #fff;
-  text-shadow: 0 0 10px #00aaff;
-}
-.card-sub {
-  font-size: 13px;
-  margin-top: 6px;
-  color: #9fc5ff;
-  text-shadow: 0 0 8px #0099ff;
+  text-shadow: 0 0 12px #009DFF;
 }
 
-/* CHART + INSIGHT ROW */
-.analytics-row {
+.card-sub {
+  font-size: 14px;
+  color: #7FD2FF;
+  margin-top: 4px;
+}
+
+/* ======================================
+   CHART BOXES
+====================================== */
+.chart-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 22px;
+  gap: 18px;
   padding: 20px;
 }
 
-/* Chart Box */
 .chart-box {
-  padding: 20px;
   background: #0C153C;
-  border: 1px solid #1D2F70;
+  padding: 20px;
   border-radius: 12px;
+  border: 1px solid #1D2F70;
   box-shadow: 0 0 12px #001a33 inset;
 }
 
-/* Insights Box */
-.insight-box {
-  padding: 20px;
-  background: #0C153C;
-  border: 1px solid #1D2F70;
-  border-radius: 12px;
-  box-shadow: 0 0 15px #003366;
-  color: #bcd9ff;
-  line-height: 1.7;
-}
-.insight-title {
-  font-size: 20px;
+.chart-box h3 {
+  margin-top: 0;
   color: #7AB8FF;
-  margin-bottom: 15px;
-  text-shadow: 0 0 8px #008cff;
+  margin-bottom: 12px;
 }
 
-/* DOUBLE CHART ROW */
-.double-chart-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 22px;
+/* Full-width chart */
+.chart-full {
   padding: 20px;
 }
 
-/* People Table */
+/* ======================================
+   PEOPLE TABLE + SEARCH BAR
+====================================== */
+#peopleSearch {
+  width: 60%;
+  padding: 10px;
+  margin-left: 20px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #1E3A7A;
+  font-size: 14px;
+  background: #0A1438;
+  color: #A8CEFF;
+}
+
 .table-box {
   padding: 20px;
 }
+
 table {
-  border-collapse: collapse;
   width: 100%;
+  border-collapse: collapse;
   background: #0C153C;
   border: 1px solid #1C3B7A;
-  color: #fff;
   font-size: 14px;
 }
-th, td {
-  padding: 10px;
-  border: 1px solid #1C3B7A;
-}
+
 th {
   background: #102258;
+  padding: 10px;
   color: #A8CEFF;
 }
-</style>
 
+td {
+  padding: 10px;
+  border-bottom: 1px solid #1C3B7A;
+  color: #DFE8FF;
+}
+
+tr:hover {
+  background: #101A44;
+}
+
+/* ======================================
+   ROI TAB
+====================================== */
+#roiCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 18px;
+  padding: 20px;
+}
+
+.roi-card {
+  background: #0C153C;
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid #1F2A72;
+  box-shadow: 0 0 12px #001933 inset;
+}
+
+.roi-title {
+  font-size: 16px;
+  color: #8DBBFF;
+}
+
+.roi-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+  margin-top: 6px;
+  text-shadow: 0 0 10px #00B2FF;
+}
+
+#expenseTable {
+  margin-top: 20px;
+  width: 100%;
+  border-collapse: collapse;
+  background: #0C153C;
+}
+</style>
 </head>
+
 <body>
 
+<!-- ==============================
+      NAVBAR
+=============================== -->
 <div class="navbar">
   EVENT DASHBOARD • Real-Time Google Sheet Sync
 </div>
 
+<!-- ==============================
+      TABS
+=============================== -->
 <div class="tab-container">
   <div class="tab-btn active" onclick="openTab('overview')">Overview</div>
   <div class="tab-btn" onclick="openTab('people')">Attendees Detail</div>
+  <div class="tab-btn" onclick="openTab('roi')">ROI Analysis</div>
 </div>
 
-<!-- OVERVIEW PAGE -->
+<!-- ==============================
+      OVERVIEW TAB
+=============================== -->
 <div id="overview" class="tab-page" style="display:block;">
-
   <h2 style="padding-left:20px;color:#7AB8FF;">Overview Analytics</h2>
 
-  <!-- METRIC CARDS -->
-  <div id="cards" class="card-grid"></div>
+  <!-- CARDS -->
+  <div id="cards"></div>
 
-  <!-- ===== ROW 2 (Chart + Insights) ===== -->
-  <div class="analytics-row">
-    
-    <!-- LEFT: COUNTRY CHART -->
+  <!-- CHART ROW: Country + Analytics -->
+  <div class="chart-row">
     <div class="chart-box">
       <h3>Attendees by Country</h3>
       <canvas id="countryChart"></canvas>
     </div>
 
-    <!-- RIGHT: INSIGHTS -->
-    <div class="insight-box">
-      <div class="insight-title">Event Insights — Auto Generated</div>
-      <div id="insightText">Loading insights...</div>
+    <div class="chart-box">
+      <h3>Insights</h3>
+      <div id="insightText" style="line-height:1.6;color:#C3D9FF;font-size:14px;"></div>
     </div>
-
   </div>
 
-  <!-- ===== ROW 3 (Assignee & Sales Charts) ===== -->
-  <div class="double-chart-row">
-    
+  <!-- Assignee & Sales Chart -->
+  <div class="chart-row">
     <div class="chart-box">
-      <h3>Attendees by Assignees</h3>
+      <h3>By Assignees</h3>
       <canvas id="assigneeChart"></canvas>
     </div>
 
     <div class="chart-box">
-      <h3>Attendees by Sales Rep</h3>
+      <h3>By Sales Rep</h3>
       <canvas id="salesChart"></canvas>
     </div>
-
   </div>
-
 </div>
 
-<!-- PEOPLE PAGE -->
-<div id="people" class="tab-page" style="display:none;">
+<!-- ==============================
+      PEOPLE TAB
+=============================== -->
+<div id="people" class="tab-page">
   <h2 style="padding-left:20px;color:#7AB8FF;">Attendees Detail</h2>
+
+  <input id="peopleSearch" type="text" placeholder="Search attendees..." onkeyup="searchPeople()" />
   <div class="table-box">
-    <div id="peopleTableWrapper">
-      <table id="peopleTable"></table>
-    </div>
+    <table id="peopleTable"></table>
+  </div>
+</div>
+
+<!-- ==============================
+      ROI TAB
+=============================== -->
+<div id="roi" class="tab-page">
+  <h2 style="padding-left:20px;color:#7AB8FF;">ROI & Spend Analysis</h2>
+
+  <div id="roiCards"></div>
+
+  <div class="chart-box" style="margin:20px;">
+    <h3>Expense Breakdown</h3>
+    <table id="expenseTable"></table>
   </div>
 </div>
   <script>
+/* =========================================================
+   GLOBAL VARIABLES
+========================================================= */
 let attendeesData = [];
 let allMetrics = {};
+let fullAttendeeList = [];  // backup for search
+let expenseRows = []; // EXPENSE CSV rows
 
-// =========================
-//        TAB SWITCH
-// =========================
+/* =========================================================
+   TAB SWITCHING
+========================================================= */
 function openTab(tab) {
-  document.querySelectorAll('.tab-page').forEach(x => x.style.display = 'none');
-  document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll(".tab-page").forEach(p => p.style.display = "none");
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
 
-  document.getElementById(tab).style.display = 'block';
-  [...document.querySelectorAll('.tab-btn')]
-    .find(btn => btn.textContent.toLowerCase().includes(tab))
-    .classList.add('active');
+  document.getElementById(tab).style.display = "block";
 
-  if (tab === 'people') renderPeopleTable(attendeesData);
+  [...document.querySelectorAll('.tab-btn')].find(btn =>
+    btn.textContent.toLowerCase().includes(tab)
+  )?.classList.add("active");
+
+  if (tab === "people") {
+    renderPeopleTable(attendeesData);
+  }
 }
 
-// =========================
-//    LOAD WORKER DATA
-// =========================
+/* =========================================================
+   FETCH DATA FROM CLOUDFLARE WORKER
+========================================================= */
 async function loadData() {
   const url = "https://novevent-report-worker.ashishoct34.workers.dev/";
-
   const res = await fetch(url);
   const json = await res.json();
 
   attendeesData = json.attendees;
   allMetrics = json.metrics;
+  expenseRows = json.expenses || []; // If your worker returns an expense array later
+
+  // Backup for search
+  fullAttendeeList = [...attendeesData];
 
   renderCards();
-  renderCharts();
   renderInsights();
 }
 
 loadData();
 
-// =========================
-//        CARDS
-// =========================
+/* =========================================================
+   RENDER CARDS + % VALUES
+========================================================= */
+function pct(v, total) {
+  if (!total) return "0%";
+  return ((v / total) * 100).toFixed(1) + "%";
+}
+
 function renderCards() {
   const total = allMetrics.totalAttendees;
   const lost = allMetrics.lost;
   const warm = allMetrics.warm;
   const cold = allMetrics.cold;
-  const converted = attendeesData.filter(x => (x.Status || "").toLowerCase() === "converted").length;
-  const totalExpense = allMetrics.totalExpense || 0;
+
+  const converted = attendeesData.filter(x =>
+    (x["Status"] || "").toLowerCase() === "converted"
+  ).length;
 
   const cards = [
-    { title: "Total Attendees", value: total, filter: () => attendeesData },
-    { title: "Lost", value: lost, sub: pct(lost,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "lost") },
-    { title: "Warm", value: warm, sub: pct(warm,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "warm") },
-    { title: "Cold", value: cold, sub: pct(cold,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "cold") },
-    { title: "Converted", value: converted, sub: pct(converted,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "converted") },
-    { title: "Unassigned", value: allMetrics.unassigned, filter: () => attendeesData.filter(x => !x.Assignees) },
-    { title: "Missing Status", value: allMetrics.missingStatus, filter: () => attendeesData.filter(x => !x.Status) },
-    { title: "Total Expense", value: "Rs " + totalExpense }
+    {
+      title: "Total Attendees",
+      value: total,
+      filter: () => attendeesData
+    },
+    {
+      title: "Lost",
+      value: lost,
+      sub: pct(lost, total),
+      filter: () => attendeesData.filter(x => (x.Status || "").toLowerCase() === "lost")
+    },
+    {
+      title: "Warm",
+      value: warm,
+      sub: pct(warm, total),
+      filter: () => attendeesData.filter(x => (x.Status || "").toLowerCase() === "warm")
+    },
+    {
+      title: "Cold",
+      value: cold,
+      sub: pct(cold, total),
+      filter: () => attendeesData.filter(x => (x.Status || "").toLowerCase() === "cold")
+    },
+    {
+      title: "Converted",
+      value: converted,
+      sub: pct(converted, total),
+      filter: () => attendeesData.filter(x => (x.Status || "").toLowerCase() === "converted")
+    },
+    {
+      title: "Unassigned",
+      value: allMetrics.unassigned,
+      filter: () => attendeesData.filter(x => !x.Assignees)
+    },
+    {
+      title: "Missing Status",
+      value: allMetrics.missingStatus,
+      filter: () => attendeesData.filter(x => !x.Status)
+    }
   ];
 
-  document.getElementById("cards").innerHTML = cards.map((c,i)=>`
-    <div class="card" onclick="applyFilter(${i})">
-      <div class="card-title">${c.title}</div>
-      <div class="card-value">${c.value}</div>
-      ${c.sub ? `<div class="card-sub">${c.sub}</div>` : ""}
-    </div>
-  `).join("");
-
   window.cardFilters = cards;
+
+  document.getElementById("cards").innerHTML = cards
+    .map((c, i) => `
+      <div class="card" onclick="applyFilter(${i})">
+        <div class="card-title">${c.title}</div>
+        <div class="card-value">${c.value}</div>
+        ${c.sub ? `<div class="card-sub">${c.sub}</div>` : ""}
+      </div>
+    `)
+    .join("");
 }
 
-function pct(v,total){
-  if(total===0) return "";
-  return ((v/total)*100).toFixed(1)+"%";
-}
-
-function applyFilter(index){
-  const dataset = window.cardFilters[index].filter ? window.cardFilters[index].filter() : attendeesData;
+/* =========================================================
+   APPLY FILTER FROM CARD CLICK
+========================================================= */
+function applyFilter(i) {
+  const data = window.cardFilters[i].filter();
   openTab("people");
-  renderPeopleTable(dataset);
+  renderPeopleTable(data);
 }
 
-// =========================
-//     PEOPLE TABLE
-// =========================
-function renderPeopleTable(data){
+/* =========================================================
+   PEOPLE TABLE (ATTENDEES DETAIL)
+========================================================= */
+function renderPeopleTable(data) {
   if (!data || data.length === 0) {
-    document.getElementById('peopleTable').innerHTML = "<tr><td>No Data</td></tr>";
+    document.getElementById("peopleTable").innerHTML = "<tr><td>No Data</td></tr>";
     return;
   }
 
   const headers = Object.keys(data[0]);
-  let html = "<tr>" + headers.map(h=>`<th>${h}</th>`).join("") + "</tr>";
 
-  data.forEach(row=>{
-    html += "<tr>" + headers.map(h=>`<td>${row[h]||""}</td>`).join("") + "</tr>";
+  let html = "<tr>" + headers.map(h => `<th>${h}</th>`).join("") + "</tr>";
+
+  data.forEach(row => {
+    html +=
+      "<tr>" +
+      headers.map(h => `<td>${row[h] || ""}</td>`).join("") +
+      "</tr>";
   });
 
-  document.getElementById('peopleTable').innerHTML = html;
+  document.getElementById("peopleTable").innerHTML = html;
 }
 
-// =========================
-//     INSIGHTS (Paragraph)
-// =========================
-function renderInsights(){
-  const total = attendeesData.length;
+/* =========================================================
+   SEARCH BAR — REAL TIME SEARCH
+========================================================= */
+function searchPeople() {
+  const q = document.getElementById("peopleSearch").value.toLowerCase();
 
-  // COUNTRY INSIGHT
-  const countryMap = groupCount(attendeesData, "Country");
-  const topCountry = Object.entries(countryMap).sort((a,b)=>b[1]-a[1])[0];
-  const countryText = topCountry
-    ? `${topCountry[0]} contributes the highest attendees with ${topCountry[1]} people, making up ${(topCountry[1]/total*100).toFixed(1)}% of total visitors.`
-    : `Country data is not available.`;
+  const filtered = fullAttendeeList.filter(row =>
+    Object.values(row).some(v => (v + "").toLowerCase().includes(q))
+  );
 
-  // STATUS INSIGHT
-  const lost = allMetrics.lost;
+  renderPeopleTable(filtered);
+}
+
+/* =========================================================
+   INSIGHT PARAGRAPH
+========================================================= */
+function renderInsights() {
+  const t = allMetrics.totalAttendees;
   const warm = allMetrics.warm;
   const cold = allMetrics.cold;
-  const converted = attendeesData.filter(x => (x.Status || "").toLowerCase() === "converted").length;
+  const lost = allMetrics.lost;
 
-  const statusText =
-    `Lost leads remain the biggest segment at ${(lost/total*100).toFixed(1)}%. ` +
-    `Warm and Cold leads together form ${( (warm+cold)/total*100 ).toFixed(1)}%, showing mixed interest. ` +
-    `Converted leads stand at ${(converted/total*100).toFixed(1)}%, suggesting medium engagement quality.`;
-
-  // ASSIGNEE INSIGHTS
-  const assigneeMap = groupCount(attendeesData, "Assignees");
-  const topAssignee = Object.entries(assigneeMap).sort((a,b)=>b[1]-a[1])[0];
-  const assigneeText = topAssignee
-    ? `${topAssignee[0]} handled the most attendees with ${topAssignee[1]}, representing ${(topAssignee[1]/total*100).toFixed(1)}% of all assignments. This may indicate a workload imbalance.`
-    : `No assignee data recorded.`;
-
-  // SALES REP INSIGHT
-  const salesMap = groupCount(attendeesData, "Sales Rep");
-  const topSales = Object.entries(salesMap).sort((a,b)=>b[1]-a[1])[0];
-  const salesText = topSales
-    ? `${topSales[0]} managed the most follow-ups (${topSales[1]} cases). This rep is handling a large share of attendee engagement compared to others.`
-    : `Sales rep distribution is not available.`;
-
-  document.getElementById("insightText").innerHTML = `
-    <p>${countryText}</p>
-    <p>${statusText}</p>
-    <p>${assigneeText}</p>
-    <p>${salesText}</p>
+  let text = `
+    Total attendees recorded: <b>${t}</b>.<br><br>
+    Warm leads represent <b>${pct(warm, t)}</b> of all attendees, while 
+    Cold leads account for <b>${pct(cold, t)}</b>.<br><br>
+    Lost leads make up <b>${pct(lost, t)}</b>, which indicates follow-up strength and next-action priority.
   `;
+
+  document.getElementById("insightText").innerHTML = text;
 }
-
-// =========================
-//         CHARTS
-// =========================
-function renderCharts(){
-  makeBarChart(
-    "countryChart",
-    groupCount(attendeesData, "Country"),
-    (country)=> attendeesData.filter(x=> (x.Country||"").toLowerCase().includes(country.toLowerCase()))
-  );
-
-  makeBarChart(
-    "assigneeChart",
-    groupCount(attendeesData, "Assignees"),
-    (asg)=> attendeesData.filter(x=> (x.Assignees||"").toLowerCase() === asg.toLowerCase())
-  );
-
-  makeBarChart(
-    "salesChart",
-    groupCount(attendeesData, "Sales Rep"),
-    (rep)=> attendeesData.filter(x=> (x["Sales Rep"]||"").toLowerCase() === rep.toLowerCase())
-  );
-}
-
-// =========================
-//     GROUP COUNTER
-// =========================
-function groupCount(arr, field){
+</script>
+  <script>
+/* =========================================================
+   CHART UTILITY: GROUP COUNTS BY FIELD
+========================================================= */
+function groupCount(arr, field) {
   const map = {};
-  arr.forEach(x=>{
+  arr.forEach(x => {
     const key = (x[field] || "").trim();
     if (!key) return;
     map[key] = (map[key] || 0) + 1;
@@ -401,56 +506,229 @@ function groupCount(arr, field){
   return map;
 }
 
-// =========================
-//  CLICKABLE BAR CHART
-// =========================
-function makeBarChart(canvasId, dataObj, clickFilter){
+/* =========================================================
+   CLICKABLE BAR CHART
+========================================================= */
+function makeBarChart(canvasId, dataObj, clickFilter) {
   const labels = Object.keys(dataObj);
   const values = Object.values(dataObj);
 
   const ctx = document.getElementById(canvasId).getContext("2d");
-
-  const chart = new Chart(ctx,{
-    type:"bar",
-    data:{
+  const chart = new Chart(ctx, {
+    type: "bar",
+    data: {
       labels: labels,
-      datasets:[{
-        label:"Count",
-        data: values,
-        backgroundColor: "#00aaff88",
-        borderColor: "#33c3ff",
-        borderWidth: 2,
-        hoverBackgroundColor:"#00c3ff",
-        hoverBorderColor:"#00e1ff"
-      }]
+      datasets: [
+        {
+          label: "Count",
+          data: values,
+          backgroundColor: "#00aaff88",
+          borderColor: "#33c3ff",
+          borderWidth: 2,
+          hoverBackgroundColor: "#00c3ff",
+          hoverBorderColor: "#00e1ff"
+        }
+      ]
     },
-    options:{
-      onClick: (e)=>{
-        const points = chart.getElementsAtEventForMode(e,'nearest',{intersect:true},true);
-        if(points.length){
+    options: {
+      onClick: (e) => {
+        const points = chart.getElementsAtEventForMode(
+          e,
+          "nearest",
+          { intersect: true },
+          true
+        );
+        if (points.length) {
           const idx = points[0].index;
           const key = labels[idx];
-
           const filtered = clickFilter(key);
 
           openTab("people");
           renderPeopleTable(filtered);
         }
       },
-      plugins:{
-        legend:{labels:{color:"#9EC5FF"}},
+      plugins: {
+        legend: { labels: { color: "#9EC5FF" } }
       },
-      scales:{
-        x:{ticks:{color:"#9EC5FF"}},
-        y:{ticks:{color:"#9EC5FF"}}
+      scales: {
+        x: { ticks: { color: "#9EC5FF" } },
+        y: { ticks: { color: "#9EC5FF" } }
       }
     }
   });
 }
 
+/* =========================================================
+   RENDER ALL CHARTS
+========================================================= */
+function renderCharts() {
+  // COUNTRY CHART
+  makeBarChart(
+    "countryChart",
+    groupCount(attendeesData, "Country"),
+    (country) =>
+      attendeesData.filter((x) =>
+        (x.Country || "").toLowerCase().includes(country.toLowerCase())
+      )
+  );
 
+  // ASSIGNEE CHART
+  makeBarChart(
+    "assigneeChart",
+    groupCount(attendeesData, "Assignees"),
+    (asg) =>
+      attendeesData.filter(
+        (x) => (x.Assignees || "").toLowerCase() === asg.toLowerCase()
+      )
+  );
+
+  // SALES REP CHART
+  makeBarChart(
+    "salesChart",
+    groupCount(attendeesData, "Sales Rep"),
+    (rep) =>
+      attendeesData.filter(
+        (x) => (x["Sales Rep"] || "").toLowerCase() === rep.toLowerCase()
+      )
+  );
+}
+
+/* =========================================================
+   ROI ENGINE — COMPUTATION
+========================================================= */
+function calculateROI() {
+  const totalExpense = allMetrics.totalExpense || 0;
+  const total = allMetrics.totalAttendees || 0;
+
+  const convertedCount = attendeesData.filter(
+    (x) => (x.Status || "").toLowerCase() === "converted"
+  ).length;
+
+  const costPerAttendee = totalExpense && total ? totalExpense / total : 0;
+  const costPerConverted =
+    totalExpense && convertedCount ? totalExpense / convertedCount : 0;
+
+  const roiScore =
+    totalExpense > 0 ? ((total / totalExpense) * 100).toFixed(2) : 0;
+
+  return {
+    totalExpense,
+    costPerAttendee,
+    costPerConverted,
+    roiScore,
+    convertedCount
+  };
+}
+
+/* =========================================================
+   RENDER ROI CARDS
+========================================================= */
+function renderROICards() {
+  const R = calculateROI();
+
+  const cards = [
+    {
+      t: "Total Expense",
+      v: "Rs. " + R.totalExpense,
+      on: () => openTab("roi")
+    },
+    {
+      t: "Cost Per Attendee",
+      v: "Rs. " + R.costPerAttendee.toFixed(2)
+    },
+    {
+      t: "Cost Per Converted Lead",
+      v:
+        R.convertedCount > 0
+          ? "Rs. " + R.costPerConverted.toFixed(2)
+          : "No converted leads"
+    },
+    {
+      t: "ROI Score",
+      v: R.roiScore + " (Attendees per Rs.100)"
+    }
+  ];
+
+  document.getElementById("roiCards").innerHTML = cards
+    .map(
+      (c) => `
+    <div class="roi-card" onclick="${c.on ? c.on : ""}">
+      <div class="roi-title">${c.t}</div>
+      <div class="roi-value">${c.v}</div>
+    </div>
+  `
+    )
+    .join("");
+}
+
+/* =========================================================
+   EXPENSE BREAKDOWN — GROUP BY DESCRIPTION (YOUR OPTION C)
+========================================================= */
+function getExpenseBreakdown() {
+  // Your worker currently does not return rows,
+  // so we need to fetch expense CSV ourselves.
+  return fetch(
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR6leFmpqIP8TI_pQwtBq7GWRplZ45ywJQsmlP1ev-d3UhCOz0_SjuM3AAo6QDyyvgZbR0xwxTmy9JN/pub?gid=1559770671&single=true&output=csv"
+  )
+    .then((r) => r.text())
+    .then((csv) => {
+      const rows = csv.split("\n").map((r) => r.split(","));
+
+      let map = {};
+      let total = 0;
+
+      for (let i = 1; i < rows.length; i++) {
+        const desc = (rows[i][1] || "").trim();
+        const amt = parseFloat(rows[i][3]);
+
+        if (!desc || isNaN(amt)) continue;
+
+        map[desc] = (map[desc] || 0) + amt;
+        total += amt;
+      }
+
+      return { map, total };
+    });
+}
+
+/* =========================================================
+   RENDER EXPENSE TABLE
+========================================================= */
+async function renderExpenseTable() {
+  const { map, total } = await getExpenseBreakdown();
+
+  let html = `
+    <tr>
+      <th>Description</th>
+      <th>Amount</th>
+      <th>% of Total</th>
+    </tr>
+  `;
+
+  Object.keys(map).forEach((k) => {
+    const val = map[k];
+    const pct = ((val / total) * 100).toFixed(1) + "%";
+
+    html += `
+      <tr>
+        <td>${k}</td>
+        <td>Rs. ${val}</td>
+        <td>${pct}</td>
+      </tr>
+    `;
+  });
+
+  document.getElementById("expenseTable").innerHTML = html;
+}
+
+/* =========================================================
+   MASTER INITIALIZER — AFTER DATA LOAD
+========================================================= */
+setTimeout(() => {
+  renderCharts();
+  renderROICards();
+  renderExpenseTable();
+}, 1500);
 </script>
-<!-- END OF DASHBOARD SYSTEM -->
-</body>
-</html>
+
 
