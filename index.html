@@ -1,227 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-<meta charset="UTF-8">
-<title>Event Analytics Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Event HR Dashboard</title>
 
 <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f5f7fa; }
+    header { background: #2c3e50; padding: 18px; color: white; text-align: center; font-size: 20px; }
+    
+    .tabs { display: flex; background: white; border-bottom: 1px solid #ddd; }
+    .tab { padding: 14px 22px; cursor: pointer; font-weight: bold; }
+    .tab.active { border-bottom: 3px solid #3498db; color: #3498db; }
 
-:root {
-    --bg: #0e1117;
-    --card-bg: #161b22;
-    --border: rgba(255,255,255,0.08);
-    --text: #e6edf3;
-    --subtext: #8b98a5;
-    --accent: #2f81f7;
-    --accent-glow: rgba(47,129,247,0.4);
-    --radius: 14px;
-    --transition: 0.2s ease;
-}
+    .container { padding: 25px; }
 
-/* PAGE BASE */
-body {
-    margin: 0;
-    background: var(--bg);
-    font-family: "Segoe UI", sans-serif;
-    color: var(--text);
-}
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px; margin-top: 20px; }
+    .card { padding: 20px; background: white; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .card h3 { margin: 0; font-size: 16px; color: #555; }
+    .card p { font-size: 28px; font-weight: bold; margin: 8px 0 0; color: #222; }
 
-/* HEADER */
-.header {
-    padding: 30px 40px 10px 40px;
-}
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+    th, td { padding: 10px; border-bottom: 1px solid #ddd; font-size: 14px; }
+    th { background: #ecf0f1; text-align: left; }
 
-.header-title {
-    font-size: 34px;
-    font-weight: 700;
-}
-
-.header-sub {
-    font-size: 15px;
-    color: var(--subtext);
-    margin-top: 6px;
-}
-
-.live-badge {
-    margin-top: 12px;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(47,129,247,0.15);
-    color: var(--accent);
-    padding: 6px 14px;
-    border-radius: 20px;
-    border: 1px solid rgba(47,129,247,0.4);
-    font-size: 13px;
-    font-weight: 500;
-}
-
-.live-dot {
-    width: 8px;
-    height: 8px;
-    background: #2f81f7;
-    border-radius: 50%;
-    box-shadow: 0 0 8px var(--accent-glow);
-}
-
-/* TABS */
-.tabs {
-    display: flex;
-    gap: 14px;
-    margin: 25px 40px 0 40px;
-}
-
-.tab {
-    padding: 10px 20px;
-    border-radius: var(--radius);
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--subtext);
-    cursor: pointer;
-    font-size: 15px;
-    transition: var(--transition);
-}
-
-.tab:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-}
-
-.tab.active {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
-}
-
-/* MAIN CONTENT */
-.container {
-    padding: 20px 40px 40px 40px;
-}
-
-.cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 22px;
-    margin-top: 20px;
-}
-
-.card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    padding: 22px;
-    border-radius: var(--radius);
-    transition: var(--transition);
-}
-
-.card:hover {
-    transform: translateY(-3px);
-    border-color: var(--accent);
-    box-shadow: 0 0 10px rgba(47,129,247,0.18);
-}
-
-.card h2 {
-    margin: 0;
-    font-size: 32px;
-    font-weight: 700;
-}
-
-.card p {
-    margin-top: 8px;
-    color: var(--subtext);
-    font-size: 14px;
-}
-
-.hidden { display: none; }
-
+    #error { display: none; padding: 12px; background: #e74c3c; color: white; margin-top: 20px; border-radius: 8px; }
 </style>
 </head>
 
 <body>
 
-<!-- HEADER -->
-<div class="header">
-    <div class="header-title">Event Analytics Dashboard</div>
-    <div class="header-sub">Premium Edition • Live Cloudflare Data</div>
-    <div class="live-badge"><div class="live-dot"></div> LIVE DATA FEED</div>
-</div>
+<header>Event HR Analytics Dashboard</header>
 
-<!-- TABS -->
 <div class="tabs">
     <div class="tab active" onclick="showTab('overview')">Overview</div>
     <div class="tab" onclick="showTab('attendees')">Attendees</div>
-    <div class="tab" onclick="showTab('expenses')">Expenses</div>
 </div>
 
-<!-- OVERVIEW -->
-<div id="overview" class="container">
+<div class="container">
 
-    <div class="cards">
+    <!-- ERROR BOX -->
+    <div id="error"></div>
 
-        <div class="card"><h2 id="totalAttendees">0</h2><p>Total Attendees</p></div>
-        <div class="card"><h2 id="totalConverted">0</h2><p>Converted (% of total)</p></div>
-        <div class="card"><h2 id="totalLost">0</h2><p>Lost (% of total)</p></div>
+    <!-- OVERVIEW -->
+    <div id="overview" class="tabPage">
 
-        <div class="card"><h2 id="warmCold">0</h2><p>Warm + Cold</p></div>
-        <div class="card"><h2 id="avgFollowUps">0</h2><p>Avg Follow Ups (Lost)</p></div>
-        <div class="card"><h2 id="coeCount">0</h2><p>COE Obtained</p></div>
-
-        <div class="card"><h2 id="unassignedAttendees">0</h2><p>Unassigned Attendees</p></div>
-        <div class="card"><h2 id="missingStatus">0</h2><p>Missing Status</p></div>
-        <div class="card"><h2 id="eventCost">0</h2><p>Total Event Cost</p></div>
+        <div class="cards">
+            <div class="card"><h3>Total Attendees</h3><p id="totalAttendees">0</p></div>
+            <div class="card"><h3>Unassigned</h3><p id="unassigned">0</p></div>
+            <div class="card"><h3>Missing Status</h3><p id="missingStatus">0</p></div>
+            <div class="card"><h3>Converted</h3><p id="converted">0</p></div>
+            <div class="card"><h3>Lost</h3><p id="lost">0</p></div>
+            <div class="card"><h3>Warm/Cold</h3><p id="warmCold">0</p></div>
+            <div class="card"><h3>Average Follow Ups</h3><p id="avgFollow">0</p></div>
+            <div class="card"><h3>Total Expense</h3><p id="totalExpense">0</p></div>
+        </div>
 
     </div>
+
+    <!-- ATTENDEES -->
+    <div id="attendees" class="tabPage" style="display:none;">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Assignee</th>
+                    <th>Status</th>
+                    <th>Country</th>
+                    <th>Follow Ups</th>
+                </tr>
+            </thead>
+            <tbody id="attendeesTable"></tbody>
+        </table>
+
+    </div>
+
 </div>
 
-<!-- EMPTY TABS (WILL BUILD NEXT) -->
-<div id="attendees" class="container hidden">
-    <h2>Attendees Data</h2>
-</div>
-
-<div id="expenses" class="container hidden">
-    <h2>Expenses Data</h2>
-</div>
-
-<!-- JS -->
 <script>
+// TAB SWITCH
+function showTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
 
-function showTab(tabName) {
-    document.querySelectorAll(".container").forEach(el => el.classList.add("hidden"));
-    document.getElementById(tabName).classList.remove("hidden");
-    document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
-    event.target.classList.add("active");
+    document.querySelectorAll('.tabPage').forEach(p => p.style.display = 'none');
+    document.getElementById(tab).style.display = 'block';
 }
 
+// FETCH DATA FROM WORKER
 async function loadData() {
+    try {
+        let response = await fetch("https://novevent-report-worker.ashishoct34.workers.dev/");
+        let data = await response.json();
 
-    const res = await fetch("https://novevent-report-worker.ashishoct34.workers.dev/");
-    const data = await res.json();
+        if (!data.success) throw new Error("Invalid data format");
 
-    const m = data.metrics;
+        // METRICS
+        document.getElementById("totalAttendees").innerText = data.metrics.totalAttendees;
+        document.getElementById("unassigned").innerText = data.metrics.unassigned;
+        document.getElementById("missingStatus").innerText = data.metrics.missingStatus;
+        document.getElementById("converted").innerText = data.metrics.converted;
+        document.getElementById("lost").innerText = data.metrics.lost;
+        document.getElementById("warmCold").innerText = data.metrics.warmCold;
+        document.getElementById("avgFollow").innerText = data.metrics.avgFollow;
+        document.getElementById("totalExpense").innerText = data.metrics.totalExpense;
 
-    // Update cards
-    document.getElementById("totalAttendees").textContent = m.totalAttendees;
+        // TABLE
+        let html = "";
+        data.attendees.forEach(a => {
+            html += `
+                <tr>
+                    <td>${a.Name || "-"}</td>
+                    <td>${a.Assignees || "-"}</td>
+                    <td>${a.Status || "-"}</td>
+                    <td>${a.Country || "-"}</td>
+                    <td>${a["Follow up attempts"] || "-"}</td>
+                </tr>
+            `;
+        });
+        document.getElementById("attendeesTable").innerHTML = html;
 
-    document.getElementById("totalConverted").textContent =
-        `${m.converted} (${((m.converted / m.totalAttendees) * 100).toFixed(1)}%)`;
-
-    document.getElementById("totalLost").textContent =
-        `${m.lost} (${((m.lost / m.totalAttendees) * 100).toFixed(1)}%)`;
-
-    document.getElementById("warmCold").textContent = m.warmCold;
-    document.getElementById("avgFollowUps").textContent = m.avgFollow;
-    document.getElementById("coeCount").textContent = m.coeObtained;
-
-    document.getElementById("unassignedAttendees").textContent = m.unassigned;
-    document.getElementById("missingStatus").textContent = m.missingStatus;
-
-    document.getElementById("eventCost").textContent =
-        "₹ " + m.totalExpense.toLocaleString();
+    } catch (err) {
+        document.getElementById("error").style.display = "block";
+        document.getElementById("error").innerText = "Error fetching data: " + err.message;
+    }
 }
 
 loadData();
-
 </script>
 
 </body>
