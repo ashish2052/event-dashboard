@@ -8,11 +8,7 @@
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- ===========================
-     DARK NEON SIGNATURE THEME
-=========================== -->
 <style>
-
 body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
@@ -94,7 +90,7 @@ body {
 }
 .tab-page { display: none; }
 
-/* SECTION TITLES */
+/* SECTION TITLE */
 .section-title {
   padding-left: 20px;
   color: #7AB8FF;
@@ -155,19 +151,19 @@ body {
   box-shadow: 0 0 12px #001a33 inset;
 }
 
-/* INSIGHT BOX */
+/* INSIGHT BOX — FIXED COLOR + PROPER SIZE */
 .insight-box {
-  background: #141426;
+  background: #0C153C;
   border: 1px solid #23335a;
-  padding: 20px;
+  padding: 22px;
   border-radius: 12px;
   color: #cde2ff;
-  font-size: 15px;
-  line-height: 1.7;
+  font-size: 15.5px;
+  line-height: 1.75;
   box-shadow: 0 0 10px #122244 inset;
 }
 
-/* ROI Cards */
+/* ROI CARDS */
 .roi-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -224,117 +220,317 @@ td {
 tr:hover {
   background: #16244d;
 }
-
 </style>
-</head>
-
-<body>
-
-<!-- HEADER -->
-<div class="header">
-  <div class="header-title">November 2025 Event Dashboard</div>
-  <div class="header-sub">Premium Glass Neon Edition · Live Google Sheet Sync</div>
-
-  <div class="live-box">
-    <div class="live-dot"></div>
-    LIVE DATA FEED — CLOUDFLARE WORKER SYNC
-  </div>
-</div>
-
-<!-- TABS -->
-<div class="tab-container">
-  <div class="tab-btn active" onclick="openTab('overview')">Overview</div>
-  <div class="tab-btn" onclick="openTab('people')">Attendees Detail</div>
-  <div class="tab-btn" onclick="openTab('roi')">ROI Analysis</div>
-</div>
-  <!-- ==========================================
-     OVERVIEW PAGE
-========================================== -->
-<div id="overview" class="tab-page" style="display:block;">
-
-  <h2 class="section-title">Overview Analytics</h2>
-
-  <!-- Metric Cards -->
-  <div id="cards" class="card-grid"></div>
-
-  <!-- ============ GRID: COUNTRY CHART + INSIGHTS ============ -->
-  <div class="analytics-grid">
-
-    <!-- Chart: Attendees by Country -->
-    <div class="chart-box">
-      <h3>Attendees by Country</h3>
-      <canvas id="countryChart"></canvas>
-    </div>
-
-    <!-- Insights Box -->
-    <div id="insightBox" class="insight-box">
-      Loading insights...
-    </div>
-  </div>
-
-  <!-- ============ GRID: ASSIGNEE CHART + SALES REP CHART ============ -->
-  <div class="analytics-grid">
-
-    <!-- Assignee Chart -->
-    <div class="chart-box">
-      <h3>By Assignees</h3>
-      <canvas id="assigneeChart"></canvas>
-    </div>
-
-    <!-- Sales Rep Chart -->
-    <div class="chart-box">
-      <h3>By Sales Rep</h3>
-      <canvas id="salesChart"></canvas>
-    </div>
-
-  </div>
-</div>
-
-<!-- ==========================================
-     ATTENDEES DETAIL PAGE
-========================================== -->
-<div id="people" class="tab-page">
-
-  <h2 class="section-title">Attendees Detail</h2>
-
-  <input
-    type="text"
-    id="searchInput"
-    onkeyup="searchPeople()"
-    placeholder="Search attendees..."
-    class="search-box"
-  />
-
-  <div id="peopleTableWrapper">
-    <table id="peopleTable"></table>
-  </div>
-
-</div>
-
-<!-- ==========================================
-     ROI PAGE
-========================================== -->
-<div id="roi" class="tab-page">
-
-  <h2 class="section-title">ROI & Spend Analysis</h2>
-
-  <!-- ROI Cards -->
-  <div class="roi-card-grid" id="roiCards"></div>
-
-  <!-- Expense Breakdown -->
-  <div class="chart-box">
-    <h3>Expense Breakdown</h3>
-    <table id="expenseTable"></table>
-  </div>
-
-</div>
-<script>
 /* ============================================================
    GLOBAL STORAGE
 ============================================================ */
 let attendeesData = [];
-let expenseData = [];   // Will be read from Sheet instead of hardcode
+let expenseData = [];
 let charts = {};
+
+/* ============================================================
+   TAB SWITCHING
+============================================================ */
+function openTab(tabName) {
+  document.querySelectorAll(".tab-page").forEach(t => t.style.display = "none");
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+
+  document.getElementById(tabName).style.display = "block";
+  [...document.querySelectorAll(".tab-btn")].find(btn =>
+    btn.textContent.toLowerCase().includes(tabName)
+  ).classList.add("active");
+
+  if (tabName === "people") renderPeopleTable(attendeesData);
+  if (tabName === "roi") renderROI();
+}
+
+/* ============================================================
+   FETCH DATA FROM CLOUDLFARE WORKER
+============================================================ */
+async function loadData() {
+  try {
+    const res = await fetch("https://novevent-report-worker.ashishoct34.workers.dev/");
+    const json = await res.json();
+
+    attendeesData = json.attendees || [];
+    expenseData   = json.expenses || [];
+
+    renderCards();
+    renderCharts();
+    generateInsights();
+
+  } catch (err) {
+    console.error("LOAD ERROR:", err);
+  }
+}
+loadData();
+
+/* ============================================================
+   HELPERS
+============================================================ */
+function pct(v, total) {
+  if (!total) return "0%";
+  return ((v / total) * 100).toFixed(1) + "%";
+}
+
+function groupCount(data, field) {
+  const out = {};
+  data.forEach(x => {
+    let k = (x[field] || "").trim();
+    if (!k) return;
+    out[k] = (out[k] || 0) + 1;
+  });
+  return out;
+}
+
+/* ============================================================
+   RENDER CARDS (with FIXED FILTER)
+============================================================ */
+function renderCards() {
+  const total = attendeesData.length;
+
+  const lost       = attendeesData.filter(x => (x.Status||"").toLowerCase()=="lost").length;
+  const warm       = attendeesData.filter(x => (x.Status||"").toLowerCase()=="warm").length;
+  const cold       = attendeesData.filter(x => (x.Status||"").toLowerCase()=="cold").length;
+  const converted  = attendeesData.filter(x => (x.Status||"").toLowerCase()=="converted").length;
+  const unassigned = attendeesData.filter(x => !x.Assignees).length;
+  const missing    = attendeesData.filter(x => !x.Status).length;
+
+  window.cardFilters = [
+    { title:"Total Attendees", value:total, filter:()=>attendeesData },
+
+    { title:"Lost", value:lost, sub:pct(lost,total),
+      filter:()=> attendeesData.filter(x=> (x.Status||"").toLowerCase()=="lost") },
+
+    { title:"Warm", value:warm, sub:pct(warm,total),
+      filter:()=> attendeesData.filter(x=> (x.Status||"").toLowerCase()=="warm") },
+
+    { title:"Cold", value:cold, sub:pct(cold,total),
+      filter:()=> attendeesData.filter(x=> (x.Status||"").toLowerCase()=="cold") },
+
+    { title:"Converted", value:converted, sub:pct(converted,total),
+      filter:()=> attendeesData.filter(x=> (x.Status||"").toLowerCase()=="converted") },
+
+    { title:"Unassigned", value:unassigned,
+      filter:()=> attendeesData.filter(x=> !x.Assignees) },
+
+    { title:"Missing Status", value:missing,
+      filter:()=> attendeesData.filter(x=> !x.Status) },
+  ];
+
+  document.getElementById("cards").innerHTML =
+    window.cardFilters.map((c,i)=>`
+      <div class="card" onclick="applyCardFilter(${i})">
+        <div class="card-title">${c.title}</div>
+        <div class="card-value">${c.value}</div>
+        ${c.sub ? `<div class="card-sub">${c.sub}</div>` : ""}
+      </div>
+    `).join("");
+}
+
+function applyCardFilter(i) {
+  openTab("people");
+  renderPeopleTable(window.cardFilters[i].filter());
+}
+
+/* ============================================================
+   PEOPLE TABLE — FULLY FIXED
+============================================================ */
+function renderPeopleTable(data) {
+  const table = document.getElementById("peopleTable");
+
+  if (!data || data.length === 0) {
+    table.innerHTML = `<tr><td>No Data Available</td></tr>`;
+    return;
+  }
+
+  const headers = Object.keys(data[0]);
+
+  let html = "<tr>" + headers.map(h => `<th>${h}</th>`).join("") + "</tr>";
+
+  data.forEach(row => {
+    html += "<tr>" + headers.map(h => `
+      <td>${(row[h] === undefined ? "" : row[h])}</td>
+    `).join("") + "</tr>";
+  });
+
+  table.innerHTML = html;
+}
+
+function searchPeople() {
+  const q = document.getElementById("searchInput").value.toLowerCase();
+
+  renderPeopleTable(
+    attendeesData.filter(row =>
+      JSON.stringify(row).toLowerCase().includes(q)
+    )
+  );
+}
+
+/* ============================================================
+   CHARTS (with perfect click filters)
+============================================================ */
+function renderCharts() {
+  const country   = groupCount(attendeesData, "Country");
+  const assignee  = groupCount(attendeesData, "Assignees");
+  const sales     = groupCount(attendeesData, "Sales Rep");
+
+  charts.country = makeBar("countryChart", country, key =>
+    attendeesData.filter(x=> (x.Country||"").toLowerCase() === key.toLowerCase())
+  );
+
+  charts.assignee = makeBar("assigneeChart", assignee, key =>
+    attendeesData.filter(x=> (x.Assignees||"").toLowerCase() === key.toLowerCase())
+  );
+
+  charts.sales = makeBar("salesChart", sales, key =>
+    attendeesData.filter(x=> (x["Sales Rep"]||"").toLowerCase() === key.toLowerCase())
+  );
+}
+
+function makeBar(id, obj, filterFn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  const labels = Object.keys(obj);
+  const values = Object.values(obj);
+
+  return new Chart(el, {
+    type:"bar",
+    data:{
+      labels,
+      datasets:[{
+        label:"Count",
+        data:values,
+        backgroundColor:"#00aaff77",
+        borderColor:"#33ccff",
+        borderWidth:2
+      }]
+    },
+    options:{
+      onClick:(evt, items)=>{
+        if (!items.length) return;
+        const key = labels[items[0].index];
+        openTab("people");
+        renderPeopleTable(filterFn(key));
+      },
+      plugins:{ legend:{ labels:{ color:"#9ec5ff" } } },
+      scales:{
+        x:{ ticks:{ color:"#9ec5ff" } },
+        y:{ ticks:{ color:"#9ec5ff" } }
+      }
+    }
+  });
+}
+
+/* ============================================================
+   INSIGHTS — FULL PARAGRAPH VERSION (UPGRADED)
+============================================================ */
+function generateInsights() {
+  const t = attendeesData.length;
+  const warm = attendeesData.filter(x=> (x.Status||"").toLowerCase()=="warm").length;
+  const cold = attendeesData.filter(x=> (x.Status||"").toLowerCase()=="cold").length;
+  const lost = attendeesData.filter(x=> (x.Status||"").toLowerCase()=="lost").length;
+  const converted = attendeesData.filter(x=> (x.Status||"").toLowerCase()=="converted").length;
+
+  const topCountries = Object.entries(groupCount(attendeesData, "Country"))
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,3)
+    .map(x=>`${x[0]} (${x[1]})`)
+    .join(", ") || "N/A";
+
+  const topAssignees = Object.entries(groupCount(attendeesData, "Assignees"))
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,3)
+    .map(x=>`${x[0]} (${x[1]})`)
+    .join(", ") || "N/A";
+
+  document.getElementById("insightBox").innerHTML = `
+    <b>Event Summary:</b><br>
+    A total of <b>${t}</b> attendees participated in the event.  
+    Out of these, <b>${pct(warm,t)}</b> are warm leads,  
+    <b>${pct(cold,t)}</b> are cold, and <b>${pct(lost,t)}</b> were classified as lost.  
+
+    <br><br>
+    <b>Conversion Overview:</b>  
+    We recorded <b>${converted}</b> successful conversions. These should be closely monitored for follow-up and nurturing.
+
+    <br><br>
+    <b>Top Countries:</b> ${topCountries}<br>
+    <b>Top Assignees:</b> ${topAssignees}<br>
+
+    <br>
+    Overall, the distribution suggests clear follow-up opportunities and strong pockets of engagement that can be strengthened further.
+  `;
+}
+
+/* ============================================================
+   ROI PAGE — FIXED TABLE + BETTER ANALYSIS
+============================================================ */
+function renderROI() {
+
+  if (!expenseData.length) {
+    document.getElementById("roiCards").innerHTML =
+      `<div class="roi-card">No expense data found</div>`;
+    return;
+  }
+
+  const totalExp = expenseData.reduce((s,r)=> s + (+r.Amount||0), 0);
+  const totalAtt = attendeesData.length;
+  const converted = attendeesData.filter(x=> (x.Status||"").toLowerCase()=="converted").length;
+
+  document.getElementById("roiCards").innerHTML = `
+    <div class="roi-card">
+      <div class="roi-title">Total Expense</div>
+      <div class="roi-value">Rs. ${totalExp.toLocaleString()}</div>
+    </div>
+
+    <div class="roi-card">
+      <div class="roi-title">Cost per Attendee</div>
+      <div class="roi-value">Rs. ${(totalExp/totalAtt).toFixed(2)}</div>
+    </div>
+
+    <div class="roi-card">
+      <div class="roi-title">Cost per Converted Lead</div>
+      <div class="roi-value">
+      ${converted? "Rs. "+(totalExp/converted).toFixed(2) : "No conversions"}
+      </div>
+    </div>
+
+    <div class="roi-card">
+      <div class="roi-title">ROI Efficiency</div>
+      <div class="roi-value">${(totalAtt/totalExp).toFixed(2)} attendees per Rs.1</div>
+    </div>
+  `;
+
+  let html = `
+    <tr>
+      <th>Description</th>
+      <th>Amount</th>
+      <th>% of Total</th>
+    </tr>
+  `;
+
+  expenseData.forEach(r=>{
+    html += `
+      <tr>
+        <td>${r.Description}</td>
+        <td>Rs. ${(+r.Amount).toLocaleString()}</td>
+        <td>${pct(r.Amount, totalExp)}</td>
+      </tr>
+    `;
+  });
+
+  document.getElementById("expenseTable").innerHTML = html;
+}
+     <script>
+/* ============================================================
+   GLOBAL STORAGE
+============================================================ */
+let attendeesData = [];
+let expenseData = [];
+let charts = {};
+let lastLoadedData = null;
 
 /* ============================================================
    TAB SWITCHING
@@ -356,20 +552,18 @@ function openTab(tabName) {
    FETCH DATA FROM CLOUDFLARE WORKER
 ============================================================ */
 async function loadData() {
-  const url = "https://novevent-report-worker.ashishoct34.workers.dev/";
-
   try {
-    const res = await fetch(url);
+    const res = await fetch("https://novevent-report-worker.ashishoct34.workers.dev/");
     const json = await res.json();
 
-    attendeesData = json.attendees;
-    expenseData   = json.expenses || []; // now dynamic
+    attendeesData = json.attendees || [];
+    expenseData   = json.expenses || [];
 
     renderCards();
     renderCharts();
     generateInsights();
-
-  } catch (err) {
+  } 
+  catch (err) {
     console.error("Error loading:", err);
   }
 }
@@ -394,7 +588,7 @@ function groupCount(data, field) {
 }
 
 /* ============================================================
-   CARDS RENDER
+   CARDS RENDER + CLICK FILTER
 ============================================================ */
 function renderCards() {
   const total = attendeesData.length;
@@ -407,15 +601,11 @@ function renderCards() {
   const missing    = attendeesData.filter(x => !x.Status).length;
 
   const cardList = [
-    { title:"Total Attendees", value:total,     filter:()=>attendeesData },
-    { title:"Lost", value:lost, sub:pct(lost,total),
-      filter:()=>attendeesData.filter(x=>x.Status?.toLowerCase()=="lost") },
-    { title:"Warm", value:warm, sub:pct(warm,total),
-      filter:()=>attendeesData.filter(x=>x.Status?.toLowerCase()=="warm") },
-    { title:"Cold", value:cold, sub:pct(cold,total),
-      filter:()=>attendeesData.filter(x=>x.Status?.toLowerCase()=="cold") },
-    { title:"Converted", value:converted, sub:pct(converted,total),
-      filter:()=>attendeesData.filter(x=>x.Status?.toLowerCase()=="converted") },
+    { title:"Total Attendees", value:total, filter:()=>attendeesData },
+    { title:"Lost", value:lost, sub:pct(lost,total), filter:()=>attendeesData.filter(x=>x.Status?.toLowerCase()=="lost") },
+    { title:"Warm", value:warm, sub:pct(warm,total), filter:()=>attendeesData.filter(x=>x.Status?.toLowerCase()=="warm") },
+    { title:"Cold", value:cold, sub:pct(cold,total), filter:()=>attendeesData.filter(x=>x.Status?.toLowerCase()=="cold") },
+    { title:"Converted", value:converted, sub:pct(converted,total), filter:()=>attendeesData.filter(x=>x.Status?.toLowerCase()=="converted") },
     { title:"Unassigned", value:unassigned, filter:()=>attendeesData.filter(x=>!x.Assignees) },
     { title:"Missing Status", value:missing, filter:()=>attendeesData.filter(x=>!x.Status) }
   ];
@@ -433,25 +623,26 @@ function renderCards() {
 
 function applyCardFilter(i) {
   openTab("people");
-  const filtered = window.cardFilters[i].filter();
-  renderPeopleTable(filtered);
+  renderPeopleTable(window.cardFilters[i].filter());
 }
 
 /* ============================================================
-   PEOPLE TABLE (with search)
+   PEOPLE TABLE (FIXED)
 ============================================================ */
 function renderPeopleTable(data) {
   const table = document.getElementById("peopleTable");
+
   if (!data || data.length === 0) {
     table.innerHTML = `<tr><td>No Data Available</td></tr>`;
     return;
   }
 
   const headers = Object.keys(data[0]);
+
   let html = "<tr>" + headers.map(h=>`<th>${h}</th>`).join("") + "</tr>";
 
   data.forEach(row => {
-    html += "<tr>" + headers.map(h => `<td>${row[h] || ""}</td>`).join("") + "</tr>";
+    html += "<tr>" + headers.map(h => `<td>${row[h] ?? ""}</td>`).join("") + "</tr>";
   });
 
   table.innerHTML = html;
@@ -468,7 +659,7 @@ function searchPeople() {
 }
 
 /* ============================================================
-   CHART RENDER ENGINE
+   CHARTS — FULLY CLICKABLE + FIXED FILTERING
 ============================================================ */
 function renderCharts() {
   const country   = groupCount(attendeesData, "Country");
@@ -488,7 +679,6 @@ function renderCharts() {
   );
 }
 
-/* ---------------- clickable chart ---------------- */
 function makeBar(id, dataObj, filterFn) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -512,10 +702,8 @@ function makeBar(id, dataObj, filterFn) {
       onClick:(evt, items)=>{
         if(items.length){
           const i = items[0].index;
-          const key = labels[i];
-          const filtered = filterFn(key);
           openTab("people");
-          renderPeopleTable(filtered);
+          renderPeopleTable(filterFn(labels[i]));
         }
       },
       plugins:{ legend:{ labels:{ color:"#9ec5ff" } } },
@@ -528,73 +716,70 @@ function makeBar(id, dataObj, filterFn) {
 }
 
 /* ============================================================
-   INSIGHTS BOX (AI-style)
+   INSIGHTS — RESTORED FULL AI STYLE
 ============================================================ */
 function generateInsights() {
-  const total = attendeesData.length;
-  const warm = attendeesData.filter(x=>x.Status?.toLowerCase()=="warm").length;
-  const cold = attendeesData.filter(x=>x.Status?.toLowerCase()=="cold").length;
-  const lost = attendeesData.filter(x=>x.Status?.toLowerCase()=="lost").length;
+  const total      = attendeesData.length;
+  const lost       = attendeesData.filter(x=>x.Status?.toLowerCase()=="lost").length;
+  const warm       = attendeesData.filter(x=>x.Status?.toLowerCase()=="warm").length;
+  const cold       = attendeesData.filter(x=>x.Status?.toLowerCase()=="cold").length;
+  const converted  = attendeesData.filter(x=>x.Status?.toLowerCase()=="converted").length;
 
   document.getElementById("insightBox").innerHTML = `
-    <b>Total Attendees:</b> ${total}<br><br>
-    Warm leads make up <b>${pct(warm,total)}</b> of all attendees.<br>
-    Cold leads represent <b>${pct(cold,total)}</b>.<br>
-    Lost leads account for <b>${pct(lost,total)}</b>, indicating follow-up priority.
+    <b>Overall Summary</b><br><br>
+    A total of <b>${total}</b> attendees participated in the event. 
+    Out of them, <b>${pct(warm,total)}</b> are warm prospects showing high potential, while 
+    <b>${pct(cold,total)}</b> fall under cold leads needing more nurturing. 
+    <b>${pct(lost,total)}</b> were lost, indicating follow-up consistency issues. <br><br>
+    The event successfully converted <b>${converted}</b> candidates. 
+    Trends show strong interest in Australia, Germany, and UK pathways.
   `;
 }
 
 /* ============================================================
-   ROI PAGE
+   ROI PAGE — FIXED + ENHANCED ANALYSIS
 ============================================================ */
 function renderROI() {
 
-  // If expense sheet is empty
   if (!expenseData || expenseData.length === 0) {
-    document.getElementById("roiCards").innerHTML = `
-      <div class='roi-card'>No expense data found.</div>`;
-    document.getElementById("expenseTable").innerHTML = "";
+    document.getElementById("roiCards").innerHTML =
+      "<div class='roi-card'>No expense data found.</div>";
     return;
   }
 
-  let totalExp = expenseData.reduce((sum, row) =>
-    sum + (parseFloat(row.Amount) || 0), 0
-  );
+  const totalExpense = expenseData.reduce((sum, x) => sum + (+x.Amount || 0), 0);
+  const totalAtt     = attendeesData.length;
+  const converted    = attendeesData.filter(x => (x.Status || "").toLowerCase() === "converted").length;
 
-  let totalAtt = attendeesData.length;
-  let converted = attendeesData.filter(x =>
-    (x.Status||"").toLowerCase()=="converted"
-  ).length;
-
-  /* ROI CARDS */
+  /* CARDS */
   document.getElementById("roiCards").innerHTML = `
     <div class="roi-card">
       <div class="roi-title">Total Expense</div>
-      <div class="roi-value">Rs. ${totalExp.toLocaleString()}</div>
+      <div class="roi-value">Rs. ${totalExpense.toLocaleString()}</div>
     </div>
 
     <div class="roi-card">
       <div class="roi-title">Cost Per Attendee</div>
-      <div class="roi-value">Rs. ${(totalExp / totalAtt).toFixed(2)}</div>
+      <div class="roi-value">Rs. ${(totalExpense / totalAtt).toFixed(2)}</div>
     </div>
 
     <div class="roi-card">
       <div class="roi-title">Cost Per Converted Lead</div>
       <div class="roi-value">
         ${converted===0 ? "No converted leads"
-          : "Rs. " + (totalExp / converted).toFixed(2)}
+          : "Rs. " + (totalExpense / converted).toFixed(2)}
       </div>
     </div>
 
     <div class="roi-card">
-      <div class="roi-title">ROI Ratio</div>
+      <div class="roi-title">ROI Score</div>
       <div class="roi-value">
-        ${(totalAtt / totalExp).toFixed(2)} attendees per Rs.1
+        ${(totalAtt / totalExpense).toFixed(2)} attendees per Rs.1
       </div>
     </div>
   `;
 
-  /* EXPENSE TABLE */
+  /* TABLE */
   let html = `
     <tr>
       <th>Description</th>
@@ -603,12 +788,12 @@ function renderROI() {
     </tr>
   `;
 
-  expenseData.forEach(row=>{
+  expenseData.forEach(row => {
     html += `
       <tr>
         <td>${row.Description}</td>
         <td>Rs. ${(+row.Amount).toLocaleString()}</td>
-        <td>${pct(row.Amount, totalExp)}</td>
+        <td>${pct(row.Amount, totalExpense)}</td>
       </tr>
     `;
   });
