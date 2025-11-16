@@ -1,165 +1,200 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Event Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<title>November 2025 Event Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-/* ======================================
-   GLOBAL DARK NEON THEME
-====================================== */
+/* ===========================
+   GLOBAL THEME — DARK NEON
+=========================== */
 body {
   margin: 0;
-  padding: 0;
   font-family: 'Poppins', sans-serif;
   background: #050A1F;
-  color: #E6EEFF;
+  color: #E6EBFF;
 }
 
-/* ======================================
-   TOP NAVBAR
-====================================== */
-.navbar {
-  background: rgba(0, 0, 0, 0.35);
-  padding: 18px;
-  font-size: 24px;
+/* ===========================
+   NEON HEADER
+=========================== */
+.header {
   text-align: center;
-  color: #77B6FF;
-  text-shadow: 0 0 12px #00BFFF;
-  border-bottom: 1px solid #0E1A45;
+  padding: 25px 10px;
+  background: rgba(0,0,0,0.35);
+  border-bottom: 1px solid #0d1a40;
+  box-shadow: 0 0 25px #002a80 inset;
+}
+
+.header-title {
+  font-size: 36px;
+  color: #77b2ff;
+  text-shadow: 0 0 12px #0af;
+  font-weight: 700;
   letter-spacing: 1px;
 }
 
-/* ======================================
+.header-sub {
+  margin-top: 5px;
+  color: #89b7ff;
+  font-size: 15px;
+  opacity: 0.9;
+}
+
+/* LIVE Badge */
+.live-box {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 18px;
+  border-radius: 40px;
+  background: #062044;
+  border: 1px solid #0a3f85;
+  box-shadow: 0 0 12px #0050ff inset;
+  color: #8fc9ff;
+}
+
+.live-dot {
+  height: 11px;
+  width: 11px;
+  background: #2bff5a;
+  border-radius: 50%;
+  margin-right: 10px;
+  box-shadow: 0 0 10px #39ff72;
+}
+
+/* ===========================
    TABS
-====================================== */
+=========================== */
 .tab-container {
   display: flex;
-  padding: 12px;
-  background: #081233;
-  border-bottom: 1px solid #0F2257;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px 10px;
+  background: #07102d;
+  border-bottom: 1px solid #0b1f47;
 }
 
 .tab-btn {
-  padding: 10px 20px;
-  margin-right: 12px;
-  background: #0D1A44;
-  color: #9EC5FF;
-  border: 1px solid #1D3C76;
-  border-radius: 6px;
+  padding: 10px 22px;
+  border-radius: 10px;
+  border: 1px solid #1e366e;
+  color: #9ec5ff;
+  background: #0c1b3f;
   cursor: pointer;
-  transition: 0.2s;
-  font-size: 14px;
+  transition: 0.25s;
+  font-size: 15px;
 }
 
 .tab-btn:hover {
-  background: #11245D;
+  background: #12285a;
+  box-shadow: 0 0 10px #0066ff;
 }
 
 .tab-btn.active {
-  background: #0F2E7A;
-  border-color: #3A8BFF;
-  box-shadow: 0 0 12px #3A8BFF;
-  color: #fff;
+  background: #003a85;
+  color: white;
+  border-color: #1c6bff;
+  box-shadow: 0 0 15px #1c6bff, 0 0 25px #0044ff;
 }
 
 .tab-page {
   display: none;
 }
 
-/* ======================================
-   CARDS GRID
-====================================== */
-#cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 18px;
+/* ===========================
+   CARDS
+=========================== */
+.card-grid {
   padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
 }
 
 .card {
   background: #0C153C;
-  padding: 18px;
-  border-radius: 12px;
-  border: 1px solid #1F2A72;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #1d2f70;
+  transition: 0.25s;
   cursor: pointer;
-  box-shadow: 0 0 12px #001933 inset;
-  transition: 0.2s;
+  box-shadow: 0 0 12px #001a33 inset;
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 0 16px #1E90FF;
+  transform: translateY(-4px);
+  box-shadow: 0 0 14px #009dff;
 }
 
 .card-title {
-  font-size: 16px;
-  color: #8DBBFF;
+  font-size: 15px;
+  color: #8EBEFF;
   margin-bottom: 6px;
 }
 
 .card-value {
-  font-size: 34px;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 0 0 12px #009DFF;
+  font-size: 32px;
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 0 12px #00baff;
 }
 
 .card-sub {
-  font-size: 14px;
-  color: #7FD2FF;
   margin-top: 4px;
+  font-size: 13px;
+  color: #6fd0ff;
 }
 
-/* ======================================
-   CHART BOXES
-====================================== */
-.chart-row {
+/* ===========================
+   CHART BOX
+=========================== */
+.chart-box {
+  background: #0C153C;
+  margin: 20px;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #1d2f70;
+  box-shadow: 0 0 12px #001a33 inset;
+}
+
+/* ===========================
+   ROI Cards
+=========================== */
+.roi-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 18px;
   padding: 20px;
 }
 
-.chart-box {
-  background: #0C153C;
+.roi-card {
+  background: #0c153c;
+  border: 1px solid #1d2f70;
+  border-radius: 14px;
   padding: 20px;
-  border-radius: 12px;
-  border: 1px solid #1D2F70;
-  box-shadow: 0 0 12px #001a33 inset;
+  text-shadow: 0 0 10px #008cff88;
 }
 
-.chart-box h3 {
-  margin-top: 0;
-  color: #7AB8FF;
-  margin-bottom: 12px;
+.roi-title {
+  font-size: 15px;
+  color: #9ec5ff;
 }
 
-/* Full-width chart */
-.chart-full {
-  padding: 20px;
+.roi-value {
+  font-size: 30px;
+  margin-top: 5px;
+  color: white;
+  font-weight: bold;
 }
 
-/* ======================================
-   PEOPLE TABLE + SEARCH BAR
-====================================== */
-#peopleSearch {
-  width: 60%;
-  padding: 10px;
-  margin-left: 20px;
-  margin-top: 10px;
-  margin-bottom: 20px;
-  border-radius: 8px;
-  border: 1px solid #1E3A7A;
-  font-size: 14px;
-  background: #0A1438;
-  color: #A8CEFF;
-}
-
+/* ===========================
+   TABLE
+=========================== */
 .table-box {
   padding: 20px;
 }
@@ -167,259 +202,183 @@ body {
 table {
   width: 100%;
   border-collapse: collapse;
-  background: #0C153C;
-  border: 1px solid #1C3B7A;
-  font-size: 14px;
+  background: #0c153c;
+  border: 1px solid #1c3b7a;
 }
 
 th {
   background: #102258;
-  padding: 10px;
-  color: #A8CEFF;
+  padding: 12px;
+  color: #9ec5ff;
 }
 
 td {
   padding: 10px;
-  border-bottom: 1px solid #1C3B7A;
-  color: #DFE8FF;
+  border-bottom: 1px solid #1a2e60;
+  color: #dbe4ff;
 }
 
 tr:hover {
-  background: #101A44;
+  background: #16244d;
 }
 
-/* ======================================
-   ROI TAB
-====================================== */
-#roiCards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 18px;
-  padding: 20px;
-}
-
-.roi-card {
-  background: #0C153C;
-  padding: 18px;
-  border-radius: 12px;
-  border: 1px solid #1F2A72;
-  box-shadow: 0 0 12px #001933 inset;
-}
-
-.roi-title {
-  font-size: 16px;
-  color: #8DBBFF;
-}
-
-.roi-value {
-  font-size: 28px;
-  font-weight: bold;
-  color: #fff;
-  margin-top: 6px;
-  text-shadow: 0 0 10px #00B2FF;
-}
-
-#expenseTable {
-  margin-top: 20px;
-  width: 100%;
-  border-collapse: collapse;
-  background: #0C153C;
+/* SEARCH BAR */
+#searchInput {
+  margin: 20px;
+  padding: 12px 14px;
+  width: 60%;
+  border-radius: 8px;
+  border: 1px solid #2f4fa0;
+  background: #0a1433;
+  color: #9ec5ff;
+  outline: none;
+  box-shadow: 0 0 10px #002a80 inset;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ==============================
-      NAVBAR
-=============================== -->
-<div class="navbar">
-  EVENT DASHBOARD • Real-Time Google Sheet Sync
+<!-- =====================
+       HEADER
+===================== -->
+<div class="header">
+  <div class="header-title">November 2025 Event Dashboard</div>
+  <div class="header-sub">Premium Glass Neon Edition · Live Google Sheet Sync</div>
+
+  <div class="live-box">
+    <div class="live-dot"></div>
+    LIVE DATA FEED — CLOUDLFARE WORKER SYNC
+  </div>
 </div>
 
-<!-- ==============================
-      TABS
-=============================== -->
+<!-- =====================
+       TABS
+===================== -->
 <div class="tab-container">
   <div class="tab-btn active" onclick="openTab('overview')">Overview</div>
   <div class="tab-btn" onclick="openTab('people')">Attendees Detail</div>
   <div class="tab-btn" onclick="openTab('roi')">ROI Analysis</div>
 </div>
 
-<!-- ==============================
-      OVERVIEW TAB
-=============================== -->
+<!-- =====================
+       OVERVIEW PAGE
+===================== -->
 <div id="overview" class="tab-page" style="display:block;">
   <h2 style="padding-left:20px;color:#7AB8FF;">Overview Analytics</h2>
+  <div id="cards" class="card-grid"></div>
 
-  <!-- CARDS -->
-  <div id="cards"></div>
-
-  <!-- CHART ROW: Country + Analytics -->
-  <div class="chart-row">
-    <div class="chart-box">
+  <div style="display:flex;gap:20px;flex-wrap:wrap;">
+    <div class="chart-box" style="flex:1;min-width:400px;">
       <h3>Attendees by Country</h3>
       <canvas id="countryChart"></canvas>
     </div>
 
-    <div class="chart-box">
+    <div class="chart-box" style="flex:1;min-width:400px;">
       <h3>Insights</h3>
-      <div id="insightText" style="line-height:1.6;color:#C3D9FF;font-size:14px;"></div>
+      <div id="insightBox" style="line-height:1.7;color:#bcd9ff;font-size:15px;"></div>
     </div>
   </div>
 
-  <!-- Assignee & Sales Chart -->
-  <div class="chart-row">
-    <div class="chart-box">
-      <h3>By Assignees</h3>
-      <canvas id="assigneeChart"></canvas>
-    </div>
+  <div class="chart-box">
+    <h3>By Assignees</h3>
+    <canvas id="assigneeChart"></canvas>
+  </div>
 
-    <div class="chart-box">
-      <h3>By Sales Rep</h3>
-      <canvas id="salesChart"></canvas>
-    </div>
+  <div class="chart-box">
+    <h3>By Sales Rep</h3>
+    <canvas id="salesChart"></canvas>
   </div>
 </div>
-
-<!-- ==============================
-      PEOPLE TAB
-=============================== -->
-<div id="people" class="tab-page">
-  <h2 style="padding-left:20px;color:#7AB8FF;">Attendees Detail</h2>
-
-  <input id="peopleSearch" type="text" placeholder="Search attendees..." onkeyup="searchPeople()" />
-  <div class="table-box">
-    <table id="peopleTable"></table>
-  </div>
-</div>
-
-<!-- ==============================
-      ROI TAB
-=============================== -->
-<div id="roi" class="tab-page">
-  <h2 style="padding-left:20px;color:#7AB8FF;">ROI & Spend Analysis</h2>
-
-  <div id="roiCards"></div>
-
-  <div class="chart-box" style="margin:20px;">
-    <h3>Expense Breakdown</h3>
-    <table id="expenseTable"></table>
-  </div>
-</div>
-  <script>
-/* =========================================================
+<script>
+/* ==========================================
    GLOBAL VARIABLES
-========================================================= */
+========================================== */
 let attendeesData = [];
-let allMetrics = {};
-let fullAttendeeList = [];  // backup for search
-let expenseRows = []; // EXPENSE CSV rows
+let metrics = {};
+let expenseData = [
+  { desc: "Baloons Decoration", amount: 6000 },
+  { desc: "Camera Man", amount: 7500 },
+  { desc: "Bulk Messaging for event", amount: 4000 },
+  { desc: "Meals for Events", amount: 12000 },
+  { desc: "Marketing Brocheurs + Banners", amount: 30000 }
+];
 
-/* =========================================================
+/* ==========================================
    TAB SWITCHING
-========================================================= */
-function openTab(tab) {
-  document.querySelectorAll(".tab-page").forEach(p => p.style.display = "none");
+========================================== */
+function openTab(tabName) {
+  document.querySelectorAll(".tab-page").forEach(t => t.style.display = "none");
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
 
-  document.getElementById(tab).style.display = "block";
+  document.getElementById(tabName).style.display = "block";
+  [...document.querySelectorAll(".tab-btn")].find(btn =>
+    btn.textContent.toLowerCase().includes(tabName)
+  ).classList.add("active");
 
-  [...document.querySelectorAll('.tab-btn')].find(btn =>
-    btn.textContent.toLowerCase().includes(tab)
-  )?.classList.add("active");
-
-  if (tab === "people") {
-    renderPeopleTable(attendeesData);
-  }
+  if (tabName === "people") renderPeopleTable(attendeesData);
+  if (tabName === "roi") renderROI();
 }
 
-/* =========================================================
+/* ==========================================
    FETCH DATA FROM CLOUDFLARE WORKER
-========================================================= */
+========================================== */
 async function loadData() {
   const url = "https://novevent-report-worker.ashishoct34.workers.dev/";
-  const res = await fetch(url);
-  const json = await res.json();
 
-  attendeesData = json.attendees;
-  allMetrics = json.metrics;
-  expenseRows = json.expenses || []; // If your worker returns an expense array later
+  try {
+    const res = await fetch(url);
+    const json = await res.json();
 
-  // Backup for search
-  fullAttendeeList = [...attendeesData];
+    attendeesData = json.attendees;
+    metrics = json.metrics;
 
-  renderCards();
-  renderInsights();
+    renderCards();
+    renderCharts();
+    generateInsights();
+
+  } catch (err) {
+    console.error("Error loading data:", err);
+  }
 }
-
 loadData();
 
-/* =========================================================
-   RENDER CARDS + % VALUES
-========================================================= */
+/* ==========================================
+   PERCENT FUNCTION
+========================================== */
 function pct(v, total) {
   if (!total) return "0%";
   return ((v / total) * 100).toFixed(1) + "%";
 }
 
+/* ==========================================
+   CARDS RENDER
+========================================== */
 function renderCards() {
-  const total = allMetrics.totalAttendees;
-  const lost = allMetrics.lost;
-  const warm = allMetrics.warm;
-  const cold = allMetrics.cold;
+  const total = attendeesData.length;
 
-  const converted = attendeesData.filter(x =>
-    (x["Status"] || "").toLowerCase() === "converted"
-  ).length;
+  const lost = attendeesData.filter(x => x.Status?.toLowerCase() === "lost").length;
+  const warm = attendeesData.filter(x => x.Status?.toLowerCase() === "warm").length;
+  const cold = attendeesData.filter(x => x.Status?.toLowerCase() === "cold").length;
+  const converted = attendeesData.filter(x => x.Status?.toLowerCase() === "converted").length;
+  const unassigned = attendeesData.filter(x => !x.Assignees).length;
+  const missing = attendeesData.filter(x => !x.Status).length;
 
   const cards = [
-    {
-      title: "Total Attendees",
-      value: total,
-      filter: () => attendeesData
-    },
-    {
-      title: "Lost",
-      value: lost,
-      sub: pct(lost, total),
-      filter: () => attendeesData.filter(x => (x.Status || "").toLowerCase() === "lost")
-    },
-    {
-      title: "Warm",
-      value: warm,
-      sub: pct(warm, total),
-      filter: () => attendeesData.filter(x => (x.Status || "").toLowerCase() === "warm")
-    },
-    {
-      title: "Cold",
-      value: cold,
-      sub: pct(cold, total),
-      filter: () => attendeesData.filter(x => (x.Status || "").toLowerCase() === "cold")
-    },
-    {
-      title: "Converted",
-      value: converted,
-      sub: pct(converted, total),
-      filter: () => attendeesData.filter(x => (x.Status || "").toLowerCase() === "converted")
-    },
-    {
-      title: "Unassigned",
-      value: allMetrics.unassigned,
-      filter: () => attendeesData.filter(x => !x.Assignees)
-    },
-    {
-      title: "Missing Status",
-      value: allMetrics.missingStatus,
-      filter: () => attendeesData.filter(x => !x.Status)
-    }
+    { title: "Total Attendees", value: total, sub: "", filter: () => attendeesData },
+    { title: "Lost", value: lost, sub: pct(lost, total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "lost") },
+    { title: "Warm", value: warm, sub: pct(warm, total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "warm") },
+    { title: "Cold", value: cold, sub: pct(cold, total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "cold") },
+    { title: "Converted", value: converted, sub: pct(converted, total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "converted") },
+    { title: "Unassigned", value: unassigned, sub: "", filter: () => attendeesData.filter(x => !x.Assignees) },
+    { title: "Missing Status", value: missing, sub: "", filter: () => attendeesData.filter(x => !x.Status) }
   ];
 
   window.cardFilters = cards;
 
   document.getElementById("cards").innerHTML = cards
     .map((c, i) => `
-      <div class="card" onclick="applyFilter(${i})">
+      <div class="card" onclick="applyCardFilter(${i})">
         <div class="card-title">${c.title}</div>
         <div class="card-value">${c.value}</div>
         ${c.sub ? `<div class="card-sub">${c.sub}</div>` : ""}
@@ -428,77 +387,46 @@ function renderCards() {
     .join("");
 }
 
-/* =========================================================
-   APPLY FILTER FROM CARD CLICK
-========================================================= */
-function applyFilter(i) {
-  const data = window.cardFilters[i].filter();
+function applyCardFilter(i) {
+  const filtered = window.cardFilters[i].filter();
   openTab("people");
-  renderPeopleTable(data);
+  renderPeopleTable(filtered);
 }
 
-/* =========================================================
-   PEOPLE TABLE (ATTENDEES DETAIL)
-========================================================= */
+/* ==========================================
+   PEOPLE TABLE WITH SEARCH
+========================================== */
 function renderPeopleTable(data) {
   if (!data || data.length === 0) {
-    document.getElementById("peopleTable").innerHTML = "<tr><td>No Data</td></tr>";
+    document.getElementById("peopleTable").innerHTML = "<tr><td>No Data Available</td></tr>";
     return;
   }
 
   const headers = Object.keys(data[0]);
-
   let html = "<tr>" + headers.map(h => `<th>${h}</th>`).join("") + "</tr>";
 
   data.forEach(row => {
-    html +=
-      "<tr>" +
-      headers.map(h => `<td>${row[h] || ""}</td>`).join("") +
-      "</tr>";
+    html += "<tr>" + headers.map(h => `<td>${row[h] || ""}</td>`).join("") + "</tr>";
   });
 
   document.getElementById("peopleTable").innerHTML = html;
 }
 
-/* =========================================================
-   SEARCH BAR — REAL TIME SEARCH
-========================================================= */
+/* SEARCH FILTER */
 function searchPeople() {
-  const q = document.getElementById("peopleSearch").value.toLowerCase();
-
-  const filtered = fullAttendeeList.filter(row =>
-    Object.values(row).some(v => (v + "").toLowerCase().includes(q))
+  const text = document.getElementById("searchInput").value.toLowerCase();
+  const filtered = attendeesData.filter(row =>
+    JSON.stringify(row).toLowerCase().includes(text)
   );
-
   renderPeopleTable(filtered);
 }
 
-/* =========================================================
-   INSIGHT PARAGRAPH
-========================================================= */
-function renderInsights() {
-  const t = allMetrics.totalAttendees;
-  const warm = allMetrics.warm;
-  const cold = allMetrics.cold;
-  const lost = allMetrics.lost;
-
-  let text = `
-    Total attendees recorded: <b>${t}</b>.<br><br>
-    Warm leads represent <b>${pct(warm, t)}</b> of all attendees, while 
-    Cold leads account for <b>${pct(cold, t)}</b>.<br><br>
-    Lost leads make up <b>${pct(lost, t)}</b>, which indicates follow-up strength and next-action priority.
-  `;
-
-  document.getElementById("insightText").innerHTML = text;
-}
-</script>
-  <script>
-/* =========================================================
-   CHART UTILITY: GROUP COUNTS BY FIELD
-========================================================= */
-function groupCount(arr, field) {
+/* ==========================================
+   GROUP HELPER
+========================================== */
+function groupCount(data, field) {
   const map = {};
-  arr.forEach(x => {
+  data.forEach(x => {
     const key = (x[field] || "").trim();
     if (!key) return;
     map[key] = (map[key] || 0) + 1;
@@ -506,197 +434,125 @@ function groupCount(arr, field) {
   return map;
 }
 
-/* =========================================================
-   CLICKABLE BAR CHART
-========================================================= */
-function makeBarChart(canvasId, dataObj, clickFilter) {
-  const labels = Object.keys(dataObj);
-  const values = Object.values(dataObj);
+/* ==========================================
+   CHARTS RENDER
+========================================== */
+let charts = {};
 
-  const ctx = document.getElementById(canvasId).getContext("2d");
-  const chart = new Chart(ctx, {
+function renderCharts() {
+  const country = groupCount(attendeesData, "Country");
+  const assignees = groupCount(attendeesData, "Assignees");
+  const sales = groupCount(attendeesData, "Sales Rep");
+
+  charts.country = makeBarChart("countryChart", country, key =>
+    attendeesData.filter(x => (x.Country || "").toLowerCase() === key.toLowerCase())
+  );
+
+  charts.assignee = makeBarChart("assigneeChart", assignees, key =>
+    attendeesData.filter(x => (x.Assignees || "").toLowerCase() === key.toLowerCase())
+  );
+
+  charts.sales = makeBarChart("salesChart", sales, key =>
+    attendeesData.filter(x => (x["Sales Rep"] || "").toLowerCase() === key.toLowerCase())
+  );
+}
+
+/* ==========================================
+   CLICKABLE CHART BUILDER
+========================================== */
+function makeBarChart(id, obj, filterFn) {
+  const ctx = document.getElementById(id);
+
+  if (!ctx) return;
+
+  const labels = Object.keys(obj);
+  const values = Object.values(obj);
+
+  return new Chart(ctx, {
     type: "bar",
     data: {
-      labels: labels,
-      datasets: [
-        {
-          label: "Count",
-          data: values,
-          backgroundColor: "#00aaff88",
-          borderColor: "#33c3ff",
-          borderWidth: 2,
-          hoverBackgroundColor: "#00c3ff",
-          hoverBorderColor: "#00e1ff"
-        }
-      ]
+      labels,
+      datasets: [{
+        label: "Count",
+        data: values,
+        backgroundColor: "#00aaff88",
+        borderColor: "#33c3ff",
+        borderWidth: 2
+      }]
     },
     options: {
-      onClick: (e) => {
-        const points = chart.getElementsAtEventForMode(
-          e,
-          "nearest",
-          { intersect: true },
-          true
-        );
-        if (points.length) {
-          const idx = points[0].index;
-          const key = labels[idx];
-          const filtered = clickFilter(key);
-
+      onClick: (e, items) => {
+        if (items.length > 0) {
+          const index = items[0].index;
+          const key = labels[index];
+          const filtered = filterFn(key);
           openTab("people");
           renderPeopleTable(filtered);
         }
       },
       plugins: {
-        legend: { labels: { color: "#9EC5FF" } }
+        legend: { labels: { color: "#9ec5ff" } }
       },
       scales: {
-        x: { ticks: { color: "#9EC5FF" } },
-        y: { ticks: { color: "#9EC5FF" } }
+        x: { ticks: { color: "#9ec5ff" } },
+        y: { ticks: { color: "#9ec5ff" } }
       }
     }
   });
 }
 
-/* =========================================================
-   RENDER ALL CHARTS
-========================================================= */
-function renderCharts() {
-  // COUNTRY CHART
-  makeBarChart(
-    "countryChart",
-    groupCount(attendeesData, "Country"),
-    (country) =>
-      attendeesData.filter((x) =>
-        (x.Country || "").toLowerCase().includes(country.toLowerCase())
-      )
-  );
+/* ==========================================
+   AI-STYLE INSIGHTS
+========================================== */
+function generateInsights() {
+  const total = attendeesData.length;
 
-  // ASSIGNEE CHART
-  makeBarChart(
-    "assigneeChart",
-    groupCount(attendeesData, "Assignees"),
-    (asg) =>
-      attendeesData.filter(
-        (x) => (x.Assignees || "").toLowerCase() === asg.toLowerCase()
-      )
-  );
+  const warm = attendeesData.filter(x => x.Status?.toLowerCase() === "warm").length;
+  const cold = attendeesData.filter(x => x.Status?.toLowerCase() === "cold").length;
+  const lost = attendeesData.filter(x => x.Status?.toLowerCase() === "lost").length;
 
-  // SALES REP CHART
-  makeBarChart(
-    "salesChart",
-    groupCount(attendeesData, "Sales Rep"),
-    (rep) =>
-      attendeesData.filter(
-        (x) => (x["Sales Rep"] || "").toLowerCase() === rep.toLowerCase()
-      )
-  );
+  document.getElementById("insightBox").innerHTML = `
+    Total attendees recorded: <b>${total}</b>.<br><br>
+    Warm leads represent <b>${pct(warm,total)}</b> of all attendees, 
+    while Cold leads account for <b>${pct(cold,total)}</b>.<br><br>
+    Lost leads make up <b>${pct(lost,total)}</b>, which indicates follow-up strength and next-action priority.
+  `;
 }
 
-/* =========================================================
-   ROI ENGINE — COMPUTATION
-========================================================= */
-function calculateROI() {
-  const totalExpense = allMetrics.totalExpense || 0;
-  const total = allMetrics.totalAttendees || 0;
+/* ==========================================
+   ROI ENGINE
+========================================== */
+function renderROI() {
+  let totalExpense = expenseData.reduce((a, b) => a + b.amount, 0);
+  let totalAttendees = attendeesData.length;
+  let converted = attendeesData.filter(x => x.Status?.toLowerCase() === "converted").length;
 
-  const convertedCount = attendeesData.filter(
-    (x) => (x.Status || "").toLowerCase() === "converted"
-  ).length;
-
-  const costPerAttendee = totalExpense && total ? totalExpense / total : 0;
-  const costPerConverted =
-    totalExpense && convertedCount ? totalExpense / convertedCount : 0;
-
-  const roiScore =
-    totalExpense > 0 ? ((total / totalExpense) * 100).toFixed(2) : 0;
-
-  return {
-    totalExpense,
-    costPerAttendee,
-    costPerConverted,
-    roiScore,
-    convertedCount
-  };
-}
-
-/* =========================================================
-   RENDER ROI CARDS
-========================================================= */
-function renderROICards() {
-  const R = calculateROI();
-
-  const cards = [
-    {
-      t: "Total Expense",
-      v: "Rs. " + R.totalExpense,
-      on: () => openTab("roi")
-    },
-    {
-      t: "Cost Per Attendee",
-      v: "Rs. " + R.costPerAttendee.toFixed(2)
-    },
-    {
-      t: "Cost Per Converted Lead",
-      v:
-        R.convertedCount > 0
-          ? "Rs. " + R.costPerConverted.toFixed(2)
-          : "No converted leads"
-    },
-    {
-      t: "ROI Score",
-      v: R.roiScore + " (Attendees per Rs.100)"
-    }
-  ];
-
-  document.getElementById("roiCards").innerHTML = cards
-    .map(
-      (c) => `
-    <div class="roi-card" onclick="${c.on ? c.on : ""}">
-      <div class="roi-title">${c.t}</div>
-      <div class="roi-value">${c.v}</div>
+  // Cards
+  document.getElementById("roiCards").innerHTML = `
+    <div class="roi-card">
+      <div class="roi-title">Total Expense</div>
+      <div class="roi-value">Rs. ${totalExpense.toLocaleString()}</div>
     </div>
-  `
-    )
-    .join("");
-}
 
-/* =========================================================
-   EXPENSE BREAKDOWN — GROUP BY DESCRIPTION (YOUR OPTION C)
-========================================================= */
-function getExpenseBreakdown() {
-  // Your worker currently does not return rows,
-  // so we need to fetch expense CSV ourselves.
-  return fetch(
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vR6leFmpqIP8TI_pQwtBq7GWRplZ45ywJQsmlP1ev-d3UhCOz0_SjuM3AAo6QDyyvgZbR0xwxTmy9JN/pub?gid=1559770671&single=true&output=csv"
-  )
-    .then((r) => r.text())
-    .then((csv) => {
-      const rows = csv.split("\n").map((r) => r.split(","));
+    <div class="roi-card">
+      <div class="roi-title">Cost Per Attendee</div>
+      <div class="roi-value">Rs. ${(totalExpense / totalAttendees).toFixed(2)}</div>
+    </div>
 
-      let map = {};
-      let total = 0;
+    <div class="roi-card">
+      <div class="roi-title">Cost Per Converted Lead</div>
+      <div class="roi-value">
+        ${converted === 0 ? "No converted leads" : "Rs. " + (totalExpense / converted).toFixed(2)}
+      </div>
+    </div>
 
-      for (let i = 1; i < rows.length; i++) {
-        const desc = (rows[i][1] || "").trim();
-        const amt = parseFloat(rows[i][3]);
+    <div class="roi-card">
+      <div class="roi-title">ROI Score</div>
+      <div class="roi-value">${((totalAttendees / totalExpense) * 100).toFixed(1)} (Attendees per Rs.100)</div>
+    </div>
+  `;
 
-        if (!desc || isNaN(amt)) continue;
-
-        map[desc] = (map[desc] || 0) + amt;
-        total += amt;
-      }
-
-      return { map, total };
-    });
-}
-
-/* =========================================================
-   RENDER EXPENSE TABLE
-========================================================= */
-async function renderExpenseTable() {
-  const { map, total } = await getExpenseBreakdown();
-
+  // Expense Breakdown Table
   let html = `
     <tr>
       <th>Description</th>
@@ -705,30 +561,118 @@ async function renderExpenseTable() {
     </tr>
   `;
 
-  Object.keys(map).forEach((k) => {
-    const val = map[k];
-    const pct = ((val / total) * 100).toFixed(1) + "%";
-
+  expenseData.forEach(row => {
     html += `
       <tr>
-        <td>${k}</td>
-        <td>Rs. ${val}</td>
-        <td>${pct}</td>
+        <td>${row.desc}</td>
+        <td>Rs. ${row.amount.toLocaleString()}</td>
+        <td>${pct(row.amount, totalExpense)}</td>
       </tr>
     `;
   });
 
   document.getElementById("expenseTable").innerHTML = html;
 }
-
-/* =========================================================
-   MASTER INITIALIZER — AFTER DATA LOAD
-========================================================= */
-setTimeout(() => {
-  renderCharts();
-  renderROICards();
-  renderExpenseTable();
-}, 1500);
 </script>
+<!-- ==========================================
+     HEADER SECTION
+========================================== -->
+<div class="header">
+  <h1 class="dash-title">November 2025 Event Dashboard</h1>
+  <div class="subtitle">Premium Glass Neon Edition • Live Google Sheet Sync</div>
 
+  <div class="sync-box">
+    <span class="sync-dot"></span>
+    LIVE DATA FEED • G-SHEETS SYNC
+  </div>
+</div>
 
+<!-- ==========================================
+     NAV TABS
+========================================== -->
+<div class="tab-container">
+  <div class="tab-btn active" onclick="openTab('overview')">Overview</div>
+  <div class="tab-btn" onclick="openTab('people')">Attendees Detail</div>
+  <div class="tab-btn" onclick="openTab('roi')">ROI Analysis</div>
+</div>
+
+<!-- ==========================================
+     OVERVIEW PAGE
+========================================== -->
+<div id="overview" class="tab-page" style="display:block;">
+
+  <h2 class="section-title">Overview Analytics</h2>
+
+  <!-- METRIC CARDS -->
+  <div id="cards" class="card-grid"></div>
+
+  <!-- ============ ANALYTICS GRID (Charts + Insights) ============ -->
+  <div class="analytics-grid">
+
+    <!-- Chart: Attendees by Country -->
+    <div class="chart-box">
+      <h3>Attendees by Country</h3>
+      <canvas id="countryChart"></canvas>
+    </div>
+
+    <!-- Insights -->
+    <div class="insight-box" id="insightBox">
+      Loading insights...
+    </div>
+
+    <!-- Chart: By Assignees -->
+    <div class="chart-box">
+      <h3>By Assignees</h3>
+      <canvas id="assigneeChart"></canvas>
+    </div>
+
+    <!-- Chart: By Sales Rep -->
+    <div class="chart-box">
+      <h3>By Sales Rep</h3>
+      <canvas id="salesChart"></canvas>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==========================================
+     ATTENDEES DETAIL PAGE
+========================================== -->
+<div id="people" class="tab-page">
+
+  <h2 class="section-title">Attendees Detail</h2>
+
+  <input
+    type="text"
+    id="searchInput"
+    onkeyup="searchPeople()"
+    placeholder="Search attendees..."
+    class="search-box"
+  />
+
+  <div id="peopleTableWrapper">
+    <table id="peopleTable"></table>
+  </div>
+
+</div>
+
+<!-- ==========================================
+     ROI PAGE
+========================================== -->
+<div id="roi" class="tab-page">
+
+  <h2 class="section-title">ROI & Spend Analysis</h2>
+
+  <!-- ROI CARDS -->
+  <div class="roi-card-grid" id="roiCards"></div>
+
+  <!-- Expense Breakdown -->
+  <div class="chart-box">
+    <h3>Expense Breakdown</h3>
+    <table id="expenseTable"></table>
+  </div>
+
+</div>
+
+</body>
+</html>
