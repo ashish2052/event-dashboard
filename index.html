@@ -1,172 +1,261 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Event Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<title>November 2025 Event Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-/* DARK NEON THEME */
 body {
   margin: 0;
-  padding: 0;
   font-family: 'Poppins', sans-serif;
   background: #050A1F;
-  color: #E6EEFF;
+  color: #E6EBFF;
 }
 
-/* NAVBAR */
-.navbar {
-  background: rgba(0,0,0,0.35);
-  padding: 18px;
+/* HEADER */
+.header {
   text-align: center;
-  font-size: 22px;
-  color: #77B6FF;
-  text-shadow: 0 0 12px #00BFFF;
-  border-bottom: 1px solid #0E1A45;
-  letter-spacing: 1px;
+  padding: 25px 10px;
+  background: rgba(0,0,0,0.25);
+  border-bottom: 1px solid #0d1a40;
+  box-shadow: 0 0 25px #002a80 inset;
+}
+.header-title {
+  font-size: 38px;
+  font-weight: 700;
+  color: #9EC5FF;
+  text-shadow: 0 0 12px #007bff;
+}
+.header-sub {
+  margin-top: 6px;
+  color: #7AB8FF;
+  font-size: 15px;
+  opacity: 0.9;
+}
+.live-box {
+  margin: auto;
+  margin-top: 12px;
+  padding: 8px 20px;
+  border-radius: 40px;
+  border: 1px solid #1f3f75;
+  background: #06152F;
+  width: fit-content;
+  color: #9EC5FF;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 0 10px #0055ff55 inset;
+}
+.live-dot {
+  width: 10px;
+  height: 10px;
+  background: #00ff88;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #00ff88;
 }
 
-/* TABS */
+/* ================================
+   🔥 TABS — EXACTLY LIKE SCREENSHOT
+   ================================ */
 .tab-container {
   display: flex;
-  padding: 12px;
-  background: #081233;
-  border-bottom: 1px solid #0F2257;
+  justify-content: center;
+  gap: 16px;
+  padding: 18px 10px;
+  background: #040B22;
+  border-bottom: 1px solid #0b1f47;
 }
+
 .tab-btn {
-  padding: 10px 20px;
-  margin-right: 12px;
-  background: #0D1A44;
-  color: #9EC5FF;
-  border: 1px solid #1D3C76;
-  border-radius: 6px;
+  padding: 12px 32px;
+  font-size: 16px;
+  border-radius: 10px;
+  border: 1px solid #1e366e;
+  color: #9ec5ff;
+  background: #0c1b3f;
   cursor: pointer;
-  transition: 0.2s;
+  transition: 0.25s;
+  text-shadow: 0 0 10px #0066ff;
 }
+
 .tab-btn:hover {
-  background: #11245D;
+  background: #12285a;
+  box-shadow: 0 0 12px #0099ff;
 }
+
 .tab-btn.active {
-  background: #0F2E7A;
-  border: 1px solid #3A7DFF;
-  box-shadow: 0 0 20px #0044ff;
+  background: #003a85;
   color: #fff;
+  border-color: #1c6bff;
+  box-shadow: 0 0 15px #1c6bff, 0 0 30px #0044ff;
 }
+
 .tab-page { display: none; }
 
+/* OTHER EXISTING UI */
+.section-title {
+  padding-left: 20px;
+  color: #7AB8FF;
+  margin-bottom: 15px;
+}
+
 /* CARDS */
-#cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 18px;
+.card-grid {
   padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
 }
 .card {
-  padding: 18px;
   background: #0C153C;
-  border: 1px solid #1F2A72;
-  border-radius: 12px;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #1d2f70;
+  transition: 0.25s;
   cursor: pointer;
-  transition: 0.2s;
   box-shadow: 0 0 12px #001a33 inset;
 }
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 0 16px #1E90FF;
+  transform: translateY(-4px);
+  box-shadow: 0 0 14px #009dff;
 }
-.card-title { font-size: 16px; color: #8DBBFF; }
-.card-value { font-size: 34px; font-weight: bold; color: #fff; text-shadow: 0 0 12px #009DFF; }
-.card-sub { font-size: 14px; color: #7FD2FF; margin-top: 4px; }
+.card-title {
+  font-size: 15px;
+  color: #8EBEFF;
+  margin-bottom: 6px;
+}
+.card-value {
+  font-size: 30px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 0 10px #00baff;
+}
+.card-sub {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #6fd0ff;
+}
 
-/* CHARTS */
-.chart-row {
+/* CHART GRID */
+.analytics-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18px;
+  gap: 20px;
   padding: 20px;
 }
 .chart-box {
-  padding: 20px;
   background: #0C153C;
-  border-radius: 12px;
-  border: 1px solid #1D2F70;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #1d2f70;
   box-shadow: 0 0 12px #001a33 inset;
 }
-.chart-box h3 {
-  color: #7AB8FF;
-  text-shadow: 0 0 8px #008cff;
-}
 
-/* INSIGHTS */
-.insight-box {
-  padding: 20px;
+/* ================================
+   🔥 EVENT INSIGHT BOX — UPGRADED
+   ================================ */
+#insightBox {
   background: #0C153C;
-  border: 1px solid #1D2F70;
-  border-radius: 12px;
-  box-shadow: 0 0 15px #003366;
-  color: #bcd9ff;
+  border: 1px solid #1d2f70;
+  border-radius: 14px;
+  padding: 20px;
   line-height: 1.7;
+  font-size: 15px;
+  color: #DCE8FF;
+  box-shadow: 0 0 18px #001a33 inset;
 }
-.insight-title { font-size: 20px; margin-bottom: 10px; }
 
-/* PEOPLE TABLE */
-#peopleSearch {
-  width: 60%;
-  padding: 10px;
-  margin: 20px;
+/* 🔥 Glowing Title */
+.insight-title-big {
+  font-size: 28px;
+  text-align: center;
+  color: #7AB8FF;
+  font-weight: 700;
+  text-shadow: 0 0 12px #007bff, 0 0 20px #004CFF;
+  margin-bottom: 20px;
+}
+
+/* SEARCH */
+.search-box {
+  margin-left: 20px;
+  margin-bottom: 20px;
+  padding: 10px 15px;
+  width: 50%;
   border-radius: 8px;
-  border: 1px solid #1E3A7A;
-  background: #0A1438;
-  color: #A8CEFF;
+  border: 1px solid #1C3B7A;
+  background: #0a1433;
+  color: #9EC5FF;
 }
-.table-box { padding: 0 20px 20px; }
 
+/* TABLE */
 table {
   width: 100%;
   border-collapse: collapse;
-  background: #0C153C;
-  border: 1px solid #1C3B7A;
+  background: #0c153c;
+  border: 1px solid #1c3b7a;
 }
 th {
-  background: #102258;
-  padding: 10px;
-  color: #A8CEFF;
+  background: #15234a;
+  padding: 12px;
+  color: #9ec5ff;
 }
 td {
   padding: 10px;
-  border-bottom: 1px solid #1C3B7A;
-  color: #DFE8FF;
+  border-bottom: 1px solid #1a2e60;
+  color: #dbe4ff;
 }
-tr:hover { background: #101A44; }
+tr:hover {
+  background: #16244d;
+}
 
-/* ROI PAGE */
-#roiCards {
+/* ROI */
+.roi-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 20px;
   padding: 20px;
 }
 .roi-card {
-  background: #0C153C;
-  padding: 18px;
+  background: #141426;
+  border: 1px solid #23335a;
+  padding: 20px;
   border-radius: 12px;
-  border: 1px solid #1F2A72;
-  box-shadow: 0 0 12px #001933 inset;
+  text-align: center;
+  box-shadow: 0 0 10px #122244 inset;
 }
-.roi-title { font-size: 16px; color: #8DBBFF; }
-.roi-value { font-size: 28px; color: #fff; margin-top: 6px; text-shadow: 0 0 10px #00B2FF; }
-
+.roi-card:nth-child(4) {
+  display: none !important;
+}
+.roi-title {
+  color: #7AB8FF;
+  margin-bottom: 6px;
+}
+.roi-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 0 10px #00c3ff;
+}
 </style>
 </head>
 
 <body>
 
-<div class="navbar">EVENT DASHBOARD • Real-Time Google Sheet Sync</div>
+<!-- HEADER -->
+<div class="header">
+  <div class="header-title">November 2025 Event Dashboard</div>
+  <div class="header-sub">Premium Glass Neon Edition · Live Google Sheet Sync</div>
+  <div class="live-box">
+    <div class="live-dot"></div>
+    LIVE DATA FEED — CLOUDFLARE WORKER SYNC
+  </div>
+</div>
 
+<!-- 🔥 TABS -->
 <div class="tab-container">
   <div class="tab-btn active" onclick="openTab('overview')">Overview</div>
   <div class="tab-btn" onclick="openTab('people')">Attendees Detail</div>
@@ -175,26 +264,29 @@ tr:hover { background: #101A44; }
 
 <!-- OVERVIEW -->
 <div id="overview" class="tab-page" style="display:block;">
-  <h2 style="padding-left:20px;color:#7AB8FF;">Overview Analytics</h2>
-  <div id="cards"></div>
+  <h2 class="section-title">Overview Analytics</h2>
 
-  <div class="chart-row">
+  <div id="cards" class="card-grid"></div>
+
+  <!-- CHART + INSIGHTS -->
+  <div class="analytics-grid">
     <div class="chart-box">
       <h3>Attendees by Country</h3>
       <canvas id="countryChart"></canvas>
     </div>
 
-    <div class="insight-box">
-      <div class="insight-title">Event Insights — Auto Generated</div>
-      <div id="insightText">Loading...</div>
+    <div id="insightBox">
+      <div class="insight-title-big">EVENT INSIGHTS — AUTO GENERATED</div>
+      Loading insights...
     </div>
   </div>
 
-  <div class="chart-row">
+  <div class="analytics-grid">
     <div class="chart-box">
       <h3>By Assignees</h3>
       <canvas id="assigneeChart"></canvas>
     </div>
+
     <div class="chart-box">
       <h3>By Sales Rep</h3>
       <canvas id="salesChart"></canvas>
@@ -204,152 +296,207 @@ tr:hover { background: #101A44; }
 
 <!-- PEOPLE -->
 <div id="people" class="tab-page">
-  <h2 style="padding-left:20px;color:#7AB8FF;">Attendees Detail</h2>
-  <input id="peopleSearch" type="text" placeholder="Search attendees..." onkeyup="searchPeople()" />
-  <div class="table-box">
-    <table id="peopleTable"></table>
-  </div>
+  <h2 class="section-title">Attendees Detail</h2>
+  <input type="text" id="searchInput" class="search-box" placeholder="Search attendees..." onkeyup="searchPeople()">
+  <table id="peopleTable"></table>
 </div>
 
 <!-- ROI -->
 <div id="roi" class="tab-page">
-  <h2 style="padding-left:20px;color:#7AB8FF;">ROI & Spend Analysis</h2>
-  <div id="roiCards"></div>
-
-  <div class="chart-box" style="margin:20px;">
+  <h2 class="section-title">ROI & Spend Analysis</h2>
+  <div class="roi-card-grid" id="roiCards"></div>
+  <div class="chart-box">
     <h3>Expense Breakdown</h3>
     <table id="expenseTable"></table>
   </div>
 </div>
 
 <script>
-/* GLOBAL */
+
+/* ============================================================
+   CORE VARIABLES
+============================================================ */
 let attendeesData = [];
-let fullList = [];
-let metrics = {};
-let expenses = [];
+let expenseData = [];
+let cardFilters = [];
+let charts = {};
 
-/* TABS */
-function openTab(tab) {
-  document.querySelectorAll(".tab-page").forEach(t => t.style.display = "none");
+/* ============================================================
+   TAB SWITCH
+============================================================ */
+function openTab(tabName) {
+  document.querySelectorAll(".tab-page").forEach(t => t.style.display="none");
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-  document.getElementById(tab).style.display = "block";
-  [...document.querySelectorAll(".tab-btn")]
-    .find(x => x.textContent.toLowerCase().includes(tab))
-    ?.classList.add("active");
 
-  if (tab === "people") renderPeopleTable(attendeesData);
+  document.getElementById(tabName).style.display="block";
+  [...document.querySelectorAll(".tab-btn")]
+    .find(btn => btn.textContent.toLowerCase().includes(tabName))
+    .classList.add("active");
+
+  if (tabName === "people") renderPeopleTable(attendeesData);
+  if (tabName === "roi") renderROI();
 }
 
-/* LOAD DATA */
+/* ============================================================
+   FETCH WORKER DATA
+============================================================ */
 async function loadData() {
   const url = "https://novevent-report-worker.ashishoct34.workers.dev/";
   const res = await fetch(url);
   const json = await res.json();
 
   attendeesData = json.attendees;
-  fullList = [...attendeesData];
-  metrics = json.metrics;
-  expenses = json.expenses || [];
+  expenseData = json.expenses || [];
 
   renderCards();
   renderCharts();
-  renderInsights();
-  renderROICards();
-  renderExpenseTable();
+  generateInsights();
 }
 loadData();
 
-/* % helper */
+/* ============================================================
+   HELPER FUNCTIONS
+============================================================ */
 function pct(v, total) {
   if (!total) return "0%";
-  return ((v / total) * 100).toFixed(1) + "%";
+  return ((v/total)*100).toFixed(1) + "%";
 }
 
-/* CARDS */
-function renderCards() {
-  const total = metrics.totalAttendees;
-  const lost = metrics.lost;
-  const warm = metrics.warm;
-  const cold = metrics.cold;
-  const converted = attendeesData.filter(x => (x.Status || "").toLowerCase() === "converted").length;
+function groupCount(data, field) {
+  const map = {};
+  data.forEach(x => {
+    const raw = (x[field] || "").trim();
+    if (!raw) return;
+    raw.split(",").forEach(v => {
+      const key = v.trim();
+      if (key) map[key] = (map[key] || 0) + 1;
+    });
+  });
+  return map;
+}
 
-  const data = [
-    { t: "Total Attendees", v: total, f: () => attendeesData },
-    { t: "Lost", v: lost, sub:pct(lost,total), f: () => attendeesData.filter(x => (x.Status||"").toLowerCase()==="lost") },
-    { t: "Warm", v: warm, sub:pct(warm,total), f: () => attendeesData.filter(x => (x.Status||"").toLowerCase()==="warm") },
-    { t: "Cold", v: cold, sub:pct(cold,total), f: () => attendeesData.filter(x => (x.Status||"").toLowerCase()==="cold") },
-    { t: "Converted", v: converted, sub:pct(converted,total), f: () => attendeesData.filter(x => (x.Status||"").toLowerCase()==="converted") },
-    { t: "Unassigned", v: metrics.unassigned, f: () => attendeesData.filter(x => !x.Assignees) },
-    { t: "Missing Status", v: metrics.missingStatus, f: () => attendeesData.filter(x => !x.Status) },
+/* ============================================================
+   RENDER CARDS
+============================================================ */
+function renderCards() {
+  const total = attendeesData.length;
+  const lost = attendeesData.filter(x => x.Status?.toLowerCase()=="lost").length;
+  const warm = attendeesData.filter(x => x.Status?.toLowerCase()=="warm").length;
+  const cold = attendeesData.filter(x => x.Status?.toLowerCase()=="cold").length;
+  const converted = attendeesData.filter(x => x.Status?.toLowerCase()=="converted").length;
+  const unassigned = attendeesData.filter(x => !x.Assignees).length;
+  const missing = attendeesData.filter(x => !x.Status).length;
+
+  const list = [
+    {title:"Total Attendees", value:total, filter:()=>attendeesData},
+    {title:"Lost", value:lost, sub:pct(lost,total), filter:()=>attendeesData.filter(x=>x.Status?.toLowerCase()=="lost")},
+    {title:"Warm", value:warm, sub:pct(warm,total), filter:()=>attendeesData.filter(x=>x.Status?.toLowerCase()=="warm")},
+    {title:"Cold", value:cold, sub:pct(cold,total), filter:()=>attendeesData.filter(x=>x.Status?.toLowerCase()=="cold")},
+    {title:"Converted", value:converted, sub:pct(converted,total), filter:()=>attendeesData.filter(x=>x.Status?.toLowerCase()=="converted")},
+    {title:"Unassigned", value:unassigned, filter:()=>attendeesData.filter(x=>!x.Assignees || x.Assignees.trim()=="")},
+    {title:"Missing Status", value:missing, filter:()=>attendeesData.filter(x=>!x.Status)}
   ];
 
-  window.cardFilters = data;
+  cardFilters = list;
 
-  document.getElementById("cards").innerHTML = data.map((c,i)=>`
-    <div class="card" onclick="applyFilter(${i})">
-      <div class="card-title">${c.t}</div>
-      <div class="card-value">${c.v}</div>
+  document.getElementById("cards").innerHTML = list.map((c,i)=>`
+    <div class="card" onclick="applyCardFilter(${i})">
+      <div class="card-title">${c.title}</div>
+      <div class="card-value">${c.value}</div>
       ${c.sub ? `<div class="card-sub">${c.sub}</div>` : ""}
     </div>
   `).join("");
 }
 
-function applyFilter(i) {
-  const filtered = window.cardFilters[i].f();
+/* ============================================================
+   CARD FILTER
+============================================================ */
+function applyCardFilter(i) {
+  const filtered = cardFilters[i].filter();
   openTab("people");
   renderPeopleTable(filtered);
 }
 
-/* PEOPLE TABLE */
-function renderPeopleTable(list) {
-  if (!list || list.length === 0) {
-    document.getElementById("peopleTable").innerHTML = "<tr><td>No Data</td></tr>";
+/* ============================================================
+   PEOPLE TABLE
+============================================================ */
+function renderPeopleTable(data) {
+  const table = document.getElementById("peopleTable");
+  if (!data || data.length === 0) {
+    table.innerHTML = `<tr><td>No Data Available</td></tr>`;
     return;
   }
-
-  const headers = Object.keys(list[0]);
+  const headers = Object.keys(data[0]);
   let html = "<tr>" + headers.map(h=>`<th>${h}</th>`).join("") + "</tr>";
 
-  list.forEach(row => {
-    html += "<tr>" + headers.map(h=>`<td>${row[h]||""}</td>`).join("") + "</tr>";
+  data.forEach(row => {
+    html += "<tr>" + headers.map(h=> `<td>${row[h]||""}</td>`).join("") + "</tr>";
   });
 
-  document.getElementById("peopleTable").innerHTML = html;
+  table.innerHTML = html;
 }
 
 function searchPeople() {
-  const q = document.getElementById("peopleSearch").value.toLowerCase();
-  const filtered = fullList.filter(row =>
-    Object.values(row).some(v => (v + "").toLowerCase().includes(q))
+  const q = document.getElementById("searchInput").value.toLowerCase();
+  const filtered = attendeesData.filter(row =>
+    JSON.stringify(row).toLowerCase().includes(q)
   );
   renderPeopleTable(filtered);
 }
 
-/* GROUP BY FIELD */
-function groupCount(arr, field) {
-  const map = {};
-  arr.forEach(x => {
-    const key = (x[field] || "").trim();
-    if (!key) return;
-    map[key] = (map[key] || 0) + 1;
-  });
-  return map;
+/* ============================================================
+   CHARTS
+============================================================ */
+function renderCharts() {
+  const country = groupCount(attendeesData, "Country");
+  const assignees = groupCount(attendeesData, "Assignees");
+  const salesRep = groupCount(attendeesData, "Sales Rep");
+
+  charts.country = makeBar("countryChart", country, key =>
+    attendeesData.filter(x =>
+      (x.Country || "")
+        .toLowerCase()
+        .split(",")
+        .map(v=>v.trim())
+        .includes(key.toLowerCase())
+    )
+  );
+
+  charts.assignee = makeBar("assigneeChart", assignees, key =>
+    attendeesData.filter(x =>
+      (x.Assignees || "")
+        .toLowerCase()
+        .split(",")
+        .map(v=>v.trim())
+        .includes(key.toLowerCase())
+    )
+  );
+
+  charts.sales = makeBar("salesChart", salesRep, key =>
+    attendeesData.filter(x =>
+      (x["Sales Rep"] || "")
+        .toLowerCase()
+        .split(",")
+        .map(v=>v.trim())
+        .includes(key.toLowerCase())
+    )
+  );
 }
 
-/* CHARTS */
-function makeChart(id, dataObj, filterFn) {
+function makeBar(id, dataObj, filterFn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+
   const labels = Object.keys(dataObj);
   const values = Object.values(dataObj);
-  const ctx = document.getElementById(id);
 
-  return new Chart(ctx, {
-    type: "bar",
-    data: {
+  return new Chart(el, {
+    type:"bar",
+    data:{
       labels,
-      datasets: [{
+      datasets:[{
         label:"Count",
-        data: values,
+        data:values,
         backgroundColor:"#00aaff88",
         borderColor:"#33c3ff",
         borderWidth:2
@@ -358,110 +505,128 @@ function makeChart(id, dataObj, filterFn) {
     options:{
       onClick:(evt, items)=>{
         if(items.length){
-          const idx = items[0].index;
-          const key = labels[idx];
+          const i = items[0].index;
+          const key = labels[i];
           const filtered = filterFn(key);
           openTab("people");
           renderPeopleTable(filtered);
         }
       },
+      plugins:{ legend:{ labels:{ color:"#9ec5ff" } }},
       scales:{
-        x:{ ticks:{ color:"#9ec5ff" } },
-        y:{ ticks:{ color:"#9ec5ff" } }
+        x:{ ticks:{ color:"#9ec5ff" }},
+        y:{ ticks:{ color:"#9ec5ff" }}
       }
     }
   });
 }
 
-function renderCharts() {
-  makeChart(
-    "countryChart",
-    groupCount(attendeesData, "Country"),
-    (key)=> attendeesData.filter(x => (x.Country||"").toLowerCase() === key.toLowerCase())
-  );
-  makeChart(
-    "assigneeChart",
-    groupCount(attendeesData, "Assignees"),
-    (key)=> attendeesData.filter(x => (x.Assignees||"").toLowerCase() === key.toLowerCase())
-  );
-  makeChart(
-    "salesChart",
-    groupCount(attendeesData, "Sales Rep"),
-    (key)=> attendeesData.filter(x => (x["Sales Rep"]||"").toLowerCase() === key.toLowerCase())
-  );
-}
-
-/* INSIGHTS */
-function renderInsights() {
-  const t = attendeesData.length;
-  const warm = metrics.warm;
-  const cold = metrics.cold;
-  const lost = metrics.lost;
+/* ============================================================
+   🔥 EVENT INSIGHT ENGINE — 5 SECTION ANALYTICAL
+============================================================ */
+function generateInsights() {
+  const total = attendeesData.length;
 
   const countryMap = groupCount(attendeesData, "Country");
-  const topCountry = Object.entries(countryMap).sort((a,b)=>b[1]-a[1])[0];
+  const countries = Object.entries(countryMap).sort((a,b)=>b[1]-a[1]);
+  const c1 = countries[0] || ["N/A",0];
+  const c2 = countries[1] || ["N/A",0];
 
-  const countryText = topCountry
-    ? `${topCountry[0]} has the highest attendees (${topCountry[1]} people).`
-    : "No country data available.";
+  const lost = attendeesData.filter(x=>x.Status?.toLowerCase()=="lost").length;
+  const warm = attendeesData.filter(x=>x.Status?.toLowerCase()=="warm").length;
+  const cold = attendeesData.filter(x=>x.Status?.toLowerCase()=="cold").length;
+  const converted = attendeesData.filter(x=>x.Status?.toLowerCase()=="converted").length;
 
-  document.getElementById("insightText").innerHTML = `
-    <p>${countryText}</p>
-    <p>Warm: <b>${pct(warm,t)}</b> · Cold: <b>${pct(cold,t)}</b></p>
-    <p>Lost leads form <b>${pct(lost,t)}</b>, showing follow-up priority.</p>
+  const asgMap = groupCount(attendeesData, "Assignees");
+  const asgSorted = Object.entries(asgMap).sort((a,b)=>b[1]-a[1]);
+  const asgTop = asgSorted[0] || ["N/A",0];
+
+  const repMap = groupCount(attendeesData, "Sales Rep");
+  const repSorted = Object.entries(repMap).sort((a,b)=>b[1]-a[1]);
+  const repTop = repSorted[0] || ["N/A",0];
+
+  const html = `
+    <div class="insight-title-big">EVENT INSIGHTS — AUTO GENERATED</div>
+
+    <b>1. Geographic Reach & Market Momentum</b><br>
+    ${c1[0]} recorded the highest turnout with <b>${c1[1]} attendees</b>,
+    outperforming ${c2[0]} by <b>${c1[1]-c2[1]}</b>. This reflects stronger traction in
+    key outbound regions.<br><br>
+
+    <b>2. Lead Quality & Engagement Flow</b><br>
+    Lost leads account for <b>${pct(lost,total)}</b>, indicating follow-up drop-offs.
+    Warm leads stand at <b>${pct(warm,total)}</b>, showing growth potential, while 
+    conversions at <b>${pct(converted,total)}</b> highlight scope for better nurturing.<br><br>
+
+    <b>3. Assignee Load Distribution</b><br>
+    ${asgTop[0]} handled <b>${asgTop[1]}</b> assignments—much higher than other team members.
+    This imbalance may affect response quality and speed.<br><br>
+
+    <b>4. Sales Rep Engagement</b><br>
+    ${repTop[0]} initiated the most follow-ups (<b>${repTop[1]}</b>), demonstrating stronger
+    lead ownership. A more even distribution could improve overall conversion.<br><br>
+
+    <b>5. Strategic Takeaways</b><br>
+    Improving assignment balance, strengthening warm-lead nurturing, and supporting top
+    performers can significantly boost conversion quality and event ROI.
   `;
+
+  document.getElementById("insightBox").innerHTML = html;
 }
 
-/* ROI (without ROI ratio card) */
-function renderROICards() {
-  const totalExp = metrics.totalExpense;
-  const total = metrics.totalAttendees;
-
-  const converted = attendeesData.filter(
-    x => (x.Status||"").toLowerCase()==="converted"
-  ).length;
-
-  const cpa = total ? totalExp / total : 0;
-  const cpc = converted ? totalExp / converted : 0;
-
-  const cards = [
-    { t:"Total Expense", v:"Rs. "+totalExp.toLocaleString() },
-    { t:"Cost Per Attendee", v:"Rs. "+cpa.toFixed(2) },
-    { t:"Cost Per Converted", v: converted ? ("Rs. "+cpc.toFixed(2)) : "No converted leads" }
-  ];
-
-  document.getElementById("roiCards").innerHTML = cards.map(c => `
-    <div class="roi-card">
-      <div class="roi-title">${c.t}</div>
-      <div class="roi-value">${c.v}</div>
-    </div>
-  `).join("");
-}
-
-/* EXPENSE TABLE */
-async function renderExpenseTable() {
-  if (!expenses.length){
-    document.getElementById("expenseTable").innerHTML = "<tr><td>No Expense Data</td></tr>";
+/* ============================================================
+   ROI
+============================================================ */
+function renderROI() {
+  if (!expenseData || expenseData.length === 0) {
+    document.getElementById("roiCards").innerHTML = `<div class='roi-card'>No expense data found.</div>`;
     return;
   }
 
-  const total = expenses.reduce((s,r)=>s+r.Amount,0);
-  let html = `
-    <tr><th>Description</th><th>Amount</th><th>% of Total</th></tr>
+  const totalExp = expenseData.reduce((s,r)=>s+(+r.Amount || 0),0);
+  const totalAtt = attendeesData.length;
+  const converted = attendeesData.filter(x=>x.Status?.toLowerCase()=="converted").length;
+
+  document.getElementById("roiCards").innerHTML = `
+    <div class="roi-card">
+      <div class="roi-title">Total Expense</div>
+      <div class="roi-value">Rs. ${totalExp.toLocaleString()}</div>
+    </div>
+
+    <div class="roi-card">
+      <div class="roi-title">Cost Per Attendee</div>
+      <div class="roi-value">Rs. ${(totalExp/totalAtt).toFixed(2)}</div>
+    </div>
+
+    <div class="roi-card">
+      <div class="roi-title">Cost Per Converted Lead</div>
+      <div class="roi-value">${
+        converted===0 ? "No converted leads" : "Rs. "+(totalExp/converted).toFixed(2)
+      }</div>
+    </div>
   `;
 
-  expenses.forEach(e=>{
+  let html = `
+    <tr>
+      <th>Description</th>
+      <th>Amount</th>
+      <th>% of Total</th>
+    </tr>
+  `;
+
+  expenseData.forEach(r=>{
     html += `
       <tr>
-        <td>${e.Description}</td>
-        <td>Rs. ${e.Amount.toLocaleString()}</td>
-        <td>${pct(e.Amount,total)}</td>
+        <td>${r.Description}</td>
+        <td>Rs. ${(+r.Amount).toLocaleString()}</td>
+        <td>${pct(r.Amount,totalExp)}</td>
       </tr>
     `;
   });
 
   document.getElementById("expenseTable").innerHTML = html;
 }
+
 </script>
 
 </body>
