@@ -1,61 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Event Analytics Dashboard</title>
 
   <style>
     body {
-      background: #0e0e0e;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      padding: 20px;
+      background: #0a0a0a;
+      margin: 0;
+      padding: 30px;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: white;
     }
 
+    /* UPDATED HEADER – gradient + bigger + glow */
     h1 {
       text-align: center;
-      margin-bottom: 30px;
-      color: #fff;
+      font-size: 40px;
+      background: linear-gradient(90deg, #00eaff, #8f00ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 12px rgba(0, 255, 255, 0.3);
+      margin-bottom: 40px;
     }
 
     .cards {
       display: flex;
       flex-wrap: wrap;
-      gap: 20px;
       justify-content: center;
+      gap: 25px;
     }
 
+    /* UPDATED CARDS – glow + hover lift */
     .card {
-      background: #1c1c1c;
-      padding: 25px;
       width: 220px;
-      border-radius: 10px;
+      padding: 25px;
+      background: #1a1a1a;
+      border-radius: 14px;
       text-align: center;
-      box-shadow: 0 0 8px rgba(255, 255, 255, 0.05);
-      transition: 0.2s;
+      transition: 0.25s;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
     }
 
     .card:hover {
-      transform: scale(1.05);
-      background: #222;
+      transform: translateY(-6px);
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.25);
     }
 
     .label {
       font-size: 18px;
-      margin-bottom: 8px;
       opacity: 0.8;
+      margin-bottom: 8px;
     }
 
     .value {
-      font-size: 32px;
+      font-size: 36px;
       font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    /* small footer text to confirm code version */
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      opacity: 0.4;
+      font-size: 14px;
     }
   </style>
+
 </head>
 <body>
-  
-  <h1>Event Analytics Dashboard</h1>
+
+  <h1>Event Analytics Dashboard v2.0</h1>
 
   <div class="cards">
     <div class="card"><div class="label">Total Attendees</div><div id="totalAttendees" class="value">0</div></div>
@@ -64,19 +81,21 @@
     <div class="card"><div class="label">Converted</div><div id="converted" class="value">0</div></div>
     <div class="card"><div class="label">Lost</div><div id="lost" class="value">0</div></div>
     <div class="card"><div class="label">Warm + Cold</div><div id="warmCold" class="value">0</div></div>
-    <div class="card"><div class="label">Avg Follow Ups</div><div id="followups" class="value">0</div></div>
+    <div class="card"><div class="label">Avg Follow Ups</div><div id="avgFU" class="value">0</div></div>
     <div class="card"><div class="label">Total Expense</div><div id="totalExpense" class="value">0</div></div>
   </div>
 
+
   <script>
-    async function loadData() {
+    async function loadDashboard() {
+      const url = "https://novevent-report-worker.ashishoct34.workers.dev/";
+
       try {
-        const url = "https://novevent-report-worker.ashishoct34.workers.dev/";
-        const res = await fetch(url);
+        const res = await fetch(url, { mode: "cors" });
         const data = await res.json();
 
         if (!data.success) {
-          alert("Error loading data!");
+          console.error("API error", data);
           return;
         }
 
@@ -90,25 +109,32 @@
         document.getElementById("warmCold").innerText = m.warmCold;
         document.getElementById("totalExpense").innerText = m.totalExpense;
 
-        // Calculate avg followup (simple example)
-        const attendees = data.attendees;
-        let totalFU = 0, count = 0;
+        // Calculate avg follow-ups
+        const attendees = data.attendees ?? [];
+        let total = 0, count = 0;
 
         attendees.forEach(a => {
           const fu = parseInt(a["Follow up attempts"]);
           if (!isNaN(fu)) {
-            totalFU += fu;
+            total += fu;
             count++;
           }
         });
-        document.getElementById("followups").innerText = count === 0 ? 0 : (totalFU / count).toFixed(1);
 
-      } catch (e) {
-        console.log("Error:", e);
+        document.getElementById("avgFU").innerText =
+          count === 0 ? "0" : (total / count).toFixed(1);
+
+      } catch (err) {
+        console.error("Fetch error:", err);
       }
     }
 
-    loadData();
+    loadDashboard();
   </script>
+
+  <footer>
+    Dashboard build: <b>v2.0 UI Updated</b>
+  </footer>
+
 </body>
 </html>
