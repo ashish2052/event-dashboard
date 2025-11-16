@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 <meta charset="UTF-8">
 <title>Event Analytics Dashboard</title>
@@ -8,7 +9,7 @@
 <style>
 
 :root {
-    --bg: #0d1117;
+    --bg: #0e1117;
     --card-bg: #161b22;
     --border: rgba(255,255,255,0.08);
     --text: #e6edf3;
@@ -44,7 +45,7 @@ body {
 }
 
 .live-badge {
-    margin-top: 10px;
+    margin-top: 12px;
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -65,7 +66,7 @@ body {
     box-shadow: 0 0 8px var(--accent-glow);
 }
 
-/* TABS — HR analytics style */
+/* TABS */
 .tabs {
     display: flex;
     gap: 14px;
@@ -94,20 +95,18 @@ body {
     border-color: var(--accent);
 }
 
-/* MAIN CONTENT AREA */
+/* MAIN CONTENT */
 .container {
     padding: 20px 40px 40px 40px;
 }
 
-/* CARDS GRID */
 .cards {
     display: grid;
-    gap: 20px;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 22px;
     margin-top: 20px;
 }
 
-/* INDIVIDUAL CARD */
 .card {
     background: var(--card-bg);
     border: 1px solid var(--border);
@@ -117,9 +116,9 @@ body {
 }
 
 .card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
     border-color: var(--accent);
-    box-shadow: 0 0 10px rgba(47,129,247,0.15);
+    box-shadow: 0 0 10px rgba(47,129,247,0.18);
 }
 
 .card h2 {
@@ -134,7 +133,6 @@ body {
     font-size: 14px;
 }
 
-/* HIDE TABS */
 .hidden { display: none; }
 
 </style>
@@ -142,7 +140,7 @@ body {
 
 <body>
 
-<!-- HEADER SECTION -->
+<!-- HEADER -->
 <div class="header">
     <div class="header-title">Event Analytics Dashboard</div>
     <div class="header-sub">Premium Edition • Live Cloudflare Data</div>
@@ -154,63 +152,29 @@ body {
     <div class="tab active" onclick="showTab('overview')">Overview</div>
     <div class="tab" onclick="showTab('attendees')">Attendees</div>
     <div class="tab" onclick="showTab('expenses')">Expenses</div>
-    <div class="tab" onclick="showTab('unassigned')">Unassigned</div>
 </div>
 
-<!-- OVERVIEW SECTION -->
+<!-- OVERVIEW -->
 <div id="overview" class="container">
 
     <div class="cards">
 
-        <div class="card">
-            <h2 id="totalAttendees">0</h2>
-            <p>Total Attendees</p>
-        </div>
+        <div class="card"><h2 id="totalAttendees">0</h2><p>Total Attendees</p></div>
+        <div class="card"><h2 id="totalConverted">0</h2><p>Converted (% of total)</p></div>
+        <div class="card"><h2 id="totalLost">0</h2><p>Lost (% of total)</p></div>
 
-        <div class="card">
-            <h2 id="totalConverted">0</h2>
-            <p>Converted (% of total)</p>
-        </div>
+        <div class="card"><h2 id="warmCold">0</h2><p>Warm + Cold</p></div>
+        <div class="card"><h2 id="avgFollowUps">0</h2><p>Avg Follow Ups (Lost)</p></div>
+        <div class="card"><h2 id="coeCount">0</h2><p>COE Obtained</p></div>
 
-        <div class="card">
-            <h2 id="totalLost">0</h2>
-            <p>Lost (% of total)</p>
-        </div>
-
-        <div class="card">
-            <h2 id="avgFollowUps">0</h2>
-            <p>Avg Follow Ups (Lost)</p>
-        </div>
-
-        <div class="card">
-            <h2 id="eventCost">0</h2>
-            <p>Total Event Cost</p>
-        </div>
-
-        <div class="card">
-            <h2 id="coeCount">0</h2>
-            <p>COE Obtained</p>
-        </div>
-
-        <div class="card">
-            <h2 id="warmCold">0</h2>
-            <p>Warm + Cold</p>
-        </div>
-
-        <div class="card">
-            <h2 id="unassignedAttendees">0</h2>
-            <p>Unassigned Attendees</p>
-        </div>
-
-        <div class="card">
-            <h2 id="unassignedStatus">0</h2>
-            <p>Missing Status</p>
-        </div>
+        <div class="card"><h2 id="unassignedAttendees">0</h2><p>Unassigned Attendees</p></div>
+        <div class="card"><h2 id="missingStatus">0</h2><p>Missing Status</p></div>
+        <div class="card"><h2 id="eventCost">0</h2><p>Total Event Cost</p></div>
 
     </div>
 </div>
 
-<!-- OTHER TAB SECTIONS -->
+<!-- EMPTY TABS (WILL BUILD NEXT) -->
 <div id="attendees" class="container hidden">
     <h2>Attendees Data</h2>
 </div>
@@ -219,109 +183,46 @@ body {
     <h2>Expenses Data</h2>
 </div>
 
-<div id="unassigned" class="container hidden">
-    <h2>Unassigned Overview</h2>
-</div>
-<!-- JAVASCRIPT SECTION -->
+<!-- JS -->
 <script>
 
-// TAB SWITCHING
 function showTab(tabName) {
     document.querySelectorAll(".container").forEach(el => el.classList.add("hidden"));
     document.getElementById(tabName).classList.remove("hidden");
-
     document.querySelectorAll(".tab").forEach(el => el.classList.remove("active"));
     event.target.classList.add("active");
 }
 
-// CLEAN STRING
-const clean = (x) => (x || "").replace(/['"]+/g, "").trim().toLowerCase();
-
-// NORMALIZE STATUS (Fix messy CSV)
-function normalizeStatus(raw) {
-    const s = clean(raw);
-
-    if (s.includes("convert") || s.includes("coe")) return "converted";
-    if (s.includes("lost")) return "lost";
-    if (s.includes("warm")) return "warm";
-    if (s.includes("cold")) return "cold";
-
-    // Students studying
-    if (s.includes("studying") || s.includes("ielts")) return "warm";
-
-    // Very long random descriptions = treat as lost
-    if (s.length > 15 && !s.includes("interested")) return "lost";
-
-    return s || "";
-}
-
-// FETCH & PROCESS DATA
 async function loadData() {
+
     const res = await fetch("https://novevent-report-worker.ashishoct34.workers.dev/");
     const data = await res.json();
 
-    const attendees = data.attendees || [];
-    const expenses = data.expenses || [];
+    const m = data.metrics;
 
-    // Normalize statuses
-    attendees.forEach(a => a._status = normalizeStatus(a.Status));
+    // Update cards
+    document.getElementById("totalAttendees").textContent = m.totalAttendees;
 
-    // TOTAL ATTENDEES
-    const total = attendees.length;
-
-    // COUNTS
-    const converted = attendees.filter(x => x._status === "converted").length;
-    const lost = attendees.filter(x => x._status === "lost").length;
-    const warm = attendees.filter(x => x._status === "warm").length;
-    const cold = attendees.filter(x => x._status === "cold").length;
-    const warmCold = warm + cold;
-
-    // FOLLOW UPS
-    const lostRows = attendees.filter(x => x._status === "lost");
-    const avgFollow = lostRows.length
-        ? (lostRows.reduce((s, x) => s + (parseInt(x["Follow up attempts"]) || 0), 0) / lostRows.length).toFixed(1)
-        : 0;
-
-    // COE
-    const coeCount = attendees.filter(x =>
-        clean(x["Converted Status"]).includes("coe")).length;
-
-    // UNASSIGNED ATTENDEES
-    const unassignedAttendees = attendees.filter(x =>
-        clean(x.Name).length > 0 &&
-        clean(x.Assignees).length === 0
-    ).length;
-
-    // STATUS MISSING
-    const unassignedStatus = attendees.filter(x =>
-        clean(x.Status).length === 0
-    ).length;
-
-    // EXPENSE TOTAL
-    const totalExpense = expenses.reduce((s, e) =>
-        s + (parseFloat(e.Amount) || 0), 0
-    );
-
-    // UPDATE UI
-    document.getElementById("totalAttendees").textContent = total;
     document.getElementById("totalConverted").textContent =
-        `${converted} (${((converted / total) * 100 || 0).toFixed(1)}%)`;
-    document.getElementById("totalLost").textContent =
-        `${lost} (${((lost / total) * 100 || 0).toFixed(1)}%)`;
-    document.getElementById("avgFollowUps").textContent = avgFollow;
-    document.getElementById("eventCost").textContent =
-        "₹ " + totalExpense.toLocaleString();
-    document.getElementById("coeCount").textContent = coeCount;
-    document.getElementById("warmCold").textContent = warmCold;
-    document.getElementById("unassignedAttendees").textContent = unassignedAttendees;
-    document.getElementById("unassignedStatus").textContent = unassignedStatus;
+        `${m.converted} (${((m.converted / m.totalAttendees) * 100).toFixed(1)}%)`;
 
+    document.getElementById("totalLost").textContent =
+        `${m.lost} (${((m.lost / m.totalAttendees) * 100).toFixed(1)}%)`;
+
+    document.getElementById("warmCold").textContent = m.warmCold;
+    document.getElementById("avgFollowUps").textContent = m.avgFollow;
+    document.getElementById("coeCount").textContent = m.coeObtained;
+
+    document.getElementById("unassignedAttendees").textContent = m.unassigned;
+    document.getElementById("missingStatus").textContent = m.missingStatus;
+
+    document.getElementById("eventCost").textContent =
+        "₹ " + m.totalExpense.toLocaleString();
 }
 
 loadData();
 
 </script>
-    </body>
+
+</body>
 </html>
-
-
