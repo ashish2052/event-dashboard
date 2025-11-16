@@ -3,166 +3,299 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Event Analytics Dashboard</title>
+<title>Event Analytics Dashboard v4.2</title>
 
 <style>
     body {
         margin: 0;
-        padding: 0;
-        background: radial-gradient(circle at top, #0a0f1f, #000000);
-        font-family: 'Inter', Arial, sans-serif;
-        color: #e5e5e5;
+        font-family: 'Inter', sans-serif;
+        background: #070b14;
+        color: white;
+        overflow-x: hidden;
+    }
+
+    h1 {
         text-align: center;
-    }
-
-    /* Header */
-    .header {
-        padding: 40px 10px 10px;
-    }
-    .title {
-        font-size: 40px;
-        font-weight: 700;
-        color: #58a6ff;
-        text-shadow: 0 0 18px rgba(88, 166, 255, 0.6);
-    }
-    .subtext {
-        margin-top: 8px;
-        color: #9ca3af;
-        font-size: 14px;
-    }
-    .live-badge {
-        margin-top: 15px;
-        display: inline-block;
-        padding: 6px 14px;
-        font-size: 13px;
-        border-radius: 20px;
-        background: rgba(50, 255, 120, 0.15);
-        color: #39ff88;
-        border: 1px solid rgba(60, 255, 140, 0.4);
-        backdrop-filter: blur(4px);
-        box-shadow: 0 0 10px rgba(60, 255, 140, 0.4);
-    }
-
-    /* Tabs */
-    .tabs {
         margin-top: 30px;
-        display: flex;
-        justify-content: center;
-        gap: 12px;
+        font-size: 42px;
+        font-weight: 800;
+        color: #5dbbff;
+        text-shadow: 0 0 18px #00aaff;
     }
-    .tab {
-        padding: 10px 20px;
+
+    .subtitle {
+        text-align: center;
+        margin-top: -10px;
+        margin-bottom: 20px;
+        font-size: 15px;
+        color: #9bbbd4;
+    }
+
+    .badge-live {
+        display: inline-block;
+        padding: 8px 18px;
+        background: rgba(0, 255, 150, 0.15);
         border-radius: 20px;
-        background: rgba(255, 255, 255, 0.05);
-        font-size: 14px;
-        cursor: pointer;
-        transition: .2s;
-    }
-    .tab.active {
-        background: rgba(88, 166, 255, 0.2);
-        border: 1px solid rgba(88, 166, 255, 0.4);
-        box-shadow: 0 0 12px rgba(88, 166, 255, 0.4);
+        color: #00ff9d;
+        border: 1px solid #00ff9d55;
+        font-size: 13px;
+        text-align: center;
+        margin: auto;
     }
 
-    /* Card Grid */
-    .grid {
-        margin-top: 40px;
+    .tab-container {
         display: flex;
         justify-content: center;
-        flex-wrap: wrap;
-        gap: 22px;
-        padding: 0 20px;
+        margin-top: 25px;
+        gap: 10px;
     }
 
-    /* Neon Glass Cards */
+    .tab-btn {
+        padding: 10px 25px;
+        border-radius: 25px;
+        background: #0f1625;
+        border: 1px solid #1f2a40;
+        color: #9bbbd4;
+        cursor: pointer;
+        font-size: 14px;
+        transition: 0.2s;
+    }
+
+    .tab-btn.active {
+        background: #1b253a;
+        border-color: #5dbbff;
+        color: white;
+        box-shadow: 0 0 10px #009dff;
+    }
+
+    .cards-row {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 18px;
+        margin: 35px auto;
+        width: 95%;
+    }
+
     .card {
         width: 260px;
-        padding: 25px;
+        background: rgba(255, 255, 255, 0.04);
         border-radius: 18px;
-        background: rgba(255, 255, 255, 0.06);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        box-shadow: 0 0 20px rgba(0, 120, 255, 0.25);
-        transition: 0.25s ease;
+        padding: 20px;
+        text-align: center;
+        border: 1px solid rgba(255,255,255,0.08);
+        cursor: pointer;
+        transition: 0.25s;
+        box-shadow: 0 0 12px rgba(0, 200, 255, 0.08);
     }
+
     .card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 0 28px rgba(0, 140, 255, 0.45);
+        transform: translateY(-3px);
+        box-shadow: 0 0 20px rgba(0, 200, 255, 0.25);
     }
-    .card h2 {
+
+    .card-title {
         font-size: 15px;
-        color: #cdd3d9;
-        margin-bottom: 12px;
+        color: #9bbbd4;
+        margin-bottom: 8px;
     }
-    .card p {
-        font-size: 42px;
+
+    .card-number {
+        font-size: 36px;
         font-weight: 700;
-        color: #ffffff;
-        margin: 0;
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+        text-shadow: 0 0 10px #009dff;
     }
 
-    /* Footer */
-    .footer {
-        margin-top: 60px;
-        color: #6b7280;
+    .section {
+        display: none;
+        width: 95%;
+        margin: auto;
+        margin-top: 25px;
+    }
+
+    .section.active {
+        display: block;
+    }
+
+    /* Table Styling For Attendees Details */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 25px;
+        background: rgba(255,255,255,0.03);
+        border-radius: 10px;
+        overflow: hidden;
         font-size: 14px;
-        opacity: 0.7;
     }
-</style>
 
+    th, td {
+        padding: 10px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    th {
+        background: rgba(255,255,255,0.08);
+        color: #5dbbff;
+    }
+
+    tr:hover {
+        background: rgba(255,255,255,0.04);
+    }
+
+</style>
 </head>
+
 <body>
 
-<div class="header">
-    <div class="title">Event Analytics Dashboard v4.0</div>
-    <div class="subtext">Premium Neon Glass Edition • Live Google Sheet Sync</div>
-    <div class="live-badge">● LIVE DATA FEED — GSHEETS SYNC</div>
+<h1>Event Analytics Dashboard v4.2</h1>
+<div class="subtitle">Premium Neon Glass Edition • Live Google Sheet Sync</div>
+
+<div style="text-align:center; margin-top:10px;">
+    <span class="badge-live">● LIVE DATA FEED — GSHEETS SYNC</span>
 </div>
 
 <!-- Tabs -->
-<div class="tabs">
-    <div class="tab active">Overview</div>
-    <div class="tab">People</div>
-    <div class="tab">Performance</div>
+<div class="tab-container">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('details')">Attendees Details</button>
+    <button class="tab-btn" onclick="switchTab('performance')">Performance</button>
 </div>
 
-<!-- Main Metrics -->
-<div class="grid">
-    <div class="card"><h2>Total Attendees</h2><p id="totalAttendees">0</p></div>
-    <div class="card"><h2>Unassigned</h2><p id="unassigned">0</p></div>
-    <div class="card"><h2>Missing Status</h2><p id="missingStatus">0</p></div>
-    <div class="card"><h2>Converted</h2><p id="converted">0</p></div>
-    <div class="card"><h2>Lost</h2><p id="lost">0</p></div>
-    <div class="card"><h2>Warm + Cold</h2><p id="warmCold">0</p></div>
-    <div class="card"><h2>Total Expense</h2><p id="totalExpense">0</p></div>
+<!-- OVERVIEW SECTION -->
+<div id="overview" class="section active">
+
+    <div class="cards-row">
+        <div class="card" onclick="openFilter('all')">
+            <div class="card-title">Total Attendees</div>
+            <div id="v_total" class="card-number">0</div>
+        </div>
+
+        <div class="card" onclick="openFilter('unassigned')">
+            <div class="card-title">Unassigned</div>
+            <div id="v_unassigned" class="card-number">0</div>
+        </div>
+
+        <div class="card" onclick="openFilter('missing')">
+            <div class="card-title">Missing Status</div>
+            <div id="v_missing" class="card-number">0</div>
+        </div>
+
+        <div class="card" onclick="openFilter('converted')">
+            <div class="card-title">Converted</div>
+            <div id="v_converted" class="card-number">0</div>
+        </div>
+
+        <div class="card" onclick="openFilter('lost')">
+            <div class="card-title">Lost</div>
+            <div id="v_lost" class="card-number">0</div>
+        </div>
+
+        <div class="card" onclick="openFilter('warmcold')">
+            <div class="card-title">Warm + Cold</div>
+            <div id="v_warmcold" class="card-number">0</div>
+        </div>
+
+        <div class="card" style="cursor:default;">
+            <div class="card-title">Total Expense</div>
+            <div id="v_expense" class="card-number">0</div>
+        </div>
+    </div>
+
 </div>
 
-<div class="footer">
-    Dashboard Build v4.0 — Auto Data Derived from Google Sheets via Cloudflare
+<!-- ATTENDEES DETAIL -->
+<div id="details" class="section">
+    <h2 style="text-align:center;">Attendees Details</h2>
+    <table id="table_data"></table>
 </div>
+
+<!-- PERFORMANCE -->
+<div id="performance" class="section">
+    <h2 style="text-align:center;">Performance (Coming Soon)</h2>
+</div>
+
+
 
 <script>
-const API_URL = "https://novevent-report-worker.ashishoct34.workers.dev/";
+let fullData = [];
+let currentFilter = "all";
 
 async function loadData() {
-    try {
-        const response = await fetch(API_URL);
-        const data = await response.json();
+    const url = "https://novevent-report-worker.ashishoct34.workers.dev/";
 
-        const m = data.metrics;
+    const res = await fetch(url);
+    const json = await res.json();
 
-        document.getElementById("totalAttendees").textContent = m.totalAttendees;
-        document.getElementById("unassigned").textContent = m.unassigned;
-        document.getElementById("missingStatus").textContent = m.missingStatus;
-        document.getElementById("converted").textContent = m.converted || 0;
-        document.getElementById("lost").textContent = m.lost;
-        document.getElementById("warmCold").textContent = m.warmCold;
-        document.getElementById("totalExpense").textContent = m.totalExpense;
+    fullData = json.attendees;
 
-    } catch (err) {
-        console.error("Error fetching:", err);
+    document.getElementById("v_total").innerText = json.metrics.totalAttendees;
+    document.getElementById("v_unassigned").innerText = json.metrics.unassigned;
+    document.getElementById("v_missing").innerText = json.metrics.missingStatus;
+    document.getElementById("v_converted").innerText = json.attendees.filter(a => a.Status?.toLowerCase() === "converted").length;
+    document.getElementById("v_lost").innerText = json.metrics.lost;
+    document.getElementById("v_warmcold").innerText = json.metrics.warmCold;
+    document.getElementById("v_expense").innerText = json.metrics.totalExpense;
+
+    renderTable(fullData);
+}
+
+function switchTab(tab) {
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    document.getElementById(tab).classList.add("active");
+
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    event.target.classList.add("active");
+}
+
+function openFilter(type) {
+    currentFilter = type;
+    switchTab('details');
+    applyFilter();
+}
+
+function applyFilter() {
+    let rows = fullData;
+
+    if (currentFilter === "unassigned") {
+        rows = rows.filter(r => !r.Assignees);
     }
+    if (currentFilter === "missing") {
+        rows = rows.filter(r => !r.Status);
+    }
+    if (currentFilter === "converted") {
+        rows = rows.filter(r => r.Status?.toLowerCase() === "converted");
+    }
+    if (currentFilter === "lost") {
+        rows = rows.filter(r => r.Status?.toLowerCase() === "lost");
+    }
+    if (currentFilter === "warmcold") {
+        rows = rows.filter(r => ["warm","cold"].includes(r.Status?.toLowerCase()));
+    }
+
+    renderTable(rows);
+}
+
+function renderTable(data) {
+    if (!data.length) return;
+
+    let headers = Object.keys(data[0]);
+    let html = "<tr>";
+
+    headers.forEach(h => {
+        html += `<th>${h}</th>`;
+    });
+
+    html += "</tr>";
+
+    data.forEach(row => {
+        html += "<tr>";
+        headers.forEach(h => {
+            html += `<td>${row[h] || ""}</td>`;
+        });
+        html += "</tr>";
+    });
+
+    document.getElementById("table_data").innerHTML = html;
 }
 
 loadData();
