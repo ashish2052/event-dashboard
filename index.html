@@ -1,132 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Event Analytics Dashboard v3</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Dashboard</title>
 
-  <style>
+<style>
     body {
-      background: #080808;
-      margin: 0;
-      padding: 30px;
-      font-family: "Segoe UI", Arial, sans-serif;
-      color: white;
+        background: #0e0e0e;
+        color: white;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        text-align: center;
     }
 
     h1 {
-      text-align: center;
-      font-size: 44px;
-      font-weight: 700;
-      background: linear-gradient(90deg, #00d9ff, #7a00ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 50px;
+        font-size: 32px;
+        margin-bottom: 25px;
+        color: #58a6ff;
+    }
+
+    .version {
+        font-size: 16px;
+        color: #ccc;
     }
 
     .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 25px;
-      max-width: 1200px;
-      margin: auto;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        max-width: 1400px;
+        margin: auto;
     }
 
     .card {
-      background: #151515;
-      padding: 25px;
-      border-radius: 14px;
-      text-align: center;
-      transition: 0.25s;
-      box-shadow: 0 0 12px rgba(255,255,255,0.04);
+        background: #1d1d1d;
+        width: 260px;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 0 12px black;
+        transition: 0.2s;
     }
 
     .card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 0 25px rgba(0,255,255,0.25);
+        transform: scale(1.05);
     }
 
-    .label {
-      font-size: 17px;
-      opacity: 0.75;
-      margin-bottom: 8px;
+    .card h2 {
+        font-size: 18px;
+        color: #aaa;
+        margin-bottom: 12px;
     }
 
-    .value {
-      font-size: 38px;
-      font-weight: bold;
+    .card p {
+        font-size: 42px;
+        font-weight: bold;
+        margin: 0;
     }
 
-    footer {
-      text-align: center;
-      opacity: 0.45;
-      margin-top: 35px;
-      font-size: 14px;
+    .footer {
+        margin-top: 40px;
+        color: #777;
+        font-size: 14px;
     }
-  </style>
+</style>
+
 </head>
-
 <body>
-  <h1>Event Analytics Dashboard v3.0</h1>
 
-  <div class="grid">
-    <div class="card"><div class="label">Total Attendees</div><div id="totalAttendees" class="value">0</div></div>
-    <div class="card"><div class="label">Unassigned</div><div id="unassigned" class="value">0</div></div>
-    <div class="card"><div class="label">Missing Status</div><div id="missingStatus" class="value">0</div></div>
-    <div class="card"><div class="label">Converted</div><div id="converted" class="value">0</div></div>
-    <div class="card"><div class="label">Lost</div><div id="lost" class="value">0</div></div>
-    <div class="card"><div class="label">Warm + Cold</div><div id="warmCold" class="value">0</div></div>
-    <div class="card"><div class="label">Avg Follow Ups</div><div id="avgFU" class="value">0</div></div>
-    <div class="card"><div class="label">Total Expense</div><div id="totalExpense" class="value">0</div></div>
-  </div>
+<h1>Event Analytics Dashboard <span class="version">v3.0</span></h1>
 
-  <footer>
-    Dashboard Build v3.0 – Auto Data Derived
-  </footer>
+<div class="grid">
+    <div class="card"><h2>Total Attendees</h2><p id="totalAttendees">0</p></div>
+    <div class="card"><h2>Unassigned</h2><p id="unassigned">0</p></div>
+    <div class="card"><h2>Missing Status</h2><p id="missingStatus">0</p></div>
+    <div class="card"><h2>Converted</h2><p id="converted">0</p></div>
+    <div class="card"><h2>Lost</h2><p id="lost">0</p></div>
+    <div class="card"><h2>Warm + Cold</h2><p id="warmCold">0</p></div>
+    <div class="card"><h2>Total Expense</h2><p id="totalExpense">0</p></div>
+</div>
 
-  <script>
-    async function loadData() {
-      try {
-        const res = await fetch("https://novevent-report-worker.ashishoct34.workers.dev/", {
-          mode: "cors"
-        });
-        const data = await res.json();
+<p class="footer">Dashboard Auto-Synced • Version 3.0</p>
 
-        if (!data.success) {
-          console.error("Worker error:", data.error);
-          return;
-        }
+<script>
+const API_URL = "https://novevent-report-worker.ashishoct34.workers.dev/";
+
+async function loadData() {
+    try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
 
         const m = data.metrics;
 
         document.getElementById("totalAttendees").textContent = m.totalAttendees;
         document.getElementById("unassigned").textContent = m.unassigned;
         document.getElementById("missingStatus").textContent = m.missingStatus;
-        document.getElementById("converted").textContent = m.converted ?? 0;
+        document.getElementById("converted").textContent = m.converted || 0;
         document.getElementById("lost").textContent = m.lost;
         document.getElementById("warmCold").textContent = m.warmCold;
         document.getElementById("totalExpense").textContent = m.totalExpense;
 
-        const attendees = data.attendees;
-        let sum = 0, count = 0;
-
-        attendees.forEach(a => {
-          const fu = parseInt(a["Follow up attempts"]);
-          if (!isNaN(fu)) {
-            sum += fu;
-            count++;
-          }
-        });
-
-        document.getElementById("avgFU").textContent =
-          count === 0 ? "0" : (sum / count).toFixed(1);
-
-      } catch (err) {
-        console.error("Fetch failed:", err);
-      }
+    } catch (err) {
+        console.error("Fetch error:", err);
     }
+}
 
-    loadData();
-  </script>
+loadData();
+</script>
+
 </body>
 </html>
