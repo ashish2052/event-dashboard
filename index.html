@@ -508,16 +508,62 @@ function makeBar(id, dataObj, filterFn) {
 
 /* INSIGHTS (SHORT VERSION) */
 function generateInsights() {
-  document.getElementById("insightBox").innerHTML = `
+
+  const total = attendeesData.length;
+
+  /* ===== COUNTRY INSIGHTS ===== */
+  const countryMap = groupCount(attendeesData, "Country");
+  const sortedCountry = Object.entries(countryMap).sort((a,b) => b[1] - a[1]);
+  const topCountry = sortedCountry[0] || ["N/A", 0];
+  const secondCountry = sortedCountry[1] || ["N/A", 0];
+
+  /* ===== LEAD STATUS ===== */
+  const lost = attendeesData.filter(x => x.Status?.toLowerCase() === "lost").length;
+  const warm = attendeesData.filter(x => x.Status?.toLowerCase() === "warm").length;
+  const cold = attendeesData.filter(x => x.Status?.toLowerCase() === "cold").length;
+  const converted = attendeesData.filter(x => x.Status?.toLowerCase() === "converted").length;
+
+  /* ===== ASSIGNEES ===== */
+  const asgMap = groupCount(attendeesData, "Assignees");
+  const sortedAsg = Object.entries(asgMap).sort((a,b)=>b[1]-a[1]);
+  const topAsg = sortedAsg[0] || ["N/A", 0];
+
+  /* ===== SALES REP ===== */
+  const repMap = groupCount(attendeesData, "Sales Rep");
+  const sortedRep = Object.entries(repMap).sort((a,b)=>b[1]-a[1]);
+  const topRep = sortedRep[0] || ["N/A", 0];
+
+  /* ===== BUILD INSIGHT TEXT ===== */
+  let html = `
     <b>Event Insights — Auto Generated</b><br><br>
 
-    • <b>UK leads attendance</b>, showing strong interest from English-speaking regions.<br>
-    • <b>Warm leads</b> show good potential, while <b>Lost leads</b> remain high due to follow-up gaps.<br>
-    • <b>Alisha handled nearly all assignments</b>, indicating a strong imbalance in workload.<br>
-    • <b>Sweta Shrestha</b> leads follow-ups, showing stronger engagement compared to other reps.<br>
-    • Interest is strong, but <b>better assignment distribution and consistent follow-ups</b> can boost conversions.
+    <b>1. Geographic Reach & Market Momentum</b><br>
+    ${topCountry[0]} recorded the strongest turnout with <b>${topCountry[1]} attendees</b>, 
+    outperforming ${secondCountry[0]} by <b>${topCountry[1] - secondCountry[1]}</b>. 
+    This suggests high event resonance within key Western markets.<br><br>
+
+    <b>2. Lead Quality & Engagement Flow</b><br>
+    Lost leads represent <b>${pct(lost,total)}</b> of attendees, indicating follow-up drop-offs. 
+    Warm leads at <b>${pct(warm,total)}</b> show promising interest, while converted leads at <b>${pct(converted,total)}</b> 
+    highlight growth potential with better nurturing.<br><br>
+
+    <b>3. Assignee Load Distribution</b><br>
+    ${topAsg[0]} handled <b>${topAsg[1]} assignments</b>, far above others, pointing to a strong imbalance 
+    that may limit lead management quality and response time.<br><br>
+
+    <b>4. Sales Rep Engagement</b><br>
+    ${topRep[0]} contributed the highest number of follow-ups (<b>${topRep[1]}</b>), 
+    reflecting stronger engagement compared to peers. 
+    The overall pattern suggests a need for more evenly shared follow-up responsibility.<br><br>
+
+    <b>5. Strategic Takeaways</b><br>
+    Strengthening follow-up consistency, balancing assignment loads, and supporting high-performing reps 
+    can significantly increase conversion rates and overall event ROI.
   `;
+
+  document.getElementById("insightBox").innerHTML = html;
 }
+
 
 /* ROI */
 function renderROI() {
