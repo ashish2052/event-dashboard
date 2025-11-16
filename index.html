@@ -11,7 +11,7 @@
 <style>
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Poppins', sans-serif;
   background: #050A1F;
   color: #E6EBFF;
 }
@@ -22,7 +22,6 @@ body {
   padding: 15px;
   text-align: center;
   font-size: 22px;
-  letter-spacing: 1px;
   color: #7AB8FF;
   text-shadow: 0 0 10px #00c3ff;
   border-bottom: 1px solid #0f2657;
@@ -92,14 +91,46 @@ body {
   text-shadow: 0 0 8px #0099ff;
 }
 
-/* Charts */
+/* CHART + INSIGHT ROW */
+.analytics-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  padding: 20px;
+}
+
+/* Chart Box */
 .chart-box {
   padding: 20px;
-  margin: 20px;
   background: #0C153C;
   border: 1px solid #1D2F70;
   border-radius: 12px;
   box-shadow: 0 0 12px #001a33 inset;
+}
+
+/* Insights Box */
+.insight-box {
+  padding: 20px;
+  background: #0C153C;
+  border: 1px solid #1D2F70;
+  border-radius: 12px;
+  box-shadow: 0 0 15px #003366;
+  color: #bcd9ff;
+  line-height: 1.7;
+}
+.insight-title {
+  font-size: 20px;
+  color: #7AB8FF;
+  margin-bottom: 15px;
+  text-shadow: 0 0 8px #008cff;
+}
+
+/* DOUBLE CHART ROW */
+.double-chart-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  padding: 20px;
 }
 
 /* People Table */
@@ -136,37 +167,62 @@ th {
   <div class="tab-btn" onclick="openTab('people')">Attendees Detail</div>
 </div>
 
+<!-- OVERVIEW PAGE -->
 <div id="overview" class="tab-page" style="display:block;">
+
   <h2 style="padding-left:20px;color:#7AB8FF;">Overview Analytics</h2>
+
+  <!-- METRIC CARDS -->
   <div id="cards" class="card-grid"></div>
 
-  <!-- Charts -->
-  <div class="chart-box">
-    <h3>Attendees by Country</h3>
-    <canvas id="countryChart"></canvas>
+  <!-- ===== ROW 2 (Chart + Insights) ===== -->
+  <div class="analytics-row">
+    
+    <!-- LEFT: COUNTRY CHART -->
+    <div class="chart-box">
+      <h3>Attendees by Country</h3>
+      <canvas id="countryChart"></canvas>
+    </div>
+
+    <!-- RIGHT: INSIGHTS -->
+    <div class="insight-box">
+      <div class="insight-title">Event Insights — Auto Generated</div>
+      <div id="insightText">Loading insights...</div>
+    </div>
+
   </div>
 
-  <div class="chart-box">
-    <h3>Attendees by Assignees</h3>
-    <canvas id="assigneeChart"></canvas>
+  <!-- ===== ROW 3 (Assignee & Sales Charts) ===== -->
+  <div class="double-chart-row">
+    
+    <div class="chart-box">
+      <h3>Attendees by Assignees</h3>
+      <canvas id="assigneeChart"></canvas>
+    </div>
+
+    <div class="chart-box">
+      <h3>Attendees by Sales Rep</h3>
+      <canvas id="salesChart"></canvas>
+    </div>
+
   </div>
 
-  <div class="chart-box">
-    <h3>Attendees by Sales Rep</h3>
-    <canvas id="salesChart"></canvas>
-  </div>
 </div>
 
+<!-- PEOPLE PAGE -->
 <div id="people" class="tab-page" style="display:none;">
   <h2 style="padding-left:20px;color:#7AB8FF;">Attendees Detail</h2>
   <div class="table-box">
     <table id="peopleTable"></table>
   </div>
 </div>
-    <script>
+  <script>
 let attendeesData = [];
 let allMetrics = {};
 
+// =========================
+//        TAB SWITCH
+// =========================
 function openTab(tab) {
   document.querySelectorAll('.tab-page').forEach(x => x.style.display = 'none');
   document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
@@ -179,9 +235,9 @@ function openTab(tab) {
   if (tab === 'people') renderPeopleTable(attendeesData);
 }
 
-/* ============================
-   FETCH DATA FROM CLOUDFLARE
-============================= */
+// =========================
+//    LOAD WORKER DATA
+// =========================
 async function loadData() {
   const url = "https://novevent-report-worker.ashishoct34.workers.dev/";
 
@@ -193,21 +249,21 @@ async function loadData() {
 
   renderCards();
   renderCharts();
+  renderInsights();
 }
 
 loadData();
 
-/* ============================
-         RENDER CARDS
-============================= */
+// =========================
+//        CARDS
+// =========================
 function renderCards() {
   const total = allMetrics.totalAttendees;
   const lost = allMetrics.lost;
   const warm = allMetrics.warm;
   const cold = allMetrics.cold;
-  const converted = attendeesData.filter(x =>
-    (x["Status"] || "").toLowerCase() === "converted"
-  ).length;
+  const converted = attendeesData.filter(x => (x.Status || "").toLowerCase() === "converted").length;
+  const totalExpense = allMetrics.totalExpense || 0;
 
   const cards = [
     { title: "Total Attendees", value: total, filter: () => attendeesData },
@@ -216,7 +272,8 @@ function renderCards() {
     { title: "Cold", value: cold, sub: pct(cold,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "cold") },
     { title: "Converted", value: converted, sub: pct(converted,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "converted") },
     { title: "Unassigned", value: allMetrics.unassigned, filter: () => attendeesData.filter(x => !x.Assignees) },
-    { title: "Missing Status", value: allMetrics.missingStatus, filter: () => attendeesData.filter(x => !x.Status) }
+    { title: "Missing Status", value: allMetrics.missingStatus, filter: () => attendeesData.filter(x => !x.Status) },
+    { title: "Total Expense", value: "Rs " + totalExpense }
   ];
 
   document.getElementById("cards").innerHTML = cards.map((c,i)=>`
@@ -235,17 +292,17 @@ function pct(v,total){
   return ((v/total)*100).toFixed(1)+"%";
 }
 
-function applyFilter(i){
-  const data = window.cardFilters[i].filter();
-  openTab('people');
-  renderPeopleTable(data);
+function applyFilter(index){
+  const dataset = window.cardFilters[index].filter ? window.cardFilters[index].filter() : attendeesData;
+  openTab("people");
+  renderPeopleTable(dataset);
 }
 
-/* ============================
-        PEOPLE TABLE
-============================= */
+// =========================
+//     PEOPLE TABLE
+// =========================
 function renderPeopleTable(data){
-  if(data.length===0){
+  if (!data || data.length === 0) {
     document.getElementById('peopleTable').innerHTML = "<tr><td>No Data</td></tr>";
     return;
   }
@@ -260,9 +317,55 @@ function renderPeopleTable(data){
   document.getElementById('peopleTable').innerHTML = html;
 }
 
-/* ============================
-            CHARTS
-============================= */
+// =========================
+//     INSIGHTS (Paragraph)
+// =========================
+function renderInsights(){
+  const total = attendeesData.length;
+
+  // COUNTRY INSIGHT
+  const countryMap = groupCount(attendeesData, "Country");
+  const topCountry = Object.entries(countryMap).sort((a,b)=>b[1]-a[1])[0];
+  const countryText = topCountry
+    ? `${topCountry[0]} contributes the highest attendees with ${topCountry[1]} people, making up ${(topCountry[1]/total*100).toFixed(1)}% of total visitors.`
+    : `Country data is not available.`;
+
+  // STATUS INSIGHT
+  const lost = allMetrics.lost;
+  const warm = allMetrics.warm;
+  const cold = allMetrics.cold;
+  const converted = attendeesData.filter(x => (x.Status || "").toLowerCase() === "converted").length;
+
+  const statusText =
+    `Lost leads remain the biggest segment at ${(lost/total*100).toFixed(1)}%. ` +
+    `Warm and Cold leads together form ${( (warm+cold)/total*100 ).toFixed(1)}%, showing mixed interest. ` +
+    `Converted leads stand at ${(converted/total*100).toFixed(1)}%, suggesting medium engagement quality.`;
+
+  // ASSIGNEE INSIGHTS
+  const assigneeMap = groupCount(attendeesData, "Assignees");
+  const topAssignee = Object.entries(assigneeMap).sort((a,b)=>b[1]-a[1])[0];
+  const assigneeText = topAssignee
+    ? `${topAssignee[0]} handled the most attendees with ${topAssignee[1]}, representing ${(topAssignee[1]/total*100).toFixed(1)}% of all assignments. This may indicate a workload imbalance.`
+    : `No assignee data recorded.`;
+
+  // SALES REP INSIGHT
+  const salesMap = groupCount(attendeesData, "Sales Rep");
+  const topSales = Object.entries(salesMap).sort((a,b)=>b[1]-a[1])[0];
+  const salesText = topSales
+    ? `${topSales[0]} managed the most follow-ups (${topSales[1]} cases). This rep is handling a large share of attendee engagement compared to others.`
+    : `Sales rep distribution is not available.`;
+
+  document.getElementById("insightText").innerHTML = `
+    <p>${countryText}</p>
+    <p>${statusText}</p>
+    <p>${assigneeText}</p>
+    <p>${salesText}</p>
+  `;
+}
+
+// =========================
+//         CHARTS
+// =========================
 function renderCharts(){
   makeBarChart(
     "countryChart",
@@ -283,19 +386,22 @@ function renderCharts(){
   );
 }
 
+// =========================
+//     GROUP COUNTER
+// =========================
 function groupCount(arr, field){
   const map = {};
   arr.forEach(x=>{
-    const key = (x[field]||"").trim();
-    if(!key) return;
-    map[key] = (map[key]||0)+1;
+    const key = (x[field] || "").trim();
+    if (!key) return;
+    map[key] = (map[key] || 0) + 1;
   });
   return map;
 }
 
-/* ============================
-     MAKE CLICKABLE BAR CHART
-============================= */
+// =========================
+//  CLICKABLE BAR CHART
+// =========================
 function makeBarChart(canvasId, dataObj, clickFilter){
   const labels = Object.keys(dataObj);
   const values = Object.values(dataObj);
@@ -340,125 +446,7 @@ function makeBarChart(canvasId, dataObj, clickFilter){
   });
 }
 </script>
-
+<!-- END OF DASHBOARD SYSTEM -->
 </body>
 </html>
-<style>
-/* ====== GLOBAL ====== */
-body {
-  margin: 0;
-  padding: 20px;
-  font-family: 'Poppins', sans-serif;
-  background: #0d0d16;
-  color: #e6eeff;
-}
-
-h1, h2 { color: #9EC5FF; }
-
-.tab-btn {
-  padding: 10px 18px;
-  background: #141426;
-  margin-right: 6px;
-  border: 1px solid #23233a;
-  cursor: pointer;
-  color: #b8c6ff;
-  border-radius: 6px;
-  transition: 0.3s;
-}
-
-.tab-btn:hover { background: #1d1d33; }
-
-.tab-btn.active {
-  background: #002b55;
-  border-color: #0067ff;
-  color: #fff;
-  box-shadow: 0 0 12px #007bff;
-}
-
-.tab-page { display: none; }
-
-/* ====== CARDS ====== */
-#cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 15px;
-  margin-bottom: 30px;
-}
-
-.card {
-  background: #141426;
-  padding: 18px;
-  border-radius: 12px;
-  border: 1px solid #1f1f33;
-  cursor: pointer;
-  transition: 0.25s;
-  box-shadow: 0 0 8px #1a1a2e;
-}
-
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 0 16px #007bff;
-  border-color: #0066ff;
-}
-
-.card-title {
-  font-size: 15px;
-  color: #9EC5FF;
-  margin-bottom: 6px;
-}
-.card-value {
-  font-size: 30px;
-  font-weight: 700;
-  color: #fff;
-}
-.card-sub {
-  margin-top: 4px;
-  font-size: 14px;
-  color: #66d9ff;
-}
-
-/* ====== CHART BOXES ====== */
-.chart-box {
-  background: #141426;
-  padding: 20px;
-  margin-bottom: 25px;
-  border-radius: 12px;
-  border: 1px solid #1f1f33;
-  box-shadow: 0 0 12px #1d1d33;
-}
-
-/* ====== TABLE ====== */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th {
-  background: #1b1b33;
-  color: #9EC5FF;
-  padding: 10px;
-  font-size: 14px;
-  border-bottom: 1px solid #333354;
-}
-
-td {
-  padding: 8px;
-  border-bottom: 1px solid #24244a;
-  color: #dbdbff;
-  font-size: 13px;
-}
-
-tr:hover {
-  background: #1a1a2e;
-}
-
-/* scroll */
-#peopleTableWrapper {
-  max-height: 70vh;
-  overflow-y: auto;
-  border: 1px solid #222242;
-  border-radius: 10px;
-}
-</style>
 
