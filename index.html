@@ -1,77 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Event Dashboard</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Event Analytics Dashboard</title>
 
 <style>
     body {
-        background: #0e0e0e;
-        color: white;
-        font-family: Arial, sans-serif;
         margin: 0;
-        padding: 20px;
+        padding: 0;
+        background: radial-gradient(circle at top, #0a0f1f, #000000);
+        font-family: 'Inter', Arial, sans-serif;
+        color: #e5e5e5;
         text-align: center;
     }
 
-    h1 {
-        font-size: 32px;
-        margin-bottom: 25px;
+    /* Header */
+    .header {
+        padding: 40px 10px 10px;
+    }
+    .title {
+        font-size: 40px;
+        font-weight: 700;
         color: #58a6ff;
+        text-shadow: 0 0 18px rgba(88, 166, 255, 0.6);
+    }
+    .subtext {
+        margin-top: 8px;
+        color: #9ca3af;
+        font-size: 14px;
+    }
+    .live-badge {
+        margin-top: 15px;
+        display: inline-block;
+        padding: 6px 14px;
+        font-size: 13px;
+        border-radius: 20px;
+        background: rgba(50, 255, 120, 0.15);
+        color: #39ff88;
+        border: 1px solid rgba(60, 255, 140, 0.4);
+        backdrop-filter: blur(4px);
+        box-shadow: 0 0 10px rgba(60, 255, 140, 0.4);
     }
 
-    .version {
-        font-size: 16px;
-        color: #ccc;
+    /* Tabs */
+    .tabs {
+        margin-top: 30px;
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+    }
+    .tab {
+        padding: 10px 20px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        font-size: 14px;
+        cursor: pointer;
+        transition: .2s;
+    }
+    .tab.active {
+        background: rgba(88, 166, 255, 0.2);
+        border: 1px solid rgba(88, 166, 255, 0.4);
+        box-shadow: 0 0 12px rgba(88, 166, 255, 0.4);
     }
 
+    /* Card Grid */
     .grid {
+        margin-top: 40px;
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
-        gap: 20px;
-        max-width: 1400px;
-        margin: auto;
+        gap: 22px;
+        padding: 0 20px;
     }
 
+    /* Neon Glass Cards */
     .card {
-        background: #1d1d1d;
         width: 260px;
         padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 0 12px black;
-        transition: 0.2s;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 0 20px rgba(0, 120, 255, 0.25);
+        transition: 0.25s ease;
     }
-
     .card:hover {
-        transform: scale(1.05);
+        transform: translateY(-4px);
+        box-shadow: 0 0 28px rgba(0, 140, 255, 0.45);
     }
-
     .card h2 {
-        font-size: 18px;
-        color: #aaa;
+        font-size: 15px;
+        color: #cdd3d9;
         margin-bottom: 12px;
     }
-
     .card p {
         font-size: 42px;
-        font-weight: bold;
+        font-weight: 700;
+        color: #ffffff;
         margin: 0;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
     }
 
+    /* Footer */
     .footer {
-        margin-top: 40px;
-        color: #777;
+        margin-top: 60px;
+        color: #6b7280;
         font-size: 14px;
+        opacity: 0.7;
     }
 </style>
 
 </head>
 <body>
 
-<h1>Event Analytics Dashboard <span class="version">v3.0</span></h1>
+<div class="header">
+    <div class="title">Event Analytics Dashboard v4.0</div>
+    <div class="subtext">Premium Neon Glass Edition • Live Google Sheet Sync</div>
+    <div class="live-badge">● LIVE DATA FEED — GSHEETS SYNC</div>
+</div>
 
+<!-- Tabs -->
+<div class="tabs">
+    <div class="tab active">Overview</div>
+    <div class="tab">People</div>
+    <div class="tab">Performance</div>
+</div>
+
+<!-- Main Metrics -->
 <div class="grid">
     <div class="card"><h2>Total Attendees</h2><p id="totalAttendees">0</p></div>
     <div class="card"><h2>Unassigned</h2><p id="unassigned">0</p></div>
@@ -82,7 +138,9 @@
     <div class="card"><h2>Total Expense</h2><p id="totalExpense">0</p></div>
 </div>
 
-<p class="footer">Dashboard Auto-Synced • Version 3.0</p>
+<div class="footer">
+    Dashboard Build v4.0 — Auto Data Derived from Google Sheets via Cloudflare
+</div>
 
 <script>
 const API_URL = "https://novevent-report-worker.ashishoct34.workers.dev/";
@@ -103,7 +161,7 @@ async function loadData() {
         document.getElementById("totalExpense").textContent = m.totalExpense;
 
     } catch (err) {
-        console.error("Fetch error:", err);
+        console.error("Error fetching:", err);
     }
 }
 
