@@ -1,247 +1,236 @@
-<script>
-// ==========================
-// GLOBAL
-// ==========================
-let attendeesData = [];
-let expenseData = [];
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>November 2025 Event Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-// ==========================
-// TABS
-// ==========================
-function openTab(tab) {
-  document.querySelectorAll(".tab-page").forEach(p => p.style.display = "none");
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-
-  document.getElementById(tab).style.display = "block";
-  document.querySelectorAll(".tab-btn").forEach(b => {
-    if (b.textContent.toLowerCase().includes(tab)) b.classList.add("active");
-  });
-
-  if (tab === "people") renderPeopleTable(attendeesData);
-  if (tab === "roi") renderROI();
-}
-
-// ==========================
-// FETCH DATA
-// ==========================
-async function loadData() {
-  try {
-    const res = await fetch("https://novevent-report-worker.ashishoct34.workers.dev/");
-    const json = await res.json();
-
-    attendeesData = json.attendees || [];
-    expenseData = json.expenses || [];
-
-    renderCards();
-    renderCharts();
-    generateInsights();
-
-  } catch (e) {
-    console.log("ERROR loading data", e);
-  }
-}
-loadData();
-
-// ==========================
-// HELPERS
-// ==========================
-function pct(v, total) {
-  return total ? ((v / total) * 100).toFixed(1) + "%" : "0%";
-}
-
-// ==========================
-// CARDS
-// ==========================
-function renderCards() {
-  const total = attendeesData.length;
-
-  const lost = attendeesData.filter(x => x.Status?.toLowerCase() === "lost").length;
-  const warm = attendeesData.filter(x => x.Status?.toLowerCase() === "warm").length;
-  const cold = attendeesData.filter(x => x.Status?.toLowerCase() === "cold").length;
-  const conv = attendeesData.filter(x => x.Status?.toLowerCase() === "converted").length;
-  const unassigned = attendeesData.filter(x => !x.Assignees).length;
-  const missing = attendeesData.filter(x => !x.Status).length;
-
-  const cards = [
-    { title: "Total Attendees", value: total, sub: "", filter: () => attendeesData },
-    { title: "Lost", value: lost, sub: pct(lost,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "lost") },
-    { title: "Warm", value: warm, sub: pct(warm,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "warm") },
-    { title: "Cold", value: cold, sub: pct(cold,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "cold") },
-    { title: "Converted", value: conv, sub: pct(conv,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "converted") },
-    { title: "Unassigned", value: unassigned, sub: "", filter: () => attendeesData.filter(x => !x.Assignees) },
-    { title: "Missing Status", value: missing, sub: "", filter: () => attendeesData.filter(x => !x.Status) }
-  ];
-
-  window.cardFilters = cards;
-
-  document.getElementById("cards").innerHTML = cards.map((c,i)=>`
-    <div class="card" onclick="applyCardFilter(${i})">
-      <div class="card-title">${c.title}</div>
-      <div class="card-value">${c.value}</div>
-      ${c.sub ? `<div class="card-sub">${c.sub}</div>` : ""}
-    </div>
-  `).join("");
-}
-
-function applyCardFilter(i) {
-  const filtered = window.cardFilters[i].filter();
-  openTab("people");
-  renderPeopleTable(filtered);
-}
-
-// ==========================
-// PEOPLE TABLE
-// ==========================
-function renderPeopleTable(data) {
-  if (!data.length) {
-    document.getElementById("peopleTable").innerHTML = "<tr><td>No Data Available</td></tr>";
-    return;
-  }
-
-  const headers = Object.keys(data[0]);
-
-  let html = "<tr>" + headers.map(h => `<th>${h}</th>`).join("") + "</tr>";
-
-  data.forEach(row => {
-    html += "<tr>" + headers.map(h => `<td>${row[h] || ""}</td>`).join("") + "</tr>";
-  });
-
-  document.getElementById("peopleTable").innerHTML = html;
-}
-
-function searchPeople() {
-  const q = document.getElementById("searchInput").value.toLowerCase();
-  const filtered = attendeesData.filter(r =>
-    JSON.stringify(r).toLowerCase().includes(q)
-  );
-  renderPeopleTable(filtered);
-}
-
-// ==========================
-// GROUP COUNTS
-// ==========================
-function groupCount(data, field) {
-  const m = {};
-  data.forEach(x => {
-    const key = (x[field] || "").trim();
-    if (key) m[key] = (m[key] || 0) + 1;
-  });
-  return m;
-}
-
-// ==========================
-// CHARTS
-// ==========================
-function renderCharts() {
-  makeBar("countryChart", "Country");
-  makeBar("assigneeChart", "Assignees");
-  makeBar("salesChart", "Sales Rep");
-}
-
-function makeBar(canvasId, field) {
-  const ctx = document.getElementById(canvasId);
-  if (!ctx) return;
-
-  const obj = groupCount(attendeesData, field);
-  const labels = Object.keys(obj);
-  const values = Object.values(obj);
-
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [{
-        label: "Count",
-        data: values,
-        backgroundColor: "#00aaff88",
-        borderColor: "#33c3ff",
-        borderWidth: 1.5
-      }]
-    },
-    options: {
-      onClick: (e, items) => {
-        if (items.length) {
-          const key = labels[items[0].index];
-          const filtered = attendeesData.filter(x =>
-            (x[field] || "").toLowerCase() === key.toLowerCase()
-          );
-          openTab("people");
-          renderPeopleTable(filtered);
-        }
-      },
-      plugins: { legend: { labels: { color: "#9ec5ff" } } },
-      scales: {
-        x: { ticks: { color: "#9ec5ff" } },
-        y: { ticks: { color: "#9ec5ff" } }
-      }
-    }
-  });
-}
-
-// ==========================
-// INSIGHTS
-// ==========================
-function generateInsights() {
-  const total = attendeesData.length;
-  const warm = attendeesData.filter(x => x.Status?.toLowerCase() === "warm").length;
-  const cold = attendeesData.filter(x => x.Status?.toLowerCase() === "cold").length;
-  const lost = attendeesData.filter(x => x.Status?.toLowerCase() === "lost").length;
-  const conv = attendeesData.filter(x => x.Status?.toLowerCase() === "converted").length;
-
-  document.getElementById("insightBox").innerHTML = `
-    Total attendees recorded: <b>${total}</b><br><br>
-    Warm: <b>${warm}</b> (${pct(warm,total)})<br>
-    Cold: <b>${cold}</b> (${pct(cold,total)})<br>
-    Lost: <b>${lost}</b> (${pct(lost,total)})<br><br>
-    Converted leads: <b>${conv}</b> (${pct(conv,total)}).
-  `;
-}
-
-// ==========================
-// ROI
-// ==========================
-function renderROI() {
-
-  if (!expenseData.length) {
-    document.getElementById("roiCards").innerHTML = "<div class='roi-card'>No expense data found.</div>";
-    return;
-  }
-
-  const totalExp = expenseData.reduce((s,r)=> s + (parseFloat(r.Amount)||0),0);
-  const totalAtt = attendeesData.length;
-  const conv = attendeesData.filter(x => x.Status?.toLowerCase() === "converted").length;
-
-  document.getElementById("roiCards").innerHTML = `
-    <div class="roi-card"><div class="roi-title">Total Expense</div><div class="roi-value">Rs. ${totalExp.toLocaleString()}</div></div>
-    <div class="roi-card"><div class="roi-title">Cost Per Attendee</div><div class="roi-value">Rs. ${(totalExp/totalAtt).toFixed(2)}</div></div>
-    <div class="roi-card"><div class="roi-title">Cost Per Converted</div><div class="roi-value">${conv? "Rs. "+(totalExp/conv).toFixed(2) :"No converted leads"}</div></div>
-    <div class="roi-card"><div class="roi-title">ROI Score</div><div class="roi-value">${((totalAtt/totalExp)*100).toFixed(1)} per 100 Rs</div></div>
-  `;
-
-  let rows = `
-    <tr><th>Description</th><th>Amount</th><th>%</th></tr>
-  `;
-
-  expenseData.forEach(r=>{
-    const amt = parseFloat(r.Amount)||0;
-    rows += `
-      <tr>
-        <td>${r.Description}</td>
-        <td>Rs. ${amt.toLocaleString()}</td>
-        <td>${pct(amt,totalExp)}</td>
-      </tr>
-    `;
-  });
-
-  document.getElementById("expenseTable").innerHTML = rows;
-}
-
-</script>
-<body>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- ===========================
-       HEADER
+     DARK NEON SIGNATURE THEME
 =========================== -->
+<style>
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: #050A1F;
+  color: #E6EBFF;
+}
+
+/* HEADER */
+.header {
+  text-align: center;
+  padding: 25px 10px;
+  background: rgba(0,0,0,0.25);
+  border-bottom: 1px solid #0d1a40;
+  box-shadow: 0 0 25px #002a80 inset;
+}
+.header-title {
+  font-size: 38px;
+  font-weight: 700;
+  color: #9EC5FF;
+  text-shadow: 0 0 12px #007bff;
+}
+.header-sub {
+  margin-top: 6px;
+  color: #7AB8FF;
+  font-size: 15px;
+  opacity: 0.9;
+}
+.live-box {
+  margin: auto;
+  margin-top: 12px;
+  padding: 8px 20px;
+  border-radius: 40px;
+  border: 1px solid #1f3f75;
+  background: #06152F;
+  width: fit-content;
+  color: #9EC5FF;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 0 10px #0055ff55 inset;
+}
+.live-dot {
+  width: 10px;
+  height: 10px;
+  background: #00ff88;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #00ff88;
+}
+
+/* TABS */
+.tab-container {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px 10px;
+  background: #07102d;
+  border-bottom: 1px solid #0b1f47;
+}
+.tab-btn {
+  padding: 10px 22px;
+  border-radius: 10px;
+  border: 1px solid #1e366e;
+  color: #9ec5ff;
+  background: #0c1b3f;
+  cursor: pointer;
+  transition: 0.25s;
+  font-size: 15px;
+}
+.tab-btn:hover {
+  background: #12285a;
+  box-shadow: 0 0 10px #0066ff;
+}
+.tab-btn.active {
+  background: #003a85;
+  color: white;
+  border-color: #1c6bff;
+  box-shadow: 0 0 15px #1c6bff, 0 0 25px #0044ff;
+}
+.tab-page { display: none; }
+
+/* SECTION TITLES */
+.section-title {
+  padding-left: 20px;
+  color: #7AB8FF;
+  margin-bottom: 15px;
+}
+
+/* CARDS */
+.card-grid {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
+}
+.card {
+  background: #0C153C;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #1d2f70;
+  transition: 0.25s;
+  cursor: pointer;
+  box-shadow: 0 0 12px #001a33 inset;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 14px #009dff;
+}
+.card-title {
+  font-size: 15px;
+  color: #8EBEFF;
+  margin-bottom: 6px;
+}
+.card-value {
+  font-size: 30px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 0 10px #00baff;
+}
+.card-sub {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #6fd0ff;
+}
+
+/* ANALYTICS GRID */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 20px;
+}
+
+/* CHART BOX */
+.chart-box {
+  background: #0C153C;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #1d2f70;
+  box-shadow: 0 0 12px #001a33 inset;
+}
+
+/* INSIGHT BOX */
+.insight-box {
+  background: #141426;
+  border: 1px solid #23335a;
+  padding: 20px;
+  border-radius: 12px;
+  color: #cde2ff;
+  font-size: 15px;
+  line-height: 1.7;
+  box-shadow: 0 0 10px #122244 inset;
+}
+
+/* ROI Cards */
+.roi-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+.roi-card {
+  background: #141426;
+  border: 1px solid #23335a;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 0 10px #122244 inset;
+}
+.roi-title {
+  color: #7AB8FF;
+  margin-bottom: 6px;
+}
+.roi-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 0 10px #00c3ff;
+}
+
+/* SEARCH */
+.search-box {
+  margin-left: 20px;
+  margin-bottom: 20px;
+  padding: 10px 15px;
+  width: 50%;
+  border-radius: 8px;
+  border: 1px solid #1C3B7A;
+  background: #0a1433;
+  color: #9EC5FF;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #0c153c;
+  border: 1px solid #1c3b7a;
+}
+th {
+  background: #15234a;
+  padding: 12px;
+  color: #9ec5ff;
+}
+td {
+  padding: 10px;
+  border-bottom: 1px solid #1a2e60;
+  color: #dbe4ff;
+}
+tr:hover {
+  background: #16244d;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
 <div class="header">
   <div class="header-title">November 2025 Event Dashboard</div>
   <div class="header-sub">Premium Glass Neon Edition · Live Google Sheet Sync</div>
@@ -252,66 +241,58 @@ function renderROI() {
   </div>
 </div>
 
-<!-- ===========================
-       NAVIGATION TABS
-=========================== -->
+<!-- TABS -->
 <div class="tab-container">
   <div class="tab-btn active" onclick="openTab('overview')">Overview</div>
   <div class="tab-btn" onclick="openTab('people')">Attendees Detail</div>
   <div class="tab-btn" onclick="openTab('roi')">ROI Analysis</div>
 </div>
-
-<!-- ===========================
-       OVERVIEW PAGE
-=========================== -->
+  <!-- ==========================================
+     OVERVIEW PAGE
+========================================== -->
 <div id="overview" class="tab-page" style="display:block;">
 
   <h2 class="section-title">Overview Analytics</h2>
 
+  <!-- Metric Cards -->
   <div id="cards" class="card-grid"></div>
 
-  <!-- ===========================
-         ROW 1 (Country + Insights)
-  ============================ -->
-  <div class="analytics-row" style="display:flex;gap:25px;flex-wrap:wrap;padding:0 20px;">
+  <!-- ============ GRID: COUNTRY CHART + INSIGHTS ============ -->
+  <div class="analytics-grid">
 
-    <!-- CHART: COUNTRY -->
-    <div class="chart-box" style="flex:1;min-width:420px;">
+    <!-- Chart: Attendees by Country -->
+    <div class="chart-box">
       <h3>Attendees by Country</h3>
-      <canvas id="countryChart" height="180"></canvas>
+      <canvas id="countryChart"></canvas>
     </div>
 
-    <!-- INSIGHTS -->
-    <div class="insight-box" id="insightBox" style="flex:1;min-width:420px;">
+    <!-- Insights Box -->
+    <div id="insightBox" class="insight-box">
       Loading insights...
     </div>
-
   </div>
 
-  <!-- ===========================
-         ROW 2 (Assignee + Sales)
-  ============================ -->
-  <div class="analytics-row" style="display:flex;gap:25px;flex-wrap:wrap;padding:20px;">
+  <!-- ============ GRID: ASSIGNEE CHART + SALES REP CHART ============ -->
+  <div class="analytics-grid">
 
-    <!-- CHART: ASSIGNEES -->
-    <div class="chart-box" style="flex:1;min-width:420px;">
+    <!-- Assignee Chart -->
+    <div class="chart-box">
       <h3>By Assignees</h3>
-      <canvas id="assigneeChart" height="180"></canvas>
+      <canvas id="assigneeChart"></canvas>
     </div>
 
-    <!-- CHART: SALES REP -->
-    <div class="chart-box" style="flex:1;min-width:420px;">
+    <!-- Sales Rep Chart -->
+    <div class="chart-box">
       <h3>By Sales Rep</h3>
-      <canvas id="salesChart" height="180"></canvas>
+      <canvas id="salesChart"></canvas>
     </div>
 
   </div>
-
 </div>
 
-<!-- ===========================
-       ATTENDEES DETAIL PAGE
-=========================== -->
+<!-- ==========================================
+     ATTENDEES DETAIL PAGE
+========================================== -->
 <div id="people" class="tab-page">
 
   <h2 class="section-title">Attendees Detail</h2>
@@ -319,59 +300,50 @@ function renderROI() {
   <input
     type="text"
     id="searchInput"
-    class="search-box"
     onkeyup="searchPeople()"
     placeholder="Search attendees..."
+    class="search-box"
   />
 
-  <div style="padding:20px;">
+  <div id="peopleTableWrapper">
     <table id="peopleTable"></table>
   </div>
 
 </div>
 
-<!-- ===========================
-       ROI PAGE
-=========================== -->
+<!-- ==========================================
+     ROI PAGE
+========================================== -->
 <div id="roi" class="tab-page">
 
   <h2 class="section-title">ROI & Spend Analysis</h2>
 
-  <!-- ROI CARDS -->
+  <!-- ROI Cards -->
   <div class="roi-card-grid" id="roiCards"></div>
 
-  <!-- PIE CHART -->
-  <div class="chart-box" style="margin:20px;">
-    <h3>Expense Distribution</h3>
-    <canvas id="expensePieChart"></canvas>
-  </div>
-
-  <!-- EXPENSE TABLE -->
-  <div class="chart-box" style="margin:20px;">
+  <!-- Expense Breakdown -->
+  <div class="chart-box">
     <h3>Expense Breakdown</h3>
     <table id="expenseTable"></table>
   </div>
 
 </div>
-
-</body>
 <script>
-// ======================================================
-//  GLOBAL VARIABLES
-// ======================================================
+/* ============================================================
+   GLOBAL STORAGE
+============================================================ */
 let attendeesData = [];
-let expenseData = [];
-let metrics = {};
+let expenseData = [];   // Will be read from Sheet instead of hardcode
+let charts = {};
 
-// ======================================================
-//  TAB SWITCHING
-// ======================================================
+/* ============================================================
+   TAB SWITCHING
+============================================================ */
 function openTab(tabName) {
   document.querySelectorAll(".tab-page").forEach(t => t.style.display = "none");
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
 
   document.getElementById(tabName).style.display = "block";
-
   [...document.querySelectorAll(".tab-btn")].find(btn =>
     btn.textContent.toLowerCase().includes(tabName)
   ).classList.add("active");
@@ -380,9 +352,9 @@ function openTab(tabName) {
   if (tabName === "roi") renderROI();
 }
 
-// ======================================================
-//  FETCH DATA FROM WORKER
-// ======================================================
+/* ============================================================
+   FETCH DATA FROM CLOUDFLARE WORKER
+============================================================ */
 async function loadData() {
   const url = "https://novevent-report-worker.ashishoct34.workers.dev/";
 
@@ -391,100 +363,26 @@ async function loadData() {
     const json = await res.json();
 
     attendeesData = json.attendees;
-    expenseData = json.expenses || [];   // LIVE Google Sheet expenses
-    metrics = json.metrics;
+    expenseData   = json.expenses || []; // now dynamic
 
     renderCards();
     renderCharts();
     generateInsights();
 
   } catch (err) {
-    console.error("LOAD ERROR:", err);
+    console.error("Error loading:", err);
   }
 }
-
 loadData();
 
-// ======================================================
-//  % FUNCTION
-// ======================================================
+/* ============================================================
+   HELPERS
+============================================================ */
 function pct(v, total) {
   if (!total) return "0%";
   return ((v / total) * 100).toFixed(1) + "%";
 }
 
-// ======================================================
-//  CARDS
-// ======================================================
-function renderCards() {
-
-  const total = attendeesData.length;
-
-  const lost = attendeesData.filter(x => x.Status?.toLowerCase() === "lost").length;
-  const warm = attendeesData.filter(x => x.Status?.toLowerCase() === "warm").length;
-  const cold = attendeesData.filter(x => x.Status?.toLowerCase() === "cold").length;
-  const conv = attendeesData.filter(x => x.Status?.toLowerCase() === "converted").length;
-  const unassigned = attendeesData.filter(x => !x.Assignees).length;
-  const missing = attendeesData.filter(x => !x.Status).length;
-
-  const cards = [
-    { title: "Total Attendees", value: total, sub: "", filter: () => attendeesData },
-    { title: "Lost", value: lost, sub: pct(lost,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "lost") },
-    { title: "Warm", value: warm, sub: pct(warm,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "warm") },
-    { title: "Cold", value: cold, sub: pct(cold,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "cold") },
-    { title: "Converted", value: conv, sub: pct(conv,total), filter: () => attendeesData.filter(x => x.Status?.toLowerCase() === "converted") },
-    { title: "Unassigned", value: unassigned, sub: "", filter: () => attendeesData.filter(x => !x.Assignees) },
-    { title: "Missing Status", value: missing, sub: "", filter: () => attendeesData.filter(x => !x.Status) }
-  ];
-
-  window.cardFilters = cards;
-
-  document.getElementById("cards").innerHTML = cards.map((c,i)=>`
-    <div class="card" onclick="applyCardFilter(${i})">
-      <div class="card-title">${c.title}</div>
-      <div class="card-value">${c.value}</div>
-      ${c.sub ? `<div class="card-sub">${c.sub}</div>` : ""}
-    </div>
-  `).join("");
-}
-
-function applyCardFilter(i) {
-  const filtered = window.cardFilters[i].filter();
-  openTab("people");
-  renderPeopleTable(filtered);
-}
-
-// ======================================================
-//  ATTENDEES TABLE + SEARCH
-// ======================================================
-function renderPeopleTable(data) {
-  if (!data || data.length === 0) {
-    document.getElementById("peopleTable").innerHTML =
-      "<tr><td>No Data Available</td></tr>";
-    return;
-  }
-
-  const headers = Object.keys(data[0]);
-  let html = "<tr>" + headers.map(h => `<th>${h}</th>`).join("") + "</tr>";
-
-  data.forEach(row => {
-    html += "<tr>" + headers.map(h => `<td>${row[h] || ""}</td>`).join("") + "</tr>";
-  });
-
-  document.getElementById("peopleTable").innerHTML = html;
-}
-
-function searchPeople() {
-  const text = document.getElementById("searchInput").value.toLowerCase();
-  const filtered = attendeesData.filter(row =>
-    JSON.stringify(row).toLowerCase().includes(text)
-  );
-  renderPeopleTable(filtered);
-}
-
-// ======================================================
-//  GROUP COUNT
-// ======================================================
 function groupCount(data, field) {
   const map = {};
   data.forEach(x => {
@@ -495,144 +393,208 @@ function groupCount(data, field) {
   return map;
 }
 
-// ======================================================
-//  CHARTS
-// ======================================================
-let charts = {};
+/* ============================================================
+   CARDS RENDER
+============================================================ */
+function renderCards() {
+  const total = attendeesData.length;
 
+  const lost       = attendeesData.filter(x => x.Status?.toLowerCase()=="lost").length;
+  const warm       = attendeesData.filter(x => x.Status?.toLowerCase()=="warm").length;
+  const cold       = attendeesData.filter(x => x.Status?.toLowerCase()=="cold").length;
+  const converted  = attendeesData.filter(x => x.Status?.toLowerCase()=="converted").length;
+  const unassigned = attendeesData.filter(x => !x.Assignees).length;
+  const missing    = attendeesData.filter(x => !x.Status).length;
+
+  const cardList = [
+    { title:"Total Attendees", value:total,     filter:()=>attendeesData },
+    { title:"Lost", value:lost, sub:pct(lost,total),
+      filter:()=>attendeesData.filter(x=>x.Status?.toLowerCase()=="lost") },
+    { title:"Warm", value:warm, sub:pct(warm,total),
+      filter:()=>attendeesData.filter(x=>x.Status?.toLowerCase()=="warm") },
+    { title:"Cold", value:cold, sub:pct(cold,total),
+      filter:()=>attendeesData.filter(x=>x.Status?.toLowerCase()=="cold") },
+    { title:"Converted", value:converted, sub:pct(converted,total),
+      filter:()=>attendeesData.filter(x=>x.Status?.toLowerCase()=="converted") },
+    { title:"Unassigned", value:unassigned, filter:()=>attendeesData.filter(x=>!x.Assignees) },
+    { title:"Missing Status", value:missing, filter:()=>attendeesData.filter(x=>!x.Status) }
+  ];
+
+  window.cardFilters = cardList;
+
+  document.getElementById("cards").innerHTML = cardList.map((c,i)=>`
+    <div class="card" onclick="applyCardFilter(${i})">
+      <div class="card-title">${c.title}</div>
+      <div class="card-value">${c.value}</div>
+      ${c.sub ? `<div class="card-sub">${c.sub}</div>` : ""}
+    </div>
+  `).join("");
+}
+
+function applyCardFilter(i) {
+  openTab("people");
+  const filtered = window.cardFilters[i].filter();
+  renderPeopleTable(filtered);
+}
+
+/* ============================================================
+   PEOPLE TABLE (with search)
+============================================================ */
+function renderPeopleTable(data) {
+  const table = document.getElementById("peopleTable");
+  if (!data || data.length === 0) {
+    table.innerHTML = `<tr><td>No Data Available</td></tr>`;
+    return;
+  }
+
+  const headers = Object.keys(data[0]);
+  let html = "<tr>" + headers.map(h=>`<th>${h}</th>`).join("") + "</tr>";
+
+  data.forEach(row => {
+    html += "<tr>" + headers.map(h => `<td>${row[h] || ""}</td>`).join("") + "</tr>";
+  });
+
+  table.innerHTML = html;
+}
+
+function searchPeople() {
+  const text = document.getElementById("searchInput").value.toLowerCase();
+
+  const filtered = attendeesData.filter(row =>
+    JSON.stringify(row).toLowerCase().includes(text)
+  );
+
+  renderPeopleTable(filtered);
+}
+
+/* ============================================================
+   CHART RENDER ENGINE
+============================================================ */
 function renderCharts() {
-  const country = groupCount(attendeesData, "Country");
+  const country   = groupCount(attendeesData, "Country");
   const assignees = groupCount(attendeesData, "Assignees");
-  const sales = groupCount(attendeesData, "Sales Rep");
+  const salesRep  = groupCount(attendeesData, "Sales Rep");
 
-  charts.country = makeBarChart("countryChart", country, key =>
-    attendeesData.filter(x => (x.Country || "").toLowerCase() === key.toLowerCase())
+  charts.country = makeBar("countryChart", country, key =>
+    attendeesData.filter(x => (x.Country||"").toLowerCase()==key.toLowerCase())
   );
 
-  charts.assignee = makeBarChart("assigneeChart", assignees, key =>
-    attendeesData.filter(x => (x.Assignees || "").toLowerCase() === key.toLowerCase())
+  charts.assignee = makeBar("assigneeChart", assignees, key =>
+    attendeesData.filter(x => (x.Assignees||"").toLowerCase()==key.toLowerCase())
   );
 
-  charts.sales = makeBarChart("salesChart", sales, key =>
-    attendeesData.filter(x => (x["Sales Rep"] || "").toLowerCase() === key.toLowerCase())
+  charts.sales = makeBar("salesChart", salesRep, key =>
+    attendeesData.filter(x => (x["Sales Rep"]||"").toLowerCase()==key.toLowerCase())
   );
 }
 
-// ======================================================
-//  CLICKABLE BAR CHARTS
-// ======================================================
-function makeBarChart(id, obj, filterFn) {
-  const ctx = document.getElementById(id);
-  if (!ctx) return;
+/* ---------------- clickable chart ---------------- */
+function makeBar(id, dataObj, filterFn) {
+  const el = document.getElementById(id);
+  if (!el) return;
 
-  const labels = Object.keys(obj);
-  const values = Object.values(obj);
+  const labels = Object.keys(dataObj);
+  const values = Object.values(dataObj);
 
-  return new Chart(ctx, {
+  return new Chart(el, {
     type: "bar",
     data: {
       labels,
       datasets: [{
-        label: "Count",
+        label:"Count",
         data: values,
-        backgroundColor: "#00aaff88",
-        borderColor: "#33c3ff",
-        borderWidth: 1.8
+        backgroundColor:"#00aaff88",
+        borderColor:"#33c3ff",
+        borderWidth:2
       }]
     },
-    options: {
-      responsive: true,
-      onClick: (e, items) => {
-        if (items.length > 0) {
-          const index = items[0].index;
-          const key = labels[index];
+    options:{
+      onClick:(evt, items)=>{
+        if(items.length){
+          const i = items[0].index;
+          const key = labels[i];
           const filtered = filterFn(key);
-
           openTab("people");
           renderPeopleTable(filtered);
         }
       },
-      plugins: {
-        legend: { labels: { color: "#9ec5ff" } }
-      },
-      scales: {
-        x: { ticks: { color: "#9ec5ff" } },
-        y: { ticks: { color: "#9ec5ff" } }
+      plugins:{ legend:{ labels:{ color:"#9ec5ff" } } },
+      scales:{
+        x:{ ticks:{ color:"#9ec5ff" } },
+        y:{ ticks:{ color:"#9ec5ff" } }
       }
     }
   });
 }
 
-// ======================================================
-//  INSIGHTS (NEON ANALYTICS SENTENCE)
-// ======================================================
+/* ============================================================
+   INSIGHTS BOX (AI-style)
+============================================================ */
 function generateInsights() {
   const total = attendeesData.length;
-
-  const warm = attendeesData.filter(x => x.Status?.toLowerCase() === "warm").length;
-  const cold = attendeesData.filter(x => x.Status?.toLowerCase() === "cold").length;
-  const lost = attendeesData.filter(x => x.Status?.toLowerCase() === "lost").length;
-  const converted = attendeesData.filter(x => x.Status?.toLowerCase() === "converted").length;
+  const warm = attendeesData.filter(x=>x.Status?.toLowerCase()=="warm").length;
+  const cold = attendeesData.filter(x=>x.Status?.toLowerCase()=="cold").length;
+  const lost = attendeesData.filter(x=>x.Status?.toLowerCase()=="lost").length;
 
   document.getElementById("insightBox").innerHTML = `
-    A total of <b>${total}</b> attendees have been recorded so far.<br><br>
-
-    <b>${pct(warm,total)}</b> of the leads are Warm and <b>${pct(cold,total)}</b> are Cold,<br>
-    indicating the overall follow-up potential for this event.<br><br>
-
-    Lost leads represent <b>${pct(lost,total)}</b> — a useful metric for measuring<br>
-    improvement areas in next-event follow-up strategy.<br><br>
-
-    Converted Leads: <b>${converted}</b> (${pct(converted,total)}) — strong signal of event ROI.
+    <b>Total Attendees:</b> ${total}<br><br>
+    Warm leads make up <b>${pct(warm,total)}</b> of all attendees.<br>
+    Cold leads represent <b>${pct(cold,total)}</b>.<br>
+    Lost leads account for <b>${pct(lost,total)}</b>, indicating follow-up priority.
   `;
 }
 
-// ======================================================
-//  ROI + PIE CHART
-// ======================================================
+/* ============================================================
+   ROI PAGE
+============================================================ */
 function renderROI() {
 
+  // If expense sheet is empty
   if (!expenseData || expenseData.length === 0) {
-    document.getElementById("roiCards").innerHTML =
-      "<div class='roi-card'>No expense data found.</div>";
+    document.getElementById("roiCards").innerHTML = `
+      <div class='roi-card'>No expense data found.</div>`;
+    document.getElementById("expenseTable").innerHTML = "";
     return;
   }
 
-  const totalExpense = expenseData.reduce((sum, row) =>
+  let totalExp = expenseData.reduce((sum, row) =>
     sum + (parseFloat(row.Amount) || 0), 0
   );
 
-  const totalAtt = attendeesData.length;
-  const converted = attendeesData.filter(
-    x => (x.Status || "").toLowerCase() === "converted"
+  let totalAtt = attendeesData.length;
+  let converted = attendeesData.filter(x =>
+    (x.Status||"").toLowerCase()=="converted"
   ).length;
 
-  // ROI CARDS
+  /* ROI CARDS */
   document.getElementById("roiCards").innerHTML = `
     <div class="roi-card">
       <div class="roi-title">Total Expense</div>
-      <div class="roi-value">Rs. ${totalExpense.toLocaleString()}</div>
+      <div class="roi-value">Rs. ${totalExp.toLocaleString()}</div>
     </div>
 
     <div class="roi-card">
       <div class="roi-title">Cost Per Attendee</div>
-      <div class="roi-value">Rs. ${(totalExpense / totalAtt).toFixed(2)}</div>
+      <div class="roi-value">Rs. ${(totalExp / totalAtt).toFixed(2)}</div>
     </div>
 
     <div class="roi-card">
       <div class="roi-title">Cost Per Converted Lead</div>
       <div class="roi-value">
-        ${converted === 0 ? "No converted leads" : "Rs. " + (totalExpense / converted).toFixed(2)}
+        ${converted===0 ? "No converted leads"
+          : "Rs. " + (totalExp / converted).toFixed(2)}
       </div>
     </div>
 
     <div class="roi-card">
-      <div class="roi-title">ROI Score</div>
-      <div class="roi-value">${((totalAtt / totalExpense) * 100).toFixed(1)} per 100 Rs</div>
+      <div class="roi-title">ROI Ratio</div>
+      <div class="roi-value">
+        ${(totalAtt / totalExp).toFixed(2)} attendees per Rs.1
+      </div>
     </div>
   `;
 
-  // Expense Table
+  /* EXPENSE TABLE */
   let html = `
     <tr>
       <th>Description</th>
@@ -641,37 +603,17 @@ function renderROI() {
     </tr>
   `;
 
-  expenseData.forEach(row => {
-    const amt = parseFloat(row.Amount) || 0;
-
+  expenseData.forEach(row=>{
     html += `
       <tr>
         <td>${row.Description}</td>
-        <td>Rs. ${amt.toLocaleString()}</td>
-        <td>${pct(amt,totalExpense)}</td>
+        <td>Rs. ${(+row.Amount).toLocaleString()}</td>
+        <td>${pct(row.Amount, totalExp)}</td>
       </tr>
     `;
   });
 
   document.getElementById("expenseTable").innerHTML = html;
-
-  // PIE CHART
-  const labels = expenseData.map(r => r.Description);
-  const values = expenseData.map(r => parseFloat(r.Amount));
-
-  new Chart(document.getElementById("expensePieChart"), {
-    type: "pie",
-    data: {
-      labels,
-      datasets: [{
-        data: values,
-        backgroundColor: ["#00aaff","#0055ff","#00ffaa","#ff0066","#ffaa00","#ff5500"]
-      }]
-    },
-    options: {
-      plugins: { legend: { labels: { color: "#9ec5ff" } } }
-    }
-  });
 }
-
 </script>
+
