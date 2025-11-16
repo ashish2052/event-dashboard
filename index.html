@@ -1,80 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Event Analytics Dashboard V1</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Analytics Dashboard v3</title>
 
   <style>
     body {
-      background: #0a0a0a;
+      background: #080808;
       margin: 0;
       padding: 30px;
       font-family: "Segoe UI", Arial, sans-serif;
       color: white;
     }
 
-    /* UPDATED HEADER – gradient + bigger + glow */
     h1 {
       text-align: center;
-      font-size: 40px;
-      background: linear-gradient(90deg, #00eaff, #8f00ff);
+      font-size: 44px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #00d9ff, #7a00ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 12px rgba(0, 255, 255, 0.3);
-      margin-bottom: 40px;
+      margin-bottom: 50px;
     }
 
-    .cards {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
       gap: 25px;
+      max-width: 1200px;
+      margin: auto;
     }
 
-    /* UPDATED CARDS – glow + hover lift */
     .card {
-      width: 220px;
+      background: #151515;
       padding: 25px;
-      background: #1a1a1a;
       border-radius: 14px;
       text-align: center;
       transition: 0.25s;
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
+      box-shadow: 0 0 12px rgba(255,255,255,0.04);
     }
 
     .card:hover {
       transform: translateY(-6px);
-      box-shadow: 0 0 25px rgba(0, 255, 255, 0.25);
+      box-shadow: 0 0 25px rgba(0,255,255,0.25);
     }
 
     .label {
-      font-size: 18px;
-      opacity: 0.8;
+      font-size: 17px;
+      opacity: 0.75;
       margin-bottom: 8px;
     }
 
     .value {
-      font-size: 36px;
+      font-size: 38px;
       font-weight: bold;
-      letter-spacing: 1px;
     }
 
-    /* small footer text to confirm code version */
     footer {
       text-align: center;
-      margin-top: 40px;
-      opacity: 0.4;
+      opacity: 0.45;
+      margin-top: 35px;
       font-size: 14px;
     }
   </style>
-
 </head>
+
 <body>
+  <h1>Event Analytics Dashboard v3.0</h1>
 
-  <h1>Event Analytics Dashboard v2.0</h1>
-
-  <div class="cards">
+  <div class="grid">
     <div class="card"><div class="label">Total Attendees</div><div id="totalAttendees" class="value">0</div></div>
     <div class="card"><div class="label">Unassigned</div><div id="unassigned" class="value">0</div></div>
     <div class="card"><div class="label">Missing Status</div><div id="missingStatus" class="value">0</div></div>
@@ -85,56 +80,53 @@
     <div class="card"><div class="label">Total Expense</div><div id="totalExpense" class="value">0</div></div>
   </div>
 
+  <footer>
+    Dashboard Build v3.0 – Auto Data Derived
+  </footer>
 
   <script>
-    async function loadDashboard() {
-      const url = "https://novevent-report-worker.ashishoct34.workers.dev/";
-
+    async function loadData() {
       try {
-        const res = await fetch(url, { mode: "cors" });
+        const res = await fetch("https://novevent-report-worker.ashishoct34.workers.dev/", {
+          mode: "cors"
+        });
         const data = await res.json();
 
         if (!data.success) {
-          console.error("API error", data);
+          console.error("Worker error:", data.error);
           return;
         }
 
         const m = data.metrics;
 
-        document.getElementById("totalAttendees").innerText = m.totalAttendees;
-        document.getElementById("unassigned").innerText = m.unassigned;
-        document.getElementById("missingStatus").innerText = m.missingStatus;
-        document.getElementById("converted").innerText = m.converted ?? 0;
-        document.getElementById("lost").innerText = m.lost;
-        document.getElementById("warmCold").innerText = m.warmCold;
-        document.getElementById("totalExpense").innerText = m.totalExpense;
+        document.getElementById("totalAttendees").textContent = m.totalAttendees;
+        document.getElementById("unassigned").textContent = m.unassigned;
+        document.getElementById("missingStatus").textContent = m.missingStatus;
+        document.getElementById("converted").textContent = m.converted ?? 0;
+        document.getElementById("lost").textContent = m.lost;
+        document.getElementById("warmCold").textContent = m.warmCold;
+        document.getElementById("totalExpense").textContent = m.totalExpense;
 
-        // Calculate avg follow-ups
-        const attendees = data.attendees ?? [];
-        let total = 0, count = 0;
+        const attendees = data.attendees;
+        let sum = 0, count = 0;
 
         attendees.forEach(a => {
           const fu = parseInt(a["Follow up attempts"]);
           if (!isNaN(fu)) {
-            total += fu;
+            sum += fu;
             count++;
           }
         });
 
-        document.getElementById("avgFU").innerText =
-          count === 0 ? "0" : (total / count).toFixed(1);
+        document.getElementById("avgFU").textContent =
+          count === 0 ? "0" : (sum / count).toFixed(1);
 
       } catch (err) {
-        console.error("Fetch error:", err);
+        console.error("Fetch failed:", err);
       }
     }
 
-    loadDashboard();
+    loadData();
   </script>
-
-  <footer>
-    Dashboard build: <b>v2.0 UI Updated</b>
-  </footer>
-
 </body>
 </html>
