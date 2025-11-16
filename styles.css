@@ -1,1 +1,144 @@
+/* General */
+body {
+    margin: 0;
+    padding: 0;
+    background: #0d0d0d;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 28px;
+    background: #111;
+    border-bottom: 1px solid #222;
+}
+
+.nav-title {
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.nav-links button {
+    margin-left: 12px;
+    padding: 10px 18px;
+    border: none;
+    background: #1a1a1a;
+    color: #aaa;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.nav-links button:hover {
+    background: #242424;
+    color: #fff;
+}
+
+.nav-links .active {
+    background: #007bff;
+    color: #fff;
+}
+
+/* Content Area */
+.content {
+    padding: 20px 30px;
+}
+
+/* Error Box */
+.error-box {
+    width: 100%;
+    background: #d9534f;
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 15px;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Cards layout */
+#cardsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+    margin-top: 10px;
+}
+
+.card {
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #222;
+    transition: 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    background: #222;
+}
+
+.card-title {
+    font-size: 15px;
+    color: #bbb;
+}
+
+.card-number {
+    margin-top: 10px;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+/* Table Section */
+#attendeesTableContainer {
+    margin-top: 20px;
+}
+
+.table-box {
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #222;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+table thead {
+    background: #111;
+}
+
+table th, table td {
+    padding: 12px;
+    border-bottom: 1px solid #333;
+    font-size: 14px;
+}
+
+table tr:hover {
+    background: #222;
+}
+
+.status-pill {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Status Colors */
+.status-lost { background: #c0392b; }
+.status-converted { background: #27ae60; }
+.status-warm { background: #e67e22; }
+.status-cold { background: #3498db; }
+.status-empty { background: #555; }
 
