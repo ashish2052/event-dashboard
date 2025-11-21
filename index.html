@@ -201,6 +201,7 @@ tr:hover { background: #101A44; }
   <div class="header-title">November 2025 Event Dashboard</div>
   <div class="header-sub">Premium Glass Neon Edition · Live Google Sheet Sync</div>
   <div class="header-sync">LIVE DATA FEED — CLOUDFLARE WORKER SYNC</div>
+
 </div>
 
 <!-- TABS -->
@@ -208,6 +209,7 @@ tr:hover { background: #101A44; }
   <div class="tab-btn active" onclick="openTab('overview')">Overview</div>
   <div class="tab-btn" onclick="openTab('people')">Attendees Detail</div>
   <div class="tab-btn" onclick="openTab('roi')">ROI Analysis</div>
+  <div class="tab-btn" onclick="openTab('sales')">Sales Update</div>
 </div>
 
 <!-- OVERVIEW -->
@@ -245,6 +247,25 @@ tr:hover { background: #101A44; }
   <input id="peopleSearch" type="text" placeholder="Search attendees..." onkeyup="searchPeople()" />
   <div class="table-box">
     <table id="peopleTable"></table>
+  </div>
+</div>
+
+  <!-- SALES UPDATE TAB -->
+<div id="sales" class="tab-page">
+  <h2 style="padding-left:20px;color:#7AB8FF;">Sales Update</h2>
+
+  <div id="salesCards" style="padding:20px;"></div>
+
+  <div class="chart-row">
+    <div class="chart-box">
+      <h3>Converted Status Breakdown</h3>
+      <canvas id="convertedStageChart"></canvas>
+    </div>
+  </div>
+
+  <div class="table-box" style="margin:20px;">
+    <h3 style="color:#7AB8FF;">Converted Leads Detail</h3>
+    <table id="salesTable"></table>
   </div>
 </div>
 
@@ -512,6 +533,70 @@ function renderExpenseTable() {
   });
 
   document.getElementById("expenseTable").innerHTML = html;
+}
+  /* ====== SALES UPDATE TAB ====== */
+
+function renderSalesTab() {
+  const converted = attendeesData.filter(
+    x => (x.Status || "").toLowerCase() === "converted"
+  );
+
+  const stageMap = groupCount(converted, "converted status");
+
+  /* --- CARDS --- */
+  const cardsHTML = Object.keys(stageMap).map(stage => `
+    <div class="card">
+      <div class="card-title">${stage}</div>
+      <div class="card-value">${stageMap[stage]}</div>
+    </div>
+  `).join("");
+
+  document.getElementById("salesCards").innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;">
+      ${cardsHTML}
+    </div>
+  `;
+
+  /* --- CHART --- */
+  new Chart(document.getElementById("convertedStageChart"), {
+    type: "bar",
+    data: {
+      labels: Object.keys(stageMap),
+      datasets: [{
+        label: "Count",
+        data: Object.values(stageMap),
+        backgroundColor: "#29b6f6aa",
+        borderColor: "#29b6f6",
+        borderWidth: 2
+      }]
+    },
+    options: {
+      scales: {
+        x: { ticks: { color: "#a8ceff" } },
+        y: { ticks: { color: "#a8ceff" } }
+      }
+    }
+  });
+
+  /* --- TABLE --- */
+  renderSalesTable(converted);
+}
+
+function renderSalesTable(list) {
+  if (!list.length) {
+    document.getElementById("salesTable").innerHTML = "<tr><td>No Converted Leads</td></tr>";
+    return;
+  }
+
+  const headers = Object.keys(list[0]);
+
+  let html = "<tr>" + headers.map(h => `<th>${h}</th>`).join("") + "</tr>";
+
+  list.forEach(row => {
+    html += "<tr>" + headers.map(h => `<td>${row[h] || ""}</td>`).join("") + "</tr>";
+  });
+
+  document.getElementById("salesTable").innerHTML = html;
 }
 </script>
 
