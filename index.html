@@ -250,24 +250,33 @@ tr:hover { background: #101A44; }
   </div>
 </div>
 
-  <!-- SALES UPDATE TAB -->
+<!-- SALES UPDATE TAB -->
 <div id="sales" class="tab-page">
   <h2 style="padding-left:20px;color:#7AB8FF;">Sales Update</h2>
 
+  <!-- SALES SUMMARY CARDS -->
   <div id="salesCards" style="padding:20px;"></div>
 
+  <!-- TWO CHARTS -->
   <div class="chart-row">
+    <div class="chart-box">
+      <h3>By Sales Rep</h3>
+      <canvas id="salesRepChart"></canvas>
+    </div>
+
     <div class="chart-box">
       <h3>Converted Status Breakdown</h3>
       <canvas id="convertedStageChart"></canvas>
     </div>
   </div>
 
+  <!-- TABLE OF CONVERTED LEADS -->
   <div class="table-box" style="margin:20px;">
     <h3 style="color:#7AB8FF;">Converted Leads Detail</h3>
     <table id="salesTable"></table>
   </div>
 </div>
+
 
 <!-- ROI -->
 <div id="roi" class="tab-page">
@@ -536,53 +545,143 @@ function renderExpenseTable() {
 
   document.getElementById("expenseTable").innerHTML = html;
 }
-  /* ====== SALES UPDATE TAB ====== */
+ /* ====== SALES UPDATE TAB ====== */
 
-function renderSalesTab() {
-  const converted = attendeesData.filter(
+function getConvertedLeads() {
+  return attendeesData.filter(
     x => (x.Status || "").toLowerCase() === "converted"
   );
+}
 
-  const stageMap = groupCount(converted, "converted status");
+function getAssignedLeads(list) {
+  return list.filter(
+    x => (x["Sales Rep"] || "").trim() !== ""
+  );
+}
 
-  /* --- CARDS --- */
-  const cardsHTML = Object.keys(stageMap).map(stage => `
-    <div class="card">
-      <div class="card-title">${stage}</div>
-      <div class="card-value">${stageMap[stage]}</div>
-    </div>
-  `).join("");
+function renderSalesTab() {
+  const converted = getConvertedLeads();
+  const assigned = getAssignedLeads(converted);
 
+  /* ===== CARDS ===== */
   document.getElementById("salesCards").innerHTML = `
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;">
-      ${cardsHTML}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;">
+
+      <div class="card" onclick="openConverted()">
+        <div class="card-title">Total Converted</div>
+        <div class="card-value">${converted.length}</div>
+      </div>
+
+      <div class="card" onclick="openAssigned()">
+        <div class="card-title">Assigned to Sales Rep</div>
+        <div class="card-value">${assigned.length}</div>
+      </div>
+
     </div>
   `;
 
-  /* --- CHART --- */
+  /* ===== CHARTS ===== */
+  renderSalesRepChart(assigned);
+  renderConvertedStageChart(converted);
+
+  /* ===== TABLE ===== */
+  renderSalesTable(converted);
+}
+
+/* ===== CLICK HANDLERS ===== */
+function openConverted() {
+  openTab("people");
+  renderPeopleTable(getConvertedLeads());
+}
+
+function openAssigned() {
+  openTab("people");
+  renderPeopleTable(getAssignedLeads(getConvertedLeads()));
+}
+
+/* ===== SALES REP CHART ===== */
+function renderSalesRepChart(list) {
+  const map = groupCount(list, "Sales Rep");
+
+  new Chart(document.getElementById("salesRepChart"), {
+    type: "bar",
+    data: {
+      labels: Object.keys(map),
+      datasets: [{
+        label: "Assigned Leads",
+        data: Object.values(map),
+        backgroundColor: "#00b0ff88",
+        borderColor: "#00c2ff",
+        borderWidth: 2
+      }]
+    },
+    options: {
+      onClick: (evt, items) => {
+        if (items.length) {
+          const rep = Object.keys(map)[items[0].index];
+          openTab("people");
+          renderPeopleTable(
+            getConvertedLeads().filter(
+              x => (x["Sales Rep"] || "").toLowerCase() === rep.toLowerCase()
+            )
+          );
+        }
+      },
+      scales: {
+        x: { ticks: { color: "#9ec5ff" } },
+        y: { ticks: { color: "#9ec5ff" } }
+      }
+    }
+  });
+}
+  function makeSalesRepChart() {
+  const converted = getConvertedLeads();
+  const assigned = getAssignedLeads(converted);
+  const map = groupCount(assigned, "Sales Rep");
+
+  return {
+    labels: Object.keys(map),
+    values: Object.values(map)
+  };
+}
+
+
+/* ===== CONVERTED STATUS CHART ===== */
+function renderConvertedStageChart(list) {
+  const map = groupCount(list, "converted status");
+
   new Chart(document.getElementById("convertedStageChart"), {
     type: "bar",
     data: {
-      labels: Object.keys(stageMap),
+      labels: Object.keys(map),
       datasets: [{
         label: "Count",
-        data: Object.values(stageMap),
+        data: Object.values(map),
         backgroundColor: "#29b6f6aa",
         borderColor: "#29b6f6",
         borderWidth: 2
       }]
     },
     options: {
+      onClick: (evt, items) => {
+        if (items.length) {
+          const stage = Object.keys(map)[items[0].index];
+          openTab("people");
+          renderPeopleTable(
+            getConvertedLeads().filter(
+              x => (x["converted status"] || "").toLowerCase() === stage.toLowerCase()
+            )
+          );
+        }
+      },
       scales: {
-        x: { ticks: { color: "#a8ceff" } },
-        y: { ticks: { color: "#a8ceff" } }
+        x: { ticks: { color: "#9ec5ff" } },
+        y: { ticks: { color: "#9ec5ff" } }
       }
     }
   });
-
-  /* --- TABLE --- */
-  renderSalesTable(converted);
 }
+
 
 function renderSalesTable(list) {
   if (!list.length) {
